@@ -194,12 +194,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Books Section - Compact Grid */}
+      {/* Featured Books Section - Premium Grid */}
       <section className="py-20 md:py-24 bg-background">
         <div className="container px-4 md:px-6 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-end justify-between mb-10 gap-4">
             <div>
-              <div className="flex items-center gap-2 text-accent font-bold mb-1 uppercase tracking-wider text-xs">
+              <div className="flex items-center gap-2 text-primary font-bold mb-1 uppercase tracking-wider text-xs">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 Tavsiya Etamiz
               </div>
@@ -212,31 +212,34 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { title: 'Introduction to Algorithms', author: 'Thomas H. Cormen', color: 'bg-slate-800', rating: 4.9 },
-              { title: 'Clean Code', author: 'Robert C. Martin', color: 'bg-zinc-800', rating: 4.8 },
-              { title: 'Design Patterns', author: 'Erich Gamma', color: 'bg-neutral-800', rating: 4.7 },
-              { title: 'The Pragmatic Programmer', author: 'Andrew Hunt', color: 'bg-stone-800', rating: 4.9 },
-              { title: 'Artificial Intelligence', author: 'Stuart Russell', color: 'bg-slate-900', rating: 4.8 },
-              { title: 'Deep Learning', author: 'Ian Goodfellow', color: 'bg-zinc-900', rating: 4.7 },
-              { title: 'System Design Interview', author: 'Alex Xu', color: 'bg-neutral-900', rating: 4.9 },
-              { title: 'Cracking the Coding Interview', author: 'Gayle Laakmann', color: 'bg-stone-900', rating: 4.8 }
+              { title: 'Introduction to Algorithms', author: 'Thomas H. Cormen', gradient: 'from-blue-600 to-indigo-700', rating: 4.9 },
+              { title: 'Clean Code', author: 'Robert C. Martin', gradient: 'from-emerald-500 to-teal-700', rating: 4.8 },
+              { title: 'Design Patterns', author: 'Erich Gamma', gradient: 'from-slate-600 to-slate-800', rating: 4.7 },
+              { title: 'The Pragmatic Programmer', author: 'Andrew Hunt', gradient: 'from-amber-600 to-orange-700', rating: 4.9 },
+              { title: 'Artificial Intelligence', author: 'Stuart Russell', gradient: 'from-purple-600 to-indigo-600', rating: 4.8 },
+              { title: 'Deep Learning', author: 'Ian Goodfellow', gradient: 'from-rose-600 to-pink-700', rating: 4.7 },
+              { title: 'System Design Interview', author: 'Alex Xu', gradient: 'from-cyan-600 to-blue-700', rating: 4.9 },
+              { title: 'Cracking the Coding Interview', author: 'Gayle Laakmann', gradient: 'from-green-600 to-emerald-700', rating: 4.8 }
             ].map((book, i) => (
               <Link key={i} href={`/library/${i + 1}`} className="group block">
-                <div className="aspect-[2/3] rounded-xl overflow-hidden mb-3 relative shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                  <div className={`absolute inset-0 ${book.color}`} />
+                <div className="aspect-[2/3] rounded-xl overflow-hidden mb-3 relative shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-1">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${book.gradient} opacity-90`} />
+
+                  {/* Texture overlay */}
+                  <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
 
                   {/* Minimalist Cover Design */}
-                  <div className="absolute inset-0 flex flex-col justify-between p-5 text-white/90">
+                  <div className="absolute inset-0 flex flex-col justify-between p-5 text-white">
                     <div className="flex justify-end">
-                      <div className="bg-white/10 backdrop-blur-md px-2 py-1 rounded flex items-center gap-1 text-[10px] font-bold">
-                        <Star className="w-3 h-3 fill-accent text-accent" />
+                      <div className="bg-black/20 backdrop-blur-md px-2 py-1 rounded flex items-center gap-1 text-[10px] font-bold border border-white/10">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                         {book.rating}
                       </div>
                     </div>
                     <div>
-                      <BookOpen className="w-6 h-6 mb-3 opacity-50" />
-                      <h3 className="font-bold leading-tight mb-1 text-base line-clamp-3">{book.title}</h3>
-                      <p className="text-xs opacity-70 font-medium">{book.author}</p>
+                      <BookOpen className="w-8 h-8 mb-4 opacity-80" />
+                      <h3 className="font-bold leading-tight mb-1 text-lg line-clamp-3 drop-shadow-md">{book.title}</h3>
+                      <p className="text-xs opacity-90 font-medium text-white/80">{book.author}</p>
                     </div>
                   </div>
                 </div>
@@ -325,7 +328,7 @@ export default function Home() {
               }
             ].map((testimonial, i) => (
               <div key={i} className="p-6 rounded-xl bg-muted/10 border border-transparent hover:border-border hover:bg-card hover:shadow-lg transition-all duration-300">
-                <div className="mb-4 text-accent flex gap-1">
+                <div className="mb-4 text-yellow-500 flex gap-1">
                   {[1, 2, 3, 4, 5].map((_, j) => (
                     <Star key={j} className="w-3.5 h-3.5 fill-current" />
                   ))}
@@ -380,19 +383,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section - Compact */}
+      {/* CTA Section - Adaptive Design */}
       <section className="py-16 md:py-20">
         <div className="container px-4 md:px-6 max-w-5xl mx-auto">
-          <div className="relative rounded-[2rem] overflow-hidden bg-primary dark:bg-primary/10 dark:border dark:border-primary/20 p-10 md:p-16 text-center text-primary-foreground dark:text-foreground shadow-2xl shadow-primary/20">
+          <div className="relative rounded-[2.5rem] overflow-hidden p-10 md:p-20 text-center shadow-xl shadow-primary/5 dark:shadow-slate-900/20">
+
+            {/* Layer 1: Light Mode Background (White Card) */}
+            <div className="absolute inset-0 bg-white border-2 border-primary/10 dark:hidden" />
+
+            {/* Layer 2: Dark Mode Background (Slate Gradient) */}
+            <div className="absolute inset-0 hidden dark:block bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-800" />
+
+            {/* Abstract shapes */}
+            <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 dark:bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/5 dark:bg-accent/20 blur-[100px] rounded-full pointer-events-none" />
+
             <div className="relative z-10">
-              <h2 className="text-2xl md:text-4xl font-bold mb-4 tracking-tight">O'qish jarayonini o'zgartirishga tayyormisiz?</h2>
-              <p className="text-base md:text-lg text-primary-foreground/80 dark:text-muted-foreground mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-primary dark:text-white">
+                O'qish jarayonini <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 dark:to-emerald-400">o'zgartirishga</span> tayyormisiz?
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground dark:text-slate-300 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
                 Akademik maqsadlariga erishish uchun UniLib dan foydalanayotgan minglab talabalarga qo'shiling.
               </p>
-              <Link href="/library" className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-accent text-accent-foreground font-bold text-base hover:bg-card hover:text-primary transition-all shadow-lg hover:-translate-y-1">
-                Hozir Boshlash
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/library" className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25 hover:-translate-y-1">
+                  Hozir Boshlash
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <Link href="/register" className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-white dark:bg-white/10 text-primary dark:text-white font-bold text-lg hover:bg-gray-50 dark:hover:bg-white/20 backdrop-blur-sm transition-all border-2 border-primary/10 dark:border-white/10 shadow-sm">
+                  Ro'yxatdan O'tish
+                </Link>
+              </div>
             </div>
           </div>
         </div>

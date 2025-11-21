@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { FooterWrapper } from "@/components/layout/FooterWrapper";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -34,7 +34,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <Footer />
+            <FooterWrapper />
           </AuthProvider>
         </ThemeProvider>
       </body>

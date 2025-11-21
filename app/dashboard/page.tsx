@@ -46,12 +46,31 @@ export default function DashboardPage() {
 
     const fetchDashboardData = async () => {
         try {
-            // Fetch user profile stats
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('xp, level, streak_days')
-                .eq('id', user?.id)
-                .single();
+            // Fetch user profile stats and reading progress in parallel
+            const [profileResponse, progressResponse] = await Promise.all([
+                supabase
+                    .from('profiles')
+                    .select('xp, level, streak_days')
+                    .eq('id', user?.id)
+                    .single(),
+                supabase
+                    .from('user_progress')
+                    .select(`
+                        progress_percentage,
+                        book_id,
+                        books (
+                            title,
+                            author,
+                            cover_color
+                        )
+                    `)
+                    .eq('user_id', user?.id)
+                    .order('last_read_at', { ascending: false })
+                    .limit(3)
+            ]);
+
+            const { data: profile } = profileResponse;
+            const { data: progress } = progressResponse;
 
             if (profile) {
                 setStats(prev => ({
@@ -61,22 +80,6 @@ export default function DashboardPage() {
                     streak: profile.streak_days || 0
                 }));
             }
-
-            // Fetch reading progress
-            const { data: progress } = await supabase
-                .from('user_progress')
-                .select(`
-                    progress_percentage,
-                    book_id,
-                    books (
-                        title,
-                        author,
-                        cover_color
-                    )
-                `)
-                .eq('user_id', user?.id)
-                .order('last_read_at', { ascending: false })
-                .limit(3);
 
             if (progress) {
                 const formattedProgress = progress.map((p: any) => ({

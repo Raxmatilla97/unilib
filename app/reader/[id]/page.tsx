@@ -5,11 +5,11 @@ import { ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Bookmark, Search
 export default function ReaderPage({ params }: { params: { id: string } }) {
     return (
         <ProtectedRoute>
-            <div className="flex flex-col h-screen bg-zinc-900 text-zinc-100">
+            <div className="flex flex-col h-screen bg-background text-foreground">
                 {/* Reader Header */}
-                <div className="h-14 border-b border-zinc-800 flex items-center justify-between px-4 bg-zinc-900">
+                <div className="h-14 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm">
                     <div className="flex items-center gap-4">
-                        <Link href={`/library/${params.id}`} className="text-zinc-400 hover:text-white transition-colors">
+                        <Link href={`/library/${params.id}`} className="text-muted-foreground hover:text-foreground transition-colors">
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
                         <h1 className="font-medium text-sm truncate max-w-[200px] md:max-w-md">
@@ -18,18 +18,18 @@ export default function ReaderPage({ params }: { params: { id: string } }) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                             <ZoomOut className="w-4 h-4" />
                         </button>
-                        <span className="text-xs font-mono">100%</span>
-                        <button className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <span className="text-xs font-mono text-muted-foreground">100%</span>
+                        <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                             <ZoomIn className="w-4 h-4" />
                         </button>
-                        <div className="w-px h-4 bg-zinc-800 mx-2" />
-                        <button className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <div className="w-px h-4 bg-border mx-2" />
+                        <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                             <Bookmark className="w-4 h-4" />
                         </button>
-                        <button className="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                             <Search className="w-4 h-4" />
                         </button>
                     </div>
@@ -38,23 +38,23 @@ export default function ReaderPage({ params }: { params: { id: string } }) {
                 {/* Main Content */}
                 <div className="flex-1 flex overflow-hidden">
                     {/* Sidebar (Thumbnails) */}
-                    <div className="hidden md:flex w-64 border-r border-zinc-800 flex-col overflow-y-auto bg-zinc-900/50">
+                    <div className="hidden md:flex w-64 border-r border-border flex-col overflow-y-auto bg-card/30">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((page) => (
-                            <div key={page} className="p-4 hover:bg-zinc-800 cursor-pointer transition-colors">
-                                <div className="aspect-[3/4] bg-white/10 rounded mb-2" />
-                                <div className="text-center text-xs text-zinc-500">Page {page}</div>
+                            <div key={page} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors border-b border-border/50">
+                                <div className="aspect-[3/4] bg-background rounded mb-2 border border-border shadow-sm" />
+                                <div className="text-center text-xs text-muted-foreground">Page {page}</div>
                             </div>
                         ))}
                     </div>
 
                     {/* PDF View Area */}
-                    <div className="flex-1 bg-zinc-950 flex items-center justify-center overflow-auto p-8">
-                        <div className="w-full max-w-3xl aspect-[3/4] bg-card text-card-foreground p-12 shadow-2xl relative">
-                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-10 pointer-events-none">
-                                <div className="text-9xl font-bold -rotate-45">PREVIEW</div>
+                    <div className="flex-1 bg-background/50 flex items-center justify-center overflow-auto p-8">
+                        <div className="w-full max-w-3xl aspect-[3/4] bg-card text-card-foreground p-12 shadow-2xl relative border border-border/50">
+                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-5 pointer-events-none">
+                                <div className="text-9xl font-bold -rotate-45 text-foreground">PREVIEW</div>
                             </div>
                             <h2 className="text-4xl font-bold mb-8 text-center mt-20">Chapter 1: The Role of Algorithms in Computing</h2>
-                            <div className="space-y-4 text-justify font-serif leading-relaxed">
+                            <div className="space-y-4 text-justify font-serif leading-relaxed text-card-foreground/90">
                                 <p>
                                     What are algorithms? Why is the study of algorithms worthwhile? What is the role
                                     of algorithms relative to other technologies used in computers? In this chapter,
@@ -73,7 +73,7 @@ export default function ReaderPage({ params }: { params: { id: string } }) {
                                     procedure for achieving that input/output relationship.
                                 </p>
                             </div>
-                            <div className="absolute bottom-8 left-0 w-full text-center text-sm text-gray-500">
+                            <div className="absolute bottom-8 left-0 w-full text-center text-sm text-muted-foreground">
                                 Page 5
                             </div>
                         </div>
@@ -81,12 +81,12 @@ export default function ReaderPage({ params }: { params: { id: string } }) {
                 </div>
 
                 {/* Footer Controls */}
-                <div className="h-12 border-t border-zinc-800 flex items-center justify-center gap-4 bg-zinc-900">
-                    <button className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
+                <div className="h-12 border-t border-border flex items-center justify-center gap-4 bg-card/50 backdrop-blur-sm">
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
                         <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <span className="text-sm font-medium">Page 5 of 1312</span>
-                    <button className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
+                    <span className="text-sm font-medium text-muted-foreground">Page 5 of 1312</span>
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
                         <ChevronRight className="w-5 h-5" />
                     </button>
                 </div>

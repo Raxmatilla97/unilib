@@ -86,38 +86,37 @@
 }
 
 .dark {
-  /* Dark Mode - Premium Slate & Teal */
+  /* Dark Mode - Modern & Pleasant */
   color-scheme: dark;
-  --background: #020817;
-  /* Slate 950 */
-  --foreground: #f8fafc;
-  /* Slate 50 */
 
-  --primary: #14b8a6;
-  /* Teal 500 - Brighter for dark mode */
+  /* Softer dark backgrounds */
+  --background: #0a0f1e;
+  --foreground: #e2e8f0;
+
+  /* Vibrant teal for primary */
+  --primary: #10b981;
   --primary-foreground: #ffffff;
 
+  /* Subtle secondary */
   --secondary: #1e293b;
-  /* Slate 800 */
-  --secondary-foreground: #f8fafc;
+  --secondary-foreground: #f1f5f9;
 
+  /* Warm gold accent */
   --accent: #fbbf24;
-  /* Amber 400 */
-  --accent-foreground: #020817;
+  --accent-foreground: #0a0f1e;
 
+  /* Softer muted colors */
   --muted: #1e293b;
-  /* Slate 800 */
   --muted-foreground: #94a3b8;
-  /* Slate 400 */
 
-  --card: #0f172a;
-  /* Slate 900 */
-  --card-foreground: #f8fafc;
+  /* Card with slight elevation */
+  --card: #151d2f;
+  --card-foreground: #e2e8f0;
 
-  --border: #1e293b;
-  /* Slate 800 */
+  /* Subtle borders */
+  --border: #2d3748;
   --input: #1e293b;
-  --ring: #14b8a6;
+  --ring: #10b981;
 }
 
 @layer base {

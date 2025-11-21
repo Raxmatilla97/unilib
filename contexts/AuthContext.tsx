@@ -30,9 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         checkUser();
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+                if (!session) {
+                    setUser(null);
+                    return;
+                }
+            }
+
             if (session?.user) {
-                setUserFromSupabase(session.user);
+                await setUserFromSupabase(session.user);
             } else {
                 setUser(null);
             }
@@ -43,12 +50,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const checkUser = async () => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            // If there's an error (like invalid refresh token), clear the session
+            if (error) {
+                console.warn('Session error:', error.message);
+                await supabase.auth.signOut();
+                setUser(null);
+                setIsLoading(false);
+                return;
+            }
+
             if (session?.user) {
                 await setUserFromSupabase(session.user);
             }
         } catch (error) {
             console.error('Error checking user:', error);
+            // Clear any invalid session
+            await supabase.auth.signOut();
+            setUser(null);
         } finally {
             setIsLoading(false);
         }

@@ -40,6 +40,7 @@ export function Header() {
         { href: '/groups', label: 'Guruhlar', icon: Users },
         { href: '/leaderboard', label: 'Reyting', icon: Award },
         { href: '/citations', label: 'Iqtiboslar', icon: Quote },
+        { href: '/profile', label: 'Profil', icon: User },
     ];
 
     return (

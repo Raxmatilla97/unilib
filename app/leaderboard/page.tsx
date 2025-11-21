@@ -28,11 +28,11 @@ export default function LeaderboardPage() {
                         <div className="flex items-end justify-center gap-4 mb-12 h-64">
                             {/* 2nd Place */}
                             <div className="flex flex-col items-center animate-slide-up delay-100">
-                                <div className="w-16 h-16 rounded-full bg-muted border-4 border-slate-300 flex items-center justify-center font-bold text-xl mb-2 relative">
+                                <div className="w-16 h-16 rounded-full bg-card border-4 border-slate-400 flex items-center justify-center font-bold text-xl mb-2 relative shadow-lg">
                                     {leaderboard[1].avatar}
-                                    <div className="absolute -bottom-2 bg-slate-300 text-slate-800 text-xs font-bold px-2 py-0.5 rounded-full">2</div>
+                                    <div className="absolute -bottom-2 bg-slate-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">2</div>
                                 </div>
-                                <div className="w-24 h-32 bg-slate-100 rounded-t-xl flex items-end justify-center pb-4">
+                                <div className="w-24 h-32 bg-gradient-to-t from-slate-400/20 to-slate-400/5 border-x border-t border-slate-400/30 rounded-t-xl flex items-end justify-center pb-4 backdrop-blur-sm">
                                     <div className="text-center">
                                         <div className="font-bold">{leaderboard[1].name}</div>
                                         <div className="text-xs text-muted-foreground">{leaderboard[1].xp} XP</div>
@@ -43,25 +43,25 @@ export default function LeaderboardPage() {
                             {/* 1st Place */}
                             <div className="flex flex-col items-center z-10 animate-slide-up">
                                 <Crown className="w-8 h-8 text-yellow-500 mb-2 animate-bounce" />
-                                <div className="w-20 h-20 rounded-full bg-yellow-100 border-4 border-yellow-500 flex items-center justify-center font-bold text-2xl mb-2 relative shadow-lg shadow-yellow-500/20">
+                                <div className="w-20 h-20 rounded-full bg-card border-4 border-yellow-500 flex items-center justify-center font-bold text-2xl mb-2 relative shadow-lg shadow-yellow-500/20">
                                     {leaderboard[0].avatar}
                                     <div className="absolute -bottom-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">1</div>
                                 </div>
-                                <div className="w-28 h-40 bg-gradient-to-b from-yellow-50 to-white border-x border-t border-yellow-200 rounded-t-xl flex items-end justify-center pb-4 shadow-lg">
+                                <div className="w-28 h-40 bg-gradient-to-t from-yellow-500/20 to-yellow-500/5 border-x border-t border-yellow-500/30 rounded-t-xl flex items-end justify-center pb-4 shadow-lg backdrop-blur-sm">
                                     <div className="text-center">
                                         <div className="font-bold text-lg">{leaderboard[0].name}</div>
-                                        <div className="text-sm text-yellow-600 font-medium">{leaderboard[0].xp} XP</div>
+                                        <div className="text-sm text-yellow-500 font-medium">{leaderboard[0].xp} XP</div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* 3rd Place */}
                             <div className="flex flex-col items-center animate-slide-up delay-200">
-                                <div className="w-16 h-16 rounded-full bg-muted border-4 border-orange-300 flex items-center justify-center font-bold text-xl mb-2 relative">
+                                <div className="w-16 h-16 rounded-full bg-card border-4 border-orange-400 flex items-center justify-center font-bold text-xl mb-2 relative shadow-lg">
                                     {leaderboard[2].avatar}
-                                    <div className="absolute -bottom-2 bg-orange-300 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">3</div>
+                                    <div className="absolute -bottom-2 bg-orange-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</div>
                                 </div>
-                                <div className="w-24 h-24 bg-orange-50 rounded-t-xl flex items-end justify-center pb-4">
+                                <div className="w-24 h-24 bg-gradient-to-t from-orange-400/20 to-orange-400/5 border-x border-t border-orange-400/30 rounded-t-xl flex items-end justify-center pb-4 backdrop-blur-sm">
                                     <div className="text-center">
                                         <div className="font-bold">{leaderboard[2].name}</div>
                                         <div className="text-xs text-muted-foreground">{leaderboard[2].xp} XP</div>
