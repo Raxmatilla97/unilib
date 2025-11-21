@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { BookCard } from '@/components/library/BookCard';
@@ -15,7 +15,7 @@ interface Book {
     category: string;
 }
 
-export default function LibraryPage() {
+function LibraryContent() {
     const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
@@ -120,8 +120,8 @@ export default function LibraryPage() {
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
                             className={`px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === cat
-                                    ? 'bg-primary/10 text-primary border border-primary/20'
-                                    : 'bg-card border border-border hover:bg-muted'
+                                ? 'bg-primary/10 text-primary border border-primary/20'
+                                : 'bg-card border border-border hover:bg-muted'
                                 }`}
                         >
                             {cat}
@@ -146,5 +146,22 @@ export default function LibraryPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function LibraryPage() {
+    return (
+        <Suspense fallback={
+            <div className="container py-10 px-4 md:px-6">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="text-center">
+                        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Kitoblar yuklanmoqda...</p>
+                    </div>
+                </div>
+            </div>
+        }>
+            <LibraryContent />
+        </Suspense>
     );
 }
