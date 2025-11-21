@@ -1,8 +1,33 @@
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Bookmark, Search } from 'lucide-react';
 
-export default function ReaderPage({ params }: { params: { id: string } }) {
+export default async function ReaderPage({ params }: { params: { id: string } }) {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    let book = null;
+
+    try {
+        const { data, error } = await supabase
+            .from('books')
+            .select('*')
+            .eq('id', params.id)
+            .single();
+
+        if (data) {
+            book = data;
+        }
+    } catch (error) {
+        console.error('Error fetching book:', error);
+    }
+
+    // Fallback if book not found
+    const bookTitle = book?.title || 'Introduction to Algorithms - 3rd Edition';
+
     return (
         <ProtectedRoute>
             <div className="flex flex-col h-screen bg-background text-foreground">
@@ -13,7 +38,7 @@ export default function ReaderPage({ params }: { params: { id: string } }) {
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
                         <h1 className="font-medium text-sm truncate max-w-[200px] md:max-w-md">
-                            Introduction to Algorithms - 3rd Edition
+                            {bookTitle}
                         </h1>
                     </div>
 

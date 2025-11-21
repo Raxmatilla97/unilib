@@ -1,17 +1,70 @@
+import { createClient } from '@supabase/supabase-js';
 import { XPBar } from '@/components/gamification/XPBar';
 import { BadgeDisplay } from '@/components/gamification/BadgeDisplay';
 import { StreakTracker } from '@/components/gamification/StreakTracker';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Trophy, Medal, Crown } from 'lucide-react';
 
-export default function LeaderboardPage() {
-    const leaderboard = [
-        { rank: 1, name: 'Sarah J.', xp: 12500, level: 15, avatar: 'S' },
-        { rank: 2, name: 'Mike T.', xp: 11200, level: 14, avatar: 'M' },
-        { rank: 3, name: 'Emma W.', xp: 10800, level: 13, avatar: 'E' },
-        { rank: 4, name: 'You', xp: 8500, level: 12, avatar: 'Y' },
-        { rank: 5, name: 'David L.', xp: 8200, level: 12, avatar: 'D' },
-    ];
+export default async function LeaderboardPage() {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    interface LeaderboardUser {
+        rank: number;
+        name: string;
+        xp: number;
+        level: number;
+        avatar: string;
+    }
+
+    let leaderboard: LeaderboardUser[] = [];
+    let currentUserStats = { xp: 0, level: 1, maxXP: 10000 }; // Default
+
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, name, xp, level')
+            .order('xp', { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+            leaderboard = data.map((user: any, index: number) => ({
+                rank: index + 1,
+                name: user.name || 'Anonymous',
+                xp: user.xp || 0,
+                level: user.level || 1,
+                avatar: (user.name || 'A').charAt(0).toUpperCase()
+            }));
+        }
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+    }
+
+    // Fallback to mock data
+    if (leaderboard.length === 0) {
+        leaderboard = [
+            { rank: 1, name: 'Sarah J.', xp: 12500, level: 15, avatar: 'S' },
+            { rank: 2, name: 'Mike T.', xp: 11200, level: 14, avatar: 'M' },
+            { rank: 3, name: 'Emma W.', xp: 10800, level: 13, avatar: 'E' },
+            { rank: 4, name: 'You', xp: 8500, level: 12, avatar: 'Y' },
+            { rank: 5, name: 'David L.', xp: 8200, level: 12, avatar: 'D' },
+        ];
+    }
+
+    // Ensure we have at least 3 items for the podium to work without errors
+    while (leaderboard.length < 3) {
+        leaderboard.push({
+            rank: leaderboard.length + 1,
+            name: 'TBD',
+            xp: 0,
+            level: 1,
+            avatar: '?'
+        });
+    }
 
     return (
         <ProtectedRoute>
@@ -104,6 +157,7 @@ export default function LeaderboardPage() {
                                 <Trophy className="w-5 h-5 text-primary" />
                                 Your Progress
                             </h3>
+                            {/* Note: This should ideally be dynamic based on logged in user */}
                             <XPBar currentXP={8500} maxXP={10000} level={12} />
                         </div>
 

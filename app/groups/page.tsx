@@ -1,16 +1,49 @@
+import { createClient } from '@supabase/supabase-js';
 import { GroupCard } from '@/components/groups/GroupCard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Plus, Search, Filter } from 'lucide-react';
 
-export default function GroupsPage() {
-    const groups = [
-        { id: '1', name: 'Algorithms & Data Structures', book: 'Introduction to Algorithms (CLRS)', members: 45, active: true, tags: ['CS', 'Algorithms'] },
-        { id: '2', name: 'Calculus II Study Squad', book: 'Thomas\' Calculus', members: 28, active: false, tags: ['Math', 'Calculus'] },
-        { id: '3', name: 'Organic Chemistry Help', book: 'Organic Chemistry by Wade', members: 112, active: true, tags: ['Chemistry', 'Science'] },
-        { id: '4', name: 'Macroeconomics 101', book: 'Principles of Macroeconomics', members: 15, active: false, tags: ['Economics', 'Finance'] },
-        { id: '5', name: 'Modern Physics Discussion', book: 'Concepts of Modern Physics', members: 34, active: true, tags: ['Physics', 'Science'] },
-        { id: '6', name: 'Web Development Bootcamp', book: 'Full Stack Development', members: 89, active: true, tags: ['CS', 'Web Dev'] },
-    ];
+export default async function GroupsPage() {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    let groups = [];
+
+    try {
+        const { data, error } = await supabase
+            .from('groups')
+            .select('*, books(title)')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+            groups = data.map((g: any) => ({
+                id: g.id,
+                name: g.name,
+                book: g.books?.title || 'Unknown Book',
+                members: g.members_count || 0,
+                active: g.is_active,
+                tags: g.tags || []
+            }));
+        }
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+    }
+
+    // Fallback to mock data if no groups found or error occurred
+    if (groups.length === 0) {
+        groups = [
+            { id: '1', name: 'Algorithms & Data Structures', book: 'Introduction to Algorithms (CLRS)', members: 45, active: true, tags: ['CS', 'Algorithms'] },
+            { id: '2', name: 'Calculus II Study Squad', book: 'Thomas\' Calculus', members: 28, active: false, tags: ['Math', 'Calculus'] },
+            { id: '3', name: 'Organic Chemistry Help', book: 'Organic Chemistry by Wade', members: 112, active: true, tags: ['Chemistry', 'Science'] },
+            { id: '4', name: 'Macroeconomics 101', book: 'Principles of Macroeconomics', members: 15, active: false, tags: ['Economics', 'Finance'] },
+            { id: '5', name: 'Modern Physics Discussion', book: 'Concepts of Modern Physics', members: 34, active: true, tags: ['Physics', 'Science'] },
+            { id: '6', name: 'Web Development Bootcamp', book: 'Full Stack Development', members: 89, active: true, tags: ['CS', 'Web Dev'] },
+        ];
+    }
 
     return (
         <ProtectedRoute>
