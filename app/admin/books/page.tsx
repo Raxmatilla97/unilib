@@ -8,10 +8,9 @@ import {
     Plus,
     Search,
     Edit,
-    Trash2,
-    Upload,
-    X
+    Trash2
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface Book {
     id: string;
@@ -20,6 +19,7 @@ interface Book {
     category: string;
     rating: number;
     cover_color: string;
+    cover_url?: string;
     created_at: string;
 }
 
@@ -27,8 +27,6 @@ export default function BooksManagementPage() {
     const [books, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [editingBook, setEditingBook] = useState<Book | null>(null);
 
     useEffect(() => {
         fetchBooks();
@@ -86,13 +84,13 @@ export default function BooksManagementPage() {
                             Jami {books.length} ta kitob
                         </p>
                     </div>
-                    <button
-                        onClick={() => setShowAddModal(true)}
+                    <Link
+                        href="/admin/books/create"
                         className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl"
                     >
                         <Plus className="w-5 h-5" />
                         Yangi Kitob
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Search */}
@@ -136,8 +134,12 @@ export default function BooksManagementPage() {
                                         <tr key={book.id} className="border-t border-border hover:bg-muted/30 transition-colors">
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-14 rounded ${book.cover_color} flex items-center justify-center text-white shadow-sm`}>
-                                                        <BookOpen className="w-5 h-5" />
+                                                    <div className={`w-10 h-14 rounded ${book.cover_color} flex items-center justify-center text-white shadow-sm overflow-hidden relative`}>
+                                                        {book.cover_url ? (
+                                                            <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <BookOpen className="w-5 h-5" />
+                                                        )}
                                                     </div>
                                                     <span className="font-medium">{book.title}</span>
                                                 </div>
@@ -153,13 +155,13 @@ export default function BooksManagementPage() {
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => setEditingBook(book)}
+                                                    <Link
+                                                        href={`/admin/books/${book.id}`}
                                                         className="p-2 hover:bg-blue-500/10 text-blue-500 rounded-lg transition-colors"
                                                         title="Tahrirlash"
                                                     >
                                                         <Edit className="w-4 h-4" />
-                                                    </button>
+                                                    </Link>
                                                     <button
                                                         onClick={() => handleDelete(book.id)}
                                                         className="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
@@ -174,31 +176,6 @@ export default function BooksManagementPage() {
                                 )}
                             </tbody>
                         </table>
-                    </div>
-                )}
-
-                {/* Add/Edit Modal - Placeholder */}
-                {(showAddModal || editingBook) && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold">
-                                    {editingBook ? 'Kitobni Tahrirlash' : 'Yangi Kitob Qo\'shish'}
-                                </h2>
-                                <button
-                                    onClick={() => {
-                                        setShowAddModal(false);
-                                        setEditingBook(null);
-                                    }}
-                                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <p className="text-muted-foreground text-center py-8">
-                                Form tez orada qo'shiladi...
-                            </p>
-                        </div>
                     </div>
                 )}
             </div>

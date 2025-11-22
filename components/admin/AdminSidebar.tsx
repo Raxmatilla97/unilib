@@ -77,8 +77,8 @@ export function AdminSidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${isActive
-                                    ? 'bg-primary text-primary-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                 }`}
                         >
                             <Icon className="w-5 h-5" />
@@ -91,11 +91,11 @@ export function AdminSidebar() {
 
             <div className="p-4 border-t border-border">
                 <Link
-                    href="/"
+                    href="/dashboard"
                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
                 >
                     <ChevronRight className="w-5 h-5 rotate-180" />
-                    <span className="font-medium">Asosiy sahifaga</span>
+                    <span className="font-medium">Kabinetga qaytish</span>
                 </Link>
             </div>
         </aside>

@@ -12,6 +12,7 @@ interface Book {
     rating: number;
     coverColor: string;
     category: string;
+    cover_url?: string;
 }
 
 interface BookListProps {
