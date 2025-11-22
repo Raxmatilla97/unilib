@@ -98,33 +98,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
-
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
                 console.error('Login error:', error.message);
                 return { success: false, error: error.message };
             }
-
-            // Don't wait for profile fetch here to speed up UI transition
-            // onAuthStateChange will handle setting the user
             if (data.user) {
-                // Optimistically set user to prevent ProtectedRoute from redirecting
-                setUser({
-                    id: data.user.id,
-                    email: data.user.email!,
-                    name: data.user.email!.split('@')[0], // Temporary name
-                    role: 'USER' // Temporary role
-                });
+                // Let onAuthStateChange listener fetch profile and set user
                 return { success: true };
             }
-
             return { success: false, error: 'Login failed' };
-        } catch (error: any) {
-            console.error('Login error:', error);
-            return { success: false, error: error.message || 'An unexpected error occurred' };
+        } catch (err: any) {
+            console.error('Login error:', err);
+            return { success: false, error: err.message || 'An unexpected error occurred' };
         }
     };
 
