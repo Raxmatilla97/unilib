@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, BookOpen } from 'lucide-react';
+import { Star, BookOpen, Users } from 'lucide-react';
 
 interface BookCardProps {
     id: string;
@@ -10,9 +10,10 @@ interface BookCardProps {
     coverColor: string;
     category: string;
     cover_url?: string;
+    readersCount?: number;
 }
 
-export function BookCard({ id, title, author, rating, coverColor, category, cover_url }: BookCardProps) {
+export function BookCard({ id, title, author, rating, coverColor, category, cover_url, readersCount }: BookCardProps) {
     return (
         <Link href={`/library/${id}`} className="group block h-full">
             <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
@@ -35,10 +36,18 @@ export function BookCard({ id, title, author, rating, coverColor, category, cove
                 <div className="p-4 flex-1 flex flex-col">
                     <h3 className="font-bold line-clamp-1 group-hover:text-primary transition-colors" title={title}>{title}</h3>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-1" title={author}>{author}</p>
-                    <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                            <Star className="w-3 h-3 fill-amber-500" />
-                            {rating}
+                    <div className="flex items-center justify-between mt-auto gap-2">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                                <Star className="w-3 h-3 fill-amber-500" />
+                                {rating}
+                            </div>
+                            {readersCount !== undefined && readersCount > 0 && (
+                                <div className="flex items-center gap-1 text-muted-foreground text-xs">
+                                    <Users className="w-3 h-3" />
+                                    <span>{readersCount}</span>
+                                </div>
+                            )}
                         </div>
                         <div className="p-1.5 rounded-full bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             <BookOpen className="w-3 h-3" />

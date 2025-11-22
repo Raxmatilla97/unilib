@@ -38,11 +38,12 @@ async function getUsers(page: number = 1, limit: number = 10) {
 }
 
 interface PageProps {
-    searchParams: { [key: string]: string | string[] | undefined };
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function UsersPage({ searchParams }: PageProps) {
-    const page = Number(searchParams?.page) || 1;
+    const params = await searchParams;
+    const page = Number(params?.page) || 1;
     const limit = 10;
     const { users, totalUsers, totalPages } = await getUsers(page, limit);
 

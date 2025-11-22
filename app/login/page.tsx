@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,8 +13,15 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const { login } = useAuth();
+    const { login, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
+
+    // Redirect when user is authenticated
+    useEffect(() => {
+        if (user && !authLoading) {
+            router.push('/dashboard');
+        }
+    }, [user, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -23,14 +30,13 @@ export default function LoginPage() {
 
         try {
             const result = await login(email, password);
-            if (result.success) {
-                router.push('/dashboard');
-            } else {
+            if (!result.success) {
                 setError(result.error || 'Foydalanuvchi topilmadi yoki parol noto\'g\'ri. Ro\'yxatdan o\'tmaganmisiz?');
+                setIsLoading(false);
             }
+            // Don't redirect here - useEffect will handle it when user state is set
         } catch (err) {
             setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
-        } finally {
             setIsLoading(false);
         }
     };

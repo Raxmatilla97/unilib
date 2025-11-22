@@ -2,9 +2,22 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Star, BookOpen, Download, Quote, Share2, ArrowLeft } from 'lucide-react';
 import { BookCard } from '@/components/library/BookCard';
-import { BookReader } from '@/components/reader/BookReader';
+
+// Lazy load BookReader component (only loads when user clicks "Read")
+const BookReader = dynamic(() => import('@/components/reader/BookReader').then(mod => ({ default: mod.BookReader })), {
+    loading: () => (
+        <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Kitob ochilmoqda...</p>
+            </div>
+        </div>
+    ),
+    ssr: false
+});
 
 interface Book {
     id: string;

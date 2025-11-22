@@ -1,13 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase/server';
 import { GroupCard } from '@/components/groups/GroupCard';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Plus, Search, Filter } from 'lucide-react';
 
+export const revalidate = 60; // Cache for 60 seconds
+
 export default async function GroupsPage() {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     interface Group {
         id: string;
@@ -21,7 +19,7 @@ export default async function GroupsPage() {
     let groups: Group[] = [];
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('groups')
             .select('*, books(title)')
             .order('created_at', { ascending: false });

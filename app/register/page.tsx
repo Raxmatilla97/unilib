@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,8 +19,15 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { register } = useAuth();
+    const { register, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
+
+    // Redirect when user is authenticated
+    useEffect(() => {
+        if (user && !authLoading) {
+            router.push('/dashboard');
+        }
+    }, [user, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,18 +59,17 @@ export default function RegisterPage() {
                 formData.university
             );
 
-            if (result.success) {
-                router.push('/dashboard');
-            } else {
+            if (!result.success) {
                 if (result.error?.includes('User already registered')) {
                     setError('Bu email bilan allaqachon ro\'yxatdan o\'tilgan. Iltimos, tizimga kiring.');
                 } else {
-                    setError(result.error || 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                    setError(result.error || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
                 }
+                setIsLoading(false);
             }
+            // Don't redirect here - useEffect will handle it when user state is set
         } catch (err) {
             setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
-        } finally {
             setIsLoading(false);
         }
     };
