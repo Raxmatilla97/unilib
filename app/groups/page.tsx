@@ -9,7 +9,16 @@ export default async function GroupsPage() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    let groups = [];
+    interface Group {
+        id: string;
+        name: string;
+        book: string;
+        members: number;
+        active: boolean;
+        tags: string[];
+    }
+
+    let groups: Group[] = [];
 
     try {
         const { data, error } = await supabase
