@@ -5,11 +5,12 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus } from 'lucid
 
 interface ReadingCalendarProps {
     schedules: any[];
+    dailyProgress?: any[];
     onDateClick: (date: Date) => void;
     onAddSchedule: () => void;
 }
 
-export function ReadingCalendar({ schedules, onDateClick, onAddSchedule }: ReadingCalendarProps) {
+export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, onAddSchedule }: ReadingCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const monthNames = [
@@ -25,7 +26,7 @@ export function ReadingCalendar({ schedules, onDateClick, onAddSchedule }: Readi
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
+        const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Adjust for Monday start
 
         const days = [];
 
@@ -44,12 +45,21 @@ export function ReadingCalendar({ schedules, onDateClick, onAddSchedule }: Readi
 
     const getSchedulesForDate = (date: Date | null) => {
         if (!date) return [];
-        const dateStr = date.toISOString().split('T')[0];
         return schedules.filter(s => {
             const start = new Date(s.start_date);
             const end = new Date(s.end_date);
-            return date >= start && date <= end;
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            const current = new Date(date);
+            current.setHours(0, 0, 0, 0);
+            return current >= start && current <= end;
         });
+    };
+
+    const getProgressForDate = (date: Date | null) => {
+        if (!date) return null;
+        const dateStr = date.toISOString().split('T')[0];
+        return dailyProgress.find(p => p.date === dateStr);
     };
 
     const previousMonth = () => {
@@ -113,34 +123,38 @@ export function ReadingCalendar({ schedules, onDateClick, onAddSchedule }: Readi
                     }
 
                     const daySchedules = getSchedulesForDate(date);
+                    const progress = getProgressForDate(date);
                     const isToday = date.getTime() === today.getTime();
                     const isPast = date < today;
+                    const hasProgress = progress && (progress.pages_read > 0 || progress.minutes_read > 0);
+                    const isCompleted = progress?.completed;
 
                     return (
                         <button
                             key={date.toISOString()}
                             onClick={() => onDateClick(date)}
                             className={`
-                                aspect-square p-2 rounded-lg border transition-all
-                                ${isToday ? 'border-primary bg-primary/10' : 'border-border'}
-                                ${isPast ? 'opacity-50' : ''}
+                                aspect-square p-2 rounded-lg border transition-all relative
+                                ${isToday ? 'border-primary bg-primary/5' : 'border-border'}
+                                ${isPast ? 'opacity-80' : ''}
                                 hover:bg-muted hover:border-primary
                                 flex flex-col items-center justify-center
                             `}
                         >
-                            <span className={`text-sm font-medium ${isToday ? 'text-primary' : ''}`}>
+                            <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
                                 {date.getDate()}
                             </span>
-                            {daySchedules.length > 0 && (
-                                <div className="flex gap-1 mt-1">
-                                    {daySchedules.slice(0, 3).map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className="w-1.5 h-1.5 rounded-full bg-primary"
-                                        />
-                                    ))}
-                                </div>
-                            )}
+
+                            {/* Progress Indicators */}
+                            <div className="flex gap-1 mt-1">
+                                {isCompleted ? (
+                                    <div className="w-2 h-2 rounded-full bg-green-500" title="Kunlik maqsad bajarildi" />
+                                ) : hasProgress ? (
+                                    <div className="w-2 h-2 rounded-full bg-orange-500" title="O'qildi, lekin maqsadga yetilmadi" />
+                                ) : daySchedules.length > 0 ? (
+                                    <div className="w-2 h-2 rounded-full bg-primary/30" title="Rejalashtirilgan" />
+                                ) : null}
+                            </div>
                         </button>
                     );
                 })}

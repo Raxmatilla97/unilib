@@ -13,32 +13,65 @@ export default function SchedulePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [loading, setLoading] = useState(true);
+    const [dailyProgress, setDailyProgress] = useState<any[]>([]);
+    const [stats, setStats] = useState({
+        active: 0,
+        completed: 0,
+        streak: 0
+    });
 
     useEffect(() => {
         if (user) {
-            fetchSchedules();
+            fetchData();
         }
     }, [user]);
 
-    const fetchSchedules = async () => {
+    const fetchData = async () => {
         try {
-            const { data, error } = await supabase
-                .from('reading_schedule')
-                .select(`
-                    *,
-                    books (
-                        title,
-                        author,
-                        pages
-                    )
-                `)
-                .eq('status', 'active')
-                .order('start_date', { ascending: true });
+            setLoading(true);
+            const [schedulesResponse, progressResponse, profileResponse] = await Promise.all([
+                supabase
+                    .from('reading_schedule')
+                    .select(`
+                        *,
+                        books (
+                            title,
+                            author,
+                            pages
+                        )
+                    `)
+                    .eq('user_id', user?.id)
+                    .order('start_date', { ascending: true }),
+                supabase
+                    .from('daily_progress')
+                    .select('*')
+                    .gte('date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]), // Fetch current month's progress
+                supabase
+                    .from('profiles')
+                    .select('streak_days')
+                    .eq('id', user?.id)
+                    .single()
+            ]);
 
-            if (error) throw error;
-            setSchedules(data || []);
+            if (schedulesResponse.error) throw schedulesResponse.error;
+            if (progressResponse.error) throw progressResponse.error;
+
+            const schedulesData = schedulesResponse.data || [];
+            setSchedules(schedulesData);
+            setDailyProgress(progressResponse.data || []);
+
+            // Calculate stats
+            const activeCount = schedulesData.filter((s: any) => s.status === 'active').length;
+            const completedCount = schedulesData.filter((s: any) => s.status === 'completed').length;
+
+            setStats({
+                active: activeCount,
+                completed: completedCount,
+                streak: profileResponse.data?.streak_days || 0
+            });
+
         } catch (error) {
-            console.error('Error fetching schedules:', error);
+            console.error('Error fetching schedule data:', error);
         } finally {
             setLoading(false);
         }
@@ -55,7 +88,7 @@ export default function SchedulePage() {
     };
 
     const handleScheduleCreated = () => {
-        fetchSchedules();
+        fetchData();
     };
 
     if (loading) {
@@ -90,7 +123,7 @@ export default function SchedulePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="bg-card border border-border rounded-xl p-6">
                         <div className="text-3xl font-bold text-primary mb-1">
-                            {schedules.length}
+                            {stats.active}
                         </div>
                         <div className="text-sm text-muted-foreground">
                             Faol rejalar
@@ -98,7 +131,7 @@ export default function SchedulePage() {
                     </div>
                     <div className="bg-card border border-border rounded-xl p-6">
                         <div className="text-3xl font-bold text-green-500 mb-1">
-                            0
+                            {stats.completed}
                         </div>
                         <div className="text-sm text-muted-foreground">
                             Tugatilgan
@@ -106,7 +139,7 @@ export default function SchedulePage() {
                     </div>
                     <div className="bg-card border border-border rounded-xl p-6">
                         <div className="text-3xl font-bold text-orange-500 mb-1">
-                            🔥 0
+                            🔥 {stats.streak}
                         </div>
                         <div className="text-sm text-muted-foreground">
                             Kunlik streak
@@ -117,6 +150,7 @@ export default function SchedulePage() {
                 {/* Calendar */}
                 <ReadingCalendar
                     schedules={schedules}
+                    dailyProgress={dailyProgress}
                     onDateClick={handleDateClick}
                     onAddSchedule={handleAddSchedule}
                 />
@@ -126,46 +160,64 @@ export default function SchedulePage() {
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold mb-4">Faol Rejalar</h2>
                         <div className="space-y-4">
-                            {schedules.map((schedule: any) => (
-                                <div
-                                    key={schedule.id}
-                                    className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <h3 className="font-bold text-lg mb-1">
-                                                {schedule.books?.title}
-                                            </h3>
-                                            <p className="text-sm text-muted-foreground mb-3">
-                                                {schedule.books?.author}
-                                            </p>
-                                            <div className="flex items-center gap-4 text-sm">
-                                                <span>
-                                                    📅 {new Date(schedule.start_date).toLocaleDateString('uz-UZ')} - {new Date(schedule.end_date).toLocaleDateString('uz-UZ')}
-                                                </span>
-                                                {schedule.daily_goal_pages && (
+                            {schedules.map((schedule: any) => {
+                                const now = new Date();
+                                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                                const todayProgress = dailyProgress.find(p => p.date === todayStr && p.schedule_id === schedule.id);
+                                const progressPercent = schedule.daily_goal_pages
+                                    ? Math.min(100, ((todayProgress?.pages_read || 0) / schedule.daily_goal_pages) * 100)
+                                    : 0;
+
+                                return (
+                                    <div
+                                        key={schedule.id}
+                                        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-lg mb-1">
+                                                    {schedule.books?.title}
+                                                </h3>
+                                                <p className="text-sm text-muted-foreground mb-3">
+                                                    {schedule.books?.author}
+                                                </p>
+                                                <div className="flex items-center gap-4 text-sm">
                                                     <span>
-                                                        📖 {schedule.daily_goal_pages} sahifa/kun
+                                                        📅 {new Date(schedule.start_date).toLocaleDateString('uz-UZ')} - {new Date(schedule.end_date).toLocaleDateString('uz-UZ')}
                                                     </span>
-                                                )}
-                                                {schedule.daily_goal_minutes && (
-                                                    <span>
-                                                        ⏱️ {schedule.daily_goal_minutes} daqiqa/kun
-                                                    </span>
-                                                )}
+                                                    {schedule.daily_goal_pages && (
+                                                        <span>
+                                                            📖 {schedule.daily_goal_pages} sahifa/kun
+                                                        </span>
+                                                    )}
+                                                    {schedule.daily_goal_minutes && (
+                                                        <span>
+                                                            ⏱️ {schedule.daily_goal_minutes} daqiqa/kun
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-sm text-muted-foreground mb-2">
-                                                Progress
-                                            </div>
-                                            <div className="text-2xl font-bold text-primary">
-                                                0%
+                                            <div className="text-right min-w-[120px]">
+                                                <div className="text-sm text-muted-foreground mb-2">
+                                                    Bugungi Progress
+                                                </div>
+                                                <div className="text-2xl font-bold text-primary mb-1">
+                                                    {Math.round(progressPercent)}%
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {todayProgress?.pages_read || 0} / {schedule.daily_goal_pages} sahifa
+                                                </div>
+                                                <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-2">
+                                                    <div
+                                                        className="h-full bg-primary rounded-full transition-all"
+                                                        style={{ width: `${progressPercent}%` }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}

@@ -48,6 +48,7 @@ export function BookDetailClient({ book, similarBooks }: BookDetailClientProps) 
                 <BookReader
                     fileUrl={book.file_url}
                     bookTitle={book.title}
+                    bookId={book.id}
                     onClose={() => setShowReader(false)}
                 />
             )}

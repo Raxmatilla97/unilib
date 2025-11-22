@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { X, ChevronLeft, ChevronRight, Moon, Sun, ZoomIn, ZoomOut, BookOpen, FileText } from 'lucide-react';
+import { supabase } from '@/lib/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -10,18 +12,90 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 interface BookReaderProps {
     fileUrl: string;
     bookTitle: string;
+    bookId: string;
     onClose: () => void;
 }
 
-export function BookReader({ fileUrl, bookTitle, onClose }: BookReaderProps) {
+export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderProps) {
+    const { user } = useAuth();
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(true);
     const [scale, setScale] = useState<number>(1.0);
     const [darkMode, setDarkMode] = useState<boolean>(false);
+    const [activeSchedule, setActiveSchedule] = useState<any>(null);
+    const [sessionStartPage, setSessionStartPage] = useState<number>(0);
+    const [initialDailyPages, setInitialDailyPages] = useState<number>(0);
+    const initializedRef = useRef(false);
     const [dualPageMode, setDualPageMode] = useState<boolean>(false);
     const [pageWidth, setPageWidth] = useState<number>(window.innerWidth * 0.3);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Fetch initial data (progress, schedule, daily stats)
+    useEffect(() => {
+        if (!user || !bookId || initializedRef.current) return;
+
+        const fetchInitialData = async () => {
+            try {
+                // 1. Get User Progress
+                const { data: progressData } = await supabase
+                    .from('user_progress')
+                    .select('current_page')
+                    .eq('user_id', user.id)
+                    .eq('book_id', bookId)
+                    .single();
+
+                if (progressData?.current_page) {
+                    setPageNumber(progressData.current_page);
+                    setSessionStartPage(progressData.current_page);
+                } else {
+                    setSessionStartPage(1);
+                }
+
+                // 2. Get Active Schedule
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                console.log('Checking schedule for date:', today);
+
+                const { data: scheduleData } = await supabase
+                    .from('reading_schedule')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('book_id', bookId)
+                    .eq('status', 'active')
+                    .lte('start_date', today)
+                    .gte('end_date', today)
+                    .single();
+
+                if (scheduleData) {
+                    console.log('Found active schedule:', scheduleData);
+                    setActiveSchedule(scheduleData);
+
+                    // 3. Get Daily Progress for today
+                    const { data: dailyData } = await supabase
+                        .from('daily_progress')
+                        .select('pages_read')
+                        .eq('schedule_id', scheduleData.id)
+                        .eq('date', today)
+                        .single();
+
+                    if (dailyData) {
+                        console.log('Found daily progress:', dailyData);
+                        setInitialDailyPages(dailyData.pages_read || 0);
+                    }
+                } else {
+                    console.log('No active schedule found for this book and date');
+                }
+
+                initializedRef.current = true;
+            } catch (error) {
+                console.error('Error fetching initial reader data:', error);
+            }
+        };
+
+        fetchInitialData();
+    }, [user, bookId]);
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
@@ -37,6 +111,68 @@ export function BookReader({ fileUrl, bookTitle, onClose }: BookReaderProps) {
         const step = dualPageMode ? 2 : 1;
         setPageNumber(prev => Math.min(prev + step, numPages));
     }
+
+    // Save progress when page changes
+    const saveProgress = useCallback(async () => {
+        if (!user || !bookId || numPages === 0) return;
+
+        try {
+            const progress = Math.round((pageNumber / numPages) * 100);
+            const safeProgress = Math.min(100, Math.max(0, progress));
+
+            // 1. Update User Progress (General)
+            await supabase
+                .from('user_progress')
+                .upsert({
+                    user_id: user.id,
+                    book_id: bookId,
+                    current_page: pageNumber,
+                    total_pages: numPages,
+                    progress_percentage: safeProgress,
+                    last_read_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,book_id'
+                });
+
+            // 2. Update Daily Progress (If active schedule exists)
+            if (activeSchedule) {
+                const pagesReadInSession = Math.max(0, pageNumber - sessionStartPage);
+                const totalDailyPages = initialDailyPages + pagesReadInSession;
+
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                console.log('Saving daily progress:', {
+                    schedule_id: activeSchedule.id,
+                    date: today,
+                    pages_read: totalDailyPages,
+                    session_pages: pagesReadInSession
+                });
+
+                await supabase
+                    .from('daily_progress')
+                    .upsert({
+                        schedule_id: activeSchedule.id,
+                        date: today,
+                        pages_read: totalDailyPages,
+                        completed: totalDailyPages >= (activeSchedule.daily_goal_pages || 0)
+                    }, {
+                        onConflict: 'schedule_id,date'
+                    });
+            }
+
+        } catch (error) {
+            console.error('Error saving progress:', error);
+        }
+    }, [user, bookId, pageNumber, numPages, activeSchedule, sessionStartPage, initialDailyPages]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            saveProgress();
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [saveProgress]);
 
     function zoomIn() {
         setScale(prev => {
