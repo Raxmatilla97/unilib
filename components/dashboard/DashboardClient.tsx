@@ -167,13 +167,18 @@ export function DashboardClient({
                                     </h2>
                                     <span className="text-sm font-medium px-3 py-1 bg-background/50 rounded-full border border-border">
                                         {(() => {
-                                            const date = new Date(activeSchedule.end_date);
-                                            const months = [
-                                                'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
-                                                'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'
-                                            ];
-                                            return `${date.getDate()}-${months[date.getMonth()]} ${date.getFullYear()}-yil`;
-                                        })()} gacha
+                                            const startDate = new Date(activeSchedule.start_date);
+                                            const endDate = new Date(activeSchedule.end_date);
+                                            const today = new Date();
+
+                                            // Calculate total days in schedule
+                                            const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+                                            // Calculate current day
+                                            const currentDay = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+                                            return `${currentDay}-kun / ${totalDays} kun`;
+                                        })()}
                                     </span>
                                 </div>
 
