@@ -108,8 +108,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return false;
             }
 
+            // Don't wait for profile fetch here to speed up UI transition
+            // onAuthStateChange will handle setting the user
             if (data.user) {
-                await setUserFromSupabase(data.user);
                 return true;
             }
 

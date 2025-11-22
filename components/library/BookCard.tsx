@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Star, BookOpen } from 'lucide-react';
 
@@ -17,10 +18,12 @@ export function BookCard({ id, title, author, rating, coverColor, category, cove
             <div className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
                 <div className={`h-80 ${coverColor} relative flex items-center justify-center overflow-hidden`}>
                     {cover_url ? (
-                        <img
+                        <Image
                             src={cover_url}
                             alt={title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         />
                     ) : (
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
