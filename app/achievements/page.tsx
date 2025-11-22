@@ -1,0 +1,173 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { AchievementsList } from '@/components/gamification/AchievementsList';
+import { XPProgressBar } from '@/components/gamification/XPProgressBar';
+import { supabase } from '@/lib/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface Achievement {
+    id: string;
+    key: string;
+    title: string;
+    description: string;
+    icon: string;
+    tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+    xp_reward: number;
+}
+
+interface UserAchievement extends Achievement {
+    unlocked_at: string;
+    seen: boolean;
+}
+
+export default function AchievementsPage() {
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [achievements, setAchievements] = useState<Achievement[]>([]);
+    const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
+    const [userStats, setUserStats] = useState({
+        xp: 0,
+        level: 1,
+        streak: 0,
+        booksCompleted: 0,
+        pagesRead: 0,
+        dailyGoalsCompleted: 0
+    });
+
+    useEffect(() => {
+        if (user) {
+            fetchData();
+        }
+    }, [user]);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+
+            // Fetch all achievements
+            const { data: allAchievements } = await supabase
+                .from('achievements')
+                .select('*')
+                .order('tier', { ascending: false })
+                .order('xp_reward', { ascending: true });
+
+            // Fetch user's unlocked achievements
+            const { data: unlockedAchievements } = await supabase
+                .from('user_achievements')
+                .select(`
+                    unlocked_at,
+                    seen,
+                    achievements (*)
+                `)
+                .eq('user_id', user?.id);
+
+            // Fetch user stats
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('xp, level, streak_days, total_books_completed, total_pages_read, total_daily_goals_completed')
+                .eq('id', user?.id)
+                .single();
+
+            if (allAchievements) {
+                setAchievements(allAchievements);
+            }
+
+            if (unlockedAchievements) {
+                const formattedUnlocked = unlockedAchievements.map((ua: any) => ({
+                    ...ua.achievements,
+                    unlocked_at: ua.unlocked_at,
+                    seen: ua.seen
+                }));
+                setUserAchievements(formattedUnlocked);
+            }
+
+            if (profile) {
+                setUserStats({
+                    xp: profile.xp || 0,
+                    level: profile.level || 1,
+                    streak: profile.streak_days || 0,
+                    booksCompleted: profile.total_books_completed || 0,
+                    pagesRead: profile.total_pages_read || 0,
+                    dailyGoalsCompleted: profile.total_daily_goals_completed || 0
+                });
+            }
+
+        } catch (error) {
+            console.error('Error fetching achievements:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <ProtectedRoute>
+                <div className="container py-10 px-4 md:px-6">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-muted-foreground">Yuklanmoqda...</p>
+                        </div>
+                    </div>
+                </div>
+            </ProtectedRoute>
+        );
+    }
+
+    return (
+        <ProtectedRoute>
+            <div className="container py-10 px-4 md:px-6 max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-4xl font-bold tracking-tight mb-2">
+                        🏆 Yutuqlarim
+                    </h1>
+                    <p className="text-muted-foreground">
+                        O'qish yutuqlaringizni kuzating va yangi maqsadlarga erishing
+                    </p>
+                </div>
+
+                {/* XP Progress */}
+                <div className="bg-card border border-border rounded-xl p-6 mb-8">
+                    <XPProgressBar
+                        currentXP={userStats.xp}
+                        currentLevel={userStats.level}
+                        showDetails={true}
+                    />
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-card border border-border rounded-xl p-4 text-center">
+                        <div className="text-3xl mb-2">🔥</div>
+                        <div className="text-2xl font-bold text-primary">{userStats.streak}</div>
+                        <div className="text-sm text-muted-foreground">Kunlik Streak</div>
+                    </div>
+                    <div className="bg-card border border-border rounded-xl p-4 text-center">
+                        <div className="text-3xl mb-2">📚</div>
+                        <div className="text-2xl font-bold text-primary">{userStats.booksCompleted}</div>
+                        <div className="text-sm text-muted-foreground">Kitoblar</div>
+                    </div>
+                    <div className="bg-card border border-border rounded-xl p-4 text-center">
+                        <div className="text-3xl mb-2">📄</div>
+                        <div className="text-2xl font-bold text-primary">{userStats.pagesRead}</div>
+                        <div className="text-sm text-muted-foreground">Sahifalar</div>
+                    </div>
+                    <div className="bg-card border border-border rounded-xl p-4 text-center">
+                        <div className="text-3xl mb-2">🎯</div>
+                        <div className="text-2xl font-bold text-primary">{userStats.dailyGoalsCompleted}</div>
+                        <div className="text-sm text-muted-foreground">Kunlik Maqsad</div>
+                    </div>
+                </div>
+
+                {/* Achievements List */}
+                <AchievementsList
+                    achievements={achievements}
+                    userAchievements={userAchievements}
+                />
+            </div>
+        </ProtectedRoute>
+    );
+}

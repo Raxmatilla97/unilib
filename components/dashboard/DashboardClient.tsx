@@ -14,6 +14,7 @@ import {
     Calendar
 } from 'lucide-react';
 import Link from 'next/link';
+import { XPProgressBar } from '@/components/gamification/XPProgressBar';
 
 interface UserProgress {
     book_title: string;
@@ -127,6 +128,27 @@ export function DashboardClient({
                         <p className="text-sm text-muted-foreground mb-1">Daraja</p>
                         <p className="text-3xl font-bold">{initialStats.level}</p>
                     </div>
+                </div>
+            </div>
+
+            {/* XP Progress Bar */}
+            <div className="mb-8">
+                <div className="bg-gradient-to-br from-indigo-500/10 to-purple-600/5 border border-indigo-500/20 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold">⭐ Sizning Darajangiz</h2>
+                        <Link
+                            href="/achievements"
+                            className="text-sm text-primary hover:underline flex items-center gap-1"
+                        >
+                            Barcha yutuqlar
+                            <ChevronRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+                    <XPProgressBar
+                        currentXP={initialStats.xp}
+                        currentLevel={initialStats.level}
+                        showDetails={true}
+                    />
                 </div>
             </div>
 
