@@ -92,15 +92,15 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                     type="text"
-                    placeholder="Foydalanuvchilarni qidirish..."
+                    placeholder="Qidirish..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none"
+                    className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none text-sm"
                 />
             </div>
 
-            {/* Table */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
                         <thead className="bg-muted/50 text-muted-foreground font-medium">
@@ -177,31 +177,105 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                         Foydalanuvchilar topilmadi
                     </div>
                 )}
+            </div>
 
-                {/* Pagination Controls */}
-                <div className="p-4 border-t border-border flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                        Jami: <span className="font-medium text-foreground">{totalUsers}</span> ta foydalanuvchi
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+                {filteredUsers.length === 0 ? (
+                    <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground">
+                        Foydalanuvchilar topilmadi
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page <= 1}
-                            className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Oldingi
-                        </button>
-                        <span className="text-sm font-medium">
-                            {page} / {totalPages}
-                        </span>
-                        <button
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page >= totalPages}
-                            className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Keyingi
-                        </button>
-                    </div>
+                ) : (
+                    filteredUsers.map((user) => (
+                        <div key={user.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
+                            {/* User Info */}
+                            <div className="flex items-start gap-3">
+                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-base truncate">{user.name || 'Nomsiz'}</h3>
+                                    <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                                    {user.university && (
+                                        <p className="text-xs text-muted-foreground mt-1">{user.university}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Role Section */}
+                            <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground">Rol</label>
+                                {editingId === user.id ? (
+                                    <select
+                                        value={user.role}
+                                        onChange={(e) => handleRoleUpdate(user.id, e.target.value as UserRole)}
+                                        disabled={isLoading === user.id}
+                                        className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm"
+                                    >
+                                        <option value="USER">User</option>
+                                        <option value="LIBRARIAN">Kutubxonachi</option>
+                                        <option value="MODERATOR">Moderator</option>
+                                        <option value="SUPER_ADMIN">Super Admin</option>
+                                    </select>
+                                ) : (
+                                    <div className="flex items-center justify-between">
+                                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${user.role === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500' :
+                                            user.role === 'MODERATOR' ? 'bg-purple-500/10 text-purple-500' :
+                                                user.role === 'LIBRARIAN' ? 'bg-blue-500/10 text-blue-500' :
+                                                    'bg-gray-500/10 text-gray-500'
+                                            }`}>
+                                            {user.role}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-2 pt-2 border-t border-border">
+                                <button
+                                    onClick={() => setEditingId(editingId === user.id ? null : user.id)}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-medium text-sm"
+                                >
+                                    <Shield className="w-4 h-4" />
+                                    {editingId === user.id ? 'Bekor qilish' : 'Rolni o\'zgartirish'}
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(user.id)}
+                                    disabled={isLoading === user.id}
+                                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors font-medium text-sm disabled:opacity-50"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    O'chirish
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                    Jami: <span className="font-medium text-foreground">{totalUsers}</span> ta
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page <= 1}
+                        className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed min-w-[70px]"
+                    >
+                        Oldingi
+                    </button>
+                    <span className="text-sm font-medium whitespace-nowrap">
+                        {page} / {totalPages}
+                    </span>
+                    <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= totalPages}
+                        className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed min-w-[70px]"
+                    >
+                        Keyingi
+                    </button>
                 </div>
             </div>
         </div>

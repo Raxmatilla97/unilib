@@ -73,18 +73,18 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
         <div className="space-y-4">
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                     type="text"
-                    placeholder="Kitob yoki muallif nomi bo'yicha qidirish..."
+                    placeholder="Qidirish..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 rounded-lg bg-card border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-card border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm"
                 />
             </div>
 
-            {/* Books Table */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden">
                 <table className="w-full">
                     <thead className="bg-muted/50">
                         <tr>
@@ -150,31 +150,84 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
                         )}
                     </tbody>
                 </table>
+            </div>
 
-                {/* Pagination Controls */}
-                <div className="p-4 border-t border-border flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                        Jami: <span className="font-medium text-foreground">{totalBooks}</span> ta kitob
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+                {filteredBooks.length === 0 ? (
+                    <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground">
+                        Kitoblar topilmadi
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page <= 1}
-                            className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Oldingi
-                        </button>
-                        <span className="text-sm font-medium">
-                            {page} / {totalPages}
-                        </span>
-                        <button
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page >= totalPages}
-                            className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Keyingi
-                        </button>
-                    </div>
+                ) : (
+                    filteredBooks.map((book) => (
+                        <div key={book.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
+                            {/* Book Info */}
+                            <div className="flex items-start gap-3">
+                                <div className={`w-16 h-20 rounded ${book.cover_color} flex items-center justify-center text-white shadow-sm overflow-hidden relative flex-shrink-0`}>
+                                    {book.cover_url ? (
+                                        <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <BookOpen className="w-6 h-6" />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-base line-clamp-2">{book.title}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">{book.author}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs">
+                                            {book.category}
+                                        </span>
+                                        <span className="text-sm font-semibold">★ {book.rating}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-2 pt-2 border-t border-border">
+                                <Link
+                                    href={`/admin/books/${book.id}`}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20 transition-colors font-medium text-sm"
+                                >
+                                    <Edit className="w-4 h-4" />
+                                    Tahrirlash
+                                </Link>
+                                <button
+                                    onClick={() => handleDelete(book.id)}
+                                    disabled={isLoading === book.id}
+                                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors font-medium text-sm disabled:opacity-50"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    O'chirish
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="p-4 border border-border rounded-xl bg-card flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                    Jami: <span className="font-medium text-foreground">{totalBooks}</span> ta
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page <= 1}
+                        className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed min-w-[70px]"
+                    >
+                        Oldingi
+                    </button>
+                    <span className="text-sm font-medium whitespace-nowrap">
+                        {page} / {totalPages}
+                    </span>
+                    <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= totalPages}
+                        className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed min-w-[70px]"
+                    >
+                        Keyingi
+                    </button>
                 </div>
             </div>
         </div>
