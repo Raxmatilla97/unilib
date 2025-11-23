@@ -44,7 +44,7 @@ export default function RootLayout({
                 <FooterWrapper />
               </div>
             </div>
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster position="top-right" closeButton theme="dark" />
           </AuthProvider>
         </ThemeProvider>
       </body>
