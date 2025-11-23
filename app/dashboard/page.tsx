@@ -162,9 +162,15 @@ export default function DashboardPage() {
                 setSchedules(schedulesData);
 
                 // Find today's progress for the active schedule
-                const activeScheduleId = schedulesData[0].id;
                 const now = new Date();
                 const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                // Find schedule where today is within date range
+                const activeSchedule = schedulesData.find((s: any) =>
+                    s.start_date <= todayStr && s.end_date >= todayStr
+                ) || schedulesData[0]; // Fallback to first if none match
+
+                const activeScheduleId = activeSchedule.id;
 
                 console.log('Looking for today progress:', {
                     todayStr,
