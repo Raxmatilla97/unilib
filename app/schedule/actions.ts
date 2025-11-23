@@ -2,23 +2,18 @@
 
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
-export async function updateSchedule(scheduleId: string, data: {
-    start_date: string;
-    end_date: string;
-    daily_goal_pages?: number;
-    daily_goal_minutes?: number;
-}) {
+export async function updateSchedule(
+    scheduleId: string,
+    userId: string,
+    data: {
+        start_date: string;
+        end_date: string;
+        daily_goal_pages?: number;
+        daily_goal_minutes?: number;
+    }
+) {
     try {
-        // Get user from cookies (server action context)
-        const cookieStore = await cookies();
-        const authCookie = cookieStore.get('sb-access-token');
-
-        if (!authCookie) {
-            return { success: false, error: 'Unauthorized' };
-        }
-
         // Validate dates
         if (new Date(data.end_date) < new Date(data.start_date)) {
             return { success: false, error: 'Tugash sanasi boshlanish sanasidan katta bo\'lishi kerak' };
@@ -29,18 +24,7 @@ export async function updateSchedule(scheduleId: string, data: {
             return { success: false, error: 'Kunlik maqsad 0 dan katta bo\'lishi kerak' };
         }
 
-        // First, verify the schedule belongs to the user
-        const { data: schedule, error: fetchError } = await supabaseAdmin
-            .from('reading_schedule')
-            .select('user_id')
-            .eq('id', scheduleId)
-            .single();
-
-        if (fetchError || !schedule) {
-            return { success: false, error: 'Reja topilmadi' };
-        }
-
-        // Update schedule
+        // Update schedule (user_id filter ensures ownership)
         const { error: updateError } = await supabaseAdmin
             .from('reading_schedule')
             .update({
@@ -50,7 +34,7 @@ export async function updateSchedule(scheduleId: string, data: {
                 daily_goal_minutes: data.daily_goal_minutes,
             })
             .eq('id', scheduleId)
-            .eq('user_id', schedule.user_id);
+            .eq('user_id', userId);
 
         if (updateError) {
             console.error('Error updating schedule:', updateError);
@@ -67,33 +51,14 @@ export async function updateSchedule(scheduleId: string, data: {
     }
 }
 
-export async function deleteSchedule(scheduleId: string) {
+export async function deleteSchedule(scheduleId: string, userId: string) {
     try {
-        // Get user from cookies (server action context)
-        const cookieStore = await cookies();
-        const authCookie = cookieStore.get('sb-access-token');
-
-        if (!authCookie) {
-            return { success: false, error: 'Unauthorized' };
-        }
-
-        // First, verify the schedule belongs to the user
-        const { data: schedule, error: fetchError } = await supabaseAdmin
-            .from('reading_schedule')
-            .select('user_id')
-            .eq('id', scheduleId)
-            .single();
-
-        if (fetchError || !schedule) {
-            return { success: false, error: 'Reja topilmadi' };
-        }
-
-        // Soft delete: set status to 'deleted'
+        // Soft delete: set status to 'deleted' (user_id filter ensures ownership)
         const { error: deleteError } = await supabaseAdmin
             .from('reading_schedule')
             .update({ status: 'deleted' })
             .eq('id', scheduleId)
-            .eq('user_id', schedule.user_id);
+            .eq('user_id', userId);
 
         if (deleteError) {
             console.error('Error deleting schedule:', deleteError);

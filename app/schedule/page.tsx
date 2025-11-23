@@ -107,8 +107,13 @@ export default function SchedulePage() {
             return;
         }
 
+        if (!user) {
+            toast.error('Unauthorized');
+            return;
+        }
+
         setDeletingId(scheduleId);
-        const result = await deleteSchedule(scheduleId);
+        const result = await deleteSchedule(scheduleId, user.id);
         setDeletingId(null);
 
         if (result.success) {

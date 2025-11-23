@@ -90,12 +90,22 @@ export function ScheduleBookModal({ isOpen, onClose, onScheduleCreated, selected
         try {
             if (editingSchedule) {
                 // Update existing schedule
-                const result = await updateSchedule(editingSchedule.id, {
-                    start_date: startDate,
-                    end_date: endDate,
-                    daily_goal_pages: goalType === 'pages' ? dailyGoalPages : undefined,
-                    daily_goal_minutes: goalType === 'minutes' ? dailyGoalMinutes : undefined,
-                });
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    toast.error('Unauthorized');
+                    return;
+                }
+
+                const result = await updateSchedule(
+                    editingSchedule.id,
+                    user.id,
+                    {
+                        start_date: startDate,
+                        end_date: endDate,
+                        daily_goal_pages: goalType === 'pages' ? dailyGoalPages : undefined,
+                        daily_goal_minutes: goalType === 'minutes' ? dailyGoalMinutes : undefined,
+                    }
+                );
 
                 if (result.success) {
                     toast.success('Reja muvaffaqiyatli yangilandi');
