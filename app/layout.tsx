@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { FooterWrapper } from "@/components/layout/FooterWrapper";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
                 <FooterWrapper />
               </div>
             </div>
+            <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </ThemeProvider>
       </body>

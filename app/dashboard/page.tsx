@@ -31,10 +31,9 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (user) {
-            fetchDashboardData();
-        }
-    }, [user]);
+        // Fetch data immediately - ProtectedRoute ensures user exists
+        fetchDashboardData();
+    }, []); // Empty dependency - fetch once on mount
 
     const fetchDashboardData = async () => {
         try {

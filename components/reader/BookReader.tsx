@@ -5,6 +5,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { X, ChevronLeft, ChevronRight, Moon, Sun, ZoomIn, ZoomOut, BookOpen, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { CelebrationModal } from '@/components/gamification/CelebrationModal';
+import { toast } from 'sonner';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -30,6 +32,8 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
     const [dualPageMode, setDualPageMode] = useState<boolean>(false);
     const [pageWidth, setPageWidth] = useState<number>(window.innerWidth * 0.3);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [showCelebration, setShowCelebration] = useState<boolean>(false);
+    const celebrationShownRef = useRef<boolean>(false);
 
     // Fetch initial data (progress, schedule, daily stats)
     useEffect(() => {
@@ -138,16 +142,21 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
             if (activeSchedule) {
                 const pagesReadInSession = Math.max(0, pageNumber - sessionStartPage);
                 const totalDailyPages = initialDailyPages + pagesReadInSession;
+                const dailyGoal = activeSchedule.daily_goal_pages || 0;
+                const wasCompleted = initialDailyPages >= dailyGoal;
+                const isNowCompleted = totalDailyPages >= dailyGoal;
 
                 const now = new Date();
                 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-                console.log('Saving daily progress:', {
-                    schedule_id: activeSchedule.id,
-                    date: today,
-                    pages_read: totalDailyPages,
-                    session_pages: pagesReadInSession
-                });
+                // Only log when goal is completed, not every save
+                if (!wasCompleted && isNowCompleted) {
+                    console.log('🎯 Daily goal completed!', {
+                        schedule_id: activeSchedule.id,
+                        pages_read: totalDailyPages,
+                        goal: dailyGoal
+                    });
+                }
 
                 await supabase
                     .from('daily_progress')
@@ -155,10 +164,36 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                         schedule_id: activeSchedule.id,
                         date: today,
                         pages_read: totalDailyPages,
-                        completed: totalDailyPages >= (activeSchedule.daily_goal_pages || 0)
+                        completed: isNowCompleted
                     }, {
                         onConflict: 'schedule_id,date'
                     });
+
+                // Show celebration if goal was just completed
+                if (!wasCompleted && isNowCompleted) {
+                    // Check if celebration already shown today
+                    const celebrationKey = `celebration_${today}_${activeSchedule.id}`;
+                    const hasShownToday = localStorage.getItem(celebrationKey);
+
+                    if (!hasShownToday && !celebrationShownRef.current) {
+                        celebrationShownRef.current = true;
+                        localStorage.setItem(celebrationKey, 'true');
+                        setShowCelebration(true);
+
+                        // Show toast after modal appears (2 second delay)
+                        setTimeout(() => {
+                            toast.success('Kunlik maqsad bajarildi!', {
+                                description: '🎉 Siz +50 XP oldingiz va darajangiz oshdi!',
+                                duration: 4000,
+                                className: 'toast-celebration',
+                            });
+                        }, 2000);
+
+                        console.log('🎉 Daily goal completed! Showing celebration...');
+                    } else {
+                        console.log('Celebration already shown today');
+                    }
+                }
             }
 
         } catch (error) {
@@ -167,9 +202,10 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
     }, [user, bookId, pageNumber, numPages, activeSchedule, sessionStartPage, initialDailyPages]);
 
     useEffect(() => {
+        // Debounce: save only after user stops changing pages for 3 seconds
         const timer = setTimeout(() => {
             saveProgress();
-        }, 1000);
+        }, 3000); // Increased from 1000ms to 3000ms
 
         return () => clearTimeout(timer);
     }, [saveProgress]);
@@ -376,6 +412,13 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                     display: block;
                 }
             `}</style>
+
+            {/* Celebration Modal */}
+            <CelebrationModal
+                isOpen={showCelebration}
+                onClose={() => setShowCelebration(false)}
+                dailyGoalCompleted={true}
+            />
         </div>
     );
 }
