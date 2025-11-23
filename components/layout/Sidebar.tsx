@@ -13,7 +13,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Shield,
-    Calendar
+    Calendar,
+    Trophy
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -29,9 +30,10 @@ export function Sidebar() {
 
     const navItems = [
         { href: '/dashboard', label: 'Kabinet', icon: LayoutDashboard },
-        { href: '/library', label: 'Kutubxona', icon: BookOpen },
         { href: '/schedule', label: 'O\'qish Rejam', icon: Calendar },
+        { href: '/library', label: 'Kutubxona', icon: BookOpen },
         { href: '/groups', label: 'Guruhlar', icon: Users },
+        { href: '/achievements', label: 'Yutuqlar', icon: Trophy },
         { href: '/leaderboard', label: 'Reyting', icon: Award },
         { href: '/citations', label: 'Iqtiboslar', icon: Quote },
     ];

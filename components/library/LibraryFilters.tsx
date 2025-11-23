@@ -58,7 +58,7 @@ export function LibraryFilters() {
                     placeholder="Kitob yoki muallif qidiring..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
+                    className="w-full pl-10 pr-10 py-2.5 md:py-3 text-sm md:text-base rounded-lg md:rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
                 />
                 {search && (
                     <button
@@ -71,7 +71,7 @@ export function LibraryFilters() {
             </div>
 
             {/* Filters Row */}
-            <div className="flex flex-wrap gap-3 items-center">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 md:gap-3 items-center">
                 {/* Category Filter */}
                 <select
                     value={category}
@@ -79,7 +79,7 @@ export function LibraryFilters() {
                         setCategory(e.target.value);
                         updateFilters({ category: e.target.value });
                     }}
-                    className="px-4 py-2 rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer"
+                    className="col-span-2 sm:col-span-1 w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
                 >
                     <option value="all">Barcha kategoriyalar</option>
                     <option value="Programming">Dasturlash</option>
@@ -102,7 +102,7 @@ export function LibraryFilters() {
                         setRating(e.target.value);
                         updateFilters({ rating: e.target.value });
                     }}
-                    className="px-4 py-2 rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer"
+                    className="w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
                 >
                     <option value="all">Barcha reytinglar</option>
                     <option value="4">4+ ⭐</option>
@@ -116,7 +116,7 @@ export function LibraryFilters() {
                         setSort(e.target.value);
                         updateFilters({ sort: e.target.value });
                     }}
-                    className="px-4 py-2 rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer"
+                    className="w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
                 >
                     <option value="newest">Yangi qo'shilganlar</option>
                     <option value="rating">Yuqori rating</option>
@@ -127,7 +127,7 @@ export function LibraryFilters() {
                 {hasActiveFilters && (
                     <button
                         onClick={clearFilters}
-                        className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors flex items-center gap-2"
+                        className="col-span-2 sm:col-span-1 w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors flex items-center justify-center gap-2 min-h-[44px]"
                     >
                         <X className="w-4 h-4" />
                         Tozalash

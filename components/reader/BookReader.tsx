@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { X, ChevronLeft, ChevronRight, Moon, Sun, ZoomIn, ZoomOut, BookOpen, FileText } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Moon, Sun, ZoomIn, ZoomOut, BookOpen, FileText, Type, AlignLeft, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { CelebrationModal } from '@/components/gamification/CelebrationModal';
@@ -31,10 +31,51 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
     const [initialDailyPages, setInitialDailyPages] = useState<number>(0);
     const initializedRef = useRef(false);
     const [dualPageMode, setDualPageMode] = useState<boolean>(false);
-    const [pageWidth, setPageWidth] = useState<number>(window.innerWidth * 0.3);
+    const [pageWidth, setPageWidth] = useState<number>(600);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showCelebration, setShowCelebration] = useState<boolean>(false);
     const celebrationShownRef = useRef<boolean>(false);
+    const [showControls, setShowControls] = useState<boolean>(true);
+    const [showTextSettings, setShowTextSettings] = useState<boolean>(false);
+    const [textMode, setTextMode] = useState<boolean>(false);
+    const [pageText, setPageText] = useState<string>('');
+    const [fontSize, setFontSize] = useState<number>(18);
+    const pdfDocumentRef = useRef<any>(null);
+
+    // Calculate optimal width based on screen size
+    const calculatePageWidth = useCallback(() => {
+        if (typeof window === 'undefined') return 600;
+
+        const width = window.innerWidth;
+        let baseWidth;
+
+        if (width < 768) {
+            baseWidth = width * 0.95; // 95% on mobile
+        } else if (width < 1024) {
+            baseWidth = width * 0.85; // 85% on tablet
+        } else {
+            baseWidth = width * 0.55; // 55% on desktop
+        }
+
+        // If dual page mode is active, we need to fit two pages
+        if (dualPageMode && width >= 768) {
+            baseWidth = (width * 0.9) / 2;
+        }
+
+        return baseWidth * scale;
+    }, [scale, dualPageMode]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setPageWidth(calculatePageWidth());
+        };
+
+        // Initial calculation
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [calculatePageWidth]);
 
     // Fetch initial data (progress, schedule, daily stats)
     useEffect(() => {
@@ -111,10 +152,54 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
         fetchInitialData();
     }, [user, bookId]);
 
-    function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-        setNumPages(numPages);
+    const [isScanned, setIsScanned] = useState<boolean>(false);
+
+    function onDocumentLoadSuccess(pdf: any) {
+        setNumPages(pdf.numPages);
         setLoading(false);
+        pdfDocumentRef.current = pdf;
+        if (textMode) {
+            extractText(pageNumber);
+        }
     }
+
+    const extractText = useCallback(async (pageNum: number) => {
+        if (!pdfDocumentRef.current) return;
+
+        try {
+            const page = await pdfDocumentRef.current.getPage(pageNum);
+            const textContent = await page.getTextContent();
+
+            // Check if there are any text items
+            if (!textContent.items || textContent.items.length === 0) {
+                setPageText('');
+                setIsScanned(true);
+                return;
+            }
+
+            const textItems = textContent.items.map((item: any) => item.str);
+            const joinedText = textItems.join(' ');
+
+            // Check if the joined text is empty or just whitespace
+            if (joinedText.trim().length === 0) {
+                setPageText('');
+                setIsScanned(true);
+            } else {
+                setPageText(joinedText);
+                setIsScanned(false);
+            }
+        } catch (error) {
+            console.error('Error extracting text:', error);
+            setPageText('');
+            setIsScanned(false); // Error is different from being scanned
+        }
+    }, []);
+
+    useEffect(() => {
+        if (textMode) {
+            extractText(pageNumber);
+        }
+    }, [pageNumber, textMode, extractText]);
 
     function previousPage() {
         const step = dualPageMode ? 2 : 1;
@@ -242,19 +327,11 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
     }, [saveProgress]);
 
     function zoomIn() {
-        setScale(prev => {
-            const newScale = Math.min(prev + 0.2, 3.0);
-            setPageWidth(window.innerWidth * 0.3 * newScale);
-            return newScale;
-        });
+        setScale(prev => Math.min(prev + 0.1, 2.5));
     }
 
     function zoomOut() {
-        setScale(prev => {
-            const newScale = Math.max(prev - 0.2, 0.5);
-            setPageWidth(window.innerWidth * 0.3 * newScale);
-            return newScale;
-        });
+        setScale(prev => Math.max(prev - 0.1, 0.5));
     }
 
     // Keyboard navigation
@@ -280,98 +357,181 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
         }
     }, [pageNumber]);
 
+    const toggleControls = () => {
+        setShowControls(prev => !prev);
+    };
+
     return (
         <div
-            className={`fixed inset-0 z-50 transition-colors duration-200 ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}
+            className={`fixed inset-0 z-50 transition-colors duration-200 flex flex-col items-center justify-center ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}
             onKeyDown={handleKeyDown}
             tabIndex={0}
         >
-            {/* Close Button - Top Right */}
-            <button
-                onClick={onClose}
-                className={`fixed top-4 right-4 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title="Yopish (Esc)"
-            >
-                <X className="w-6 h-6" />
-            </button>
+            {/* Click overlay to toggle controls */}
+            <div
+                className="absolute inset-0 z-0"
+                onClick={toggleControls}
+            />
 
-            {/* Dark Mode Toggle - Top Left */}
-            <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`fixed top-4 left-4 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title={darkMode ? 'Kunduzgi rejim' : 'Tungi rejim'}
-            >
-                {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-            </button>
+            {/* Controls Container - with transition for fade effect */}
+            <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                {/* Close Button - Top Right */}
+                <button
+                    onClick={onClose}
+                    className={`fixed top-4 right-4 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title="Yopish (Esc)"
+                >
+                    <X className="w-6 h-6" />
+                </button>
 
-            {/* Dual Page Mode Toggle - Top Left (below dark mode) */}
-            <button
-                onClick={() => setDualPageMode(!dualPageMode)}
-                className={`fixed top-20 left-4 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title={dualPageMode ? 'Bitta sahifa' : '2 sahifa (kitob kabi)'}
-            >
-                {dualPageMode ? <FileText className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
-            </button>
+                {/* Dark Mode Toggle - Top Left */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); setDarkMode(!darkMode); }}
+                    className={`fixed top-4 left-4 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title={darkMode ? 'Kunduzgi rejim' : 'Tungi rejim'}
+                >
+                    {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+                </button>
 
-            {/* Zoom Out Button - Bottom Left */}
-            <button
-                onClick={zoomOut}
-                disabled={scale <= 0.5}
-                className={`fixed bottom-20 left-4 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title="Kichiklashtirish"
-            >
-                <ZoomOut className="w-6 h-6" />
-            </button>
+                {/* Dual Page Mode Toggle - Top Left (below dark mode) - Hidden on mobile */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); setDualPageMode(!dualPageMode); }}
+                    className={`fixed top-20 left-4 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 hidden md:block ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title={dualPageMode ? 'Bitta sahifa' : '2 sahifa (kitob kabi)'}
+                >
+                    {dualPageMode ? <FileText className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
+                </button>
 
-            {/* Zoom In Button - Bottom Left (above zoom out) */}
-            <button
-                onClick={zoomIn}
-                disabled={scale >= 3.0}
-                className={`fixed bottom-36 left-4 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title="Kattalashtirish"
-            >
-                <ZoomIn className="w-6 h-6" />
-            </button>
+                {/* Text Settings Toggle (Aa) - Top Left (Mobile only) */}
+                <div className="fixed top-20 left-4 z-20 md:hidden">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setShowTextSettings(!showTextSettings); }}
+                        className={`p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                            } ${showTextSettings ? 'ring-2 ring-primary' : ''}`}
+                        title="Matn o'lchami"
+                    >
+                        <Type className="w-6 h-6" />
+                    </button>
 
-            {/* Page Counter - Bottom Center */}
-            <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full shadow-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'
-                }`}>
-                <span className="text-sm font-semibold">
-                    {pageNumber} / {numPages || '...'}
-                </span>
+                    {/* Text Settings Menu */}
+                    {showTextSettings && (
+                        <div className={`absolute top-full left-0 mt-2 p-4 rounded-xl shadow-xl min-w-[240px] flex flex-col gap-4 ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="text-sm font-medium mb-1">Ko'rinish rejimi</div>
+                            <div className="flex p-1 bg-gray-100 rounded-lg dark:bg-gray-700 mb-2">
+                                <button
+                                    onClick={() => setTextMode(false)}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${!textMode
+                                        ? 'bg-white text-primary shadow-sm dark:bg-gray-600 dark:text-white'
+                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                                        }`}
+                                >
+                                    <ImageIcon className="w-4 h-4" />
+                                    Original
+                                </button>
+                                <button
+                                    onClick={() => setTextMode(true)}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${textMode
+                                        ? 'bg-white text-primary shadow-sm dark:bg-gray-600 dark:text-white'
+                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                                        }`}
+                                >
+                                    <AlignLeft className="w-4 h-4" />
+                                    Matn
+                                </button>
+                            </div>
+
+                            <div className="text-sm font-medium mb-1">
+                                {textMode ? "Matn o'lchami" : "Masshtab"}
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <button
+                                    onClick={textMode ? () => setFontSize(s => Math.max(12, s - 2)) : zoomOut}
+                                    disabled={textMode ? fontSize <= 12 : scale <= 0.5}
+                                    className={`p-2 rounded-lg border transition-colors ${darkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-100'} disabled:opacity-50`}
+                                >
+                                    <ZoomOut className="w-5 h-5" />
+                                </button>
+                                <span className="font-bold">
+                                    {textMode ? `${fontSize}px` : `${Math.round(scale * 100)}%`}
+                                </span>
+                                <button
+                                    onClick={textMode ? () => setFontSize(s => Math.min(32, s + 2)) : zoomIn}
+                                    disabled={textMode ? fontSize >= 32 : scale >= 3.0}
+                                    className={`p-2 rounded-lg border transition-colors ${darkMode ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-100'} disabled:opacity-50`}
+                                >
+                                    <ZoomIn className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Zoom Out Button - Bottom Left (Desktop only) */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); zoomOut(); }}
+                    disabled={scale <= 0.5}
+                    className={`fixed bottom-20 left-4 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed hidden md:block ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title="Kichiklashtirish"
+                >
+                    <ZoomOut className="w-6 h-6" />
+                </button>
+
+                {/* Zoom In Button - Bottom Left (above zoom out) (Desktop only) */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); zoomIn(); }}
+                    disabled={scale >= 3.0}
+                    className={`fixed bottom-36 left-4 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed hidden md:block ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title="Kattalashtirish"
+                >
+                    <ZoomIn className="w-6 h-6" />
+                </button>
+
+                {/* Page Counter - Bottom Center */}
+                <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full shadow-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'
+                    }`}>
+                    <span className="text-sm font-semibold">
+                        {pageNumber} / {numPages || '...'}
+                    </span>
+                </div>
+
+                {/* Previous Page Button - Left */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); previousPage(); }}
+                    disabled={pageNumber <= 1}
+                    className={`fixed left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title="Oldingi sahifa (←)"
+                >
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                {/* Next Page Button - Right */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); nextPage(); }}
+                    disabled={pageNumber >= numPages}
+                    className={`fixed right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                        }`}
+                    title="Keyingi sahifa (→)"
+                >
+                    <ChevronRight className="w-6 h-6" />
+                </button>
             </div>
 
-            {/* Previous Page Button - Left */}
-            <button
-                onClick={previousPage}
-                disabled={pageNumber <= 1}
-                className={`fixed left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title="Oldingi sahifa (←)"
-            >
-                <ChevronLeft className="w-6 h-6" />
-            </button>
-
-            {/* Next Page Button - Right */}
-            <button
-                onClick={nextPage}
-                disabled={pageNumber >= numPages}
-                className={`fixed right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
-                    }`}
-                title="Keyingi sahifa (→)"
-            >
-                <ChevronRight className="w-6 h-6" />
-            </button>
-
-            {/* PDF Viewer - Full Screen */}
+            {/* Content Viewer (PDF or Text) */}
             <div
                 ref={containerRef}
-                className={`w-full h-full overflow-auto flex justify-center pt-4 ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}
+                className={`w-full h-full overflow-auto flex justify-center items-start pt-4 pb-20 z-10 relative ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}
+                onClick={() => {
+                    toggleControls();
+                }}
             >
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -381,26 +541,74 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                         </div>
                     </div>
                 )}
-                <div className={`transition-opacity duration-150 ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}>
-                    <Document
-                        file={fileUrl}
-                        onLoadSuccess={onDocumentLoadSuccess}
-                        loading=""
-                        error={
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center">
-                                    <p className={`text-lg font-semibold mb-2 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
-                                        Xatolik yuz berdi
-                                    </p>
-                                    <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-                                        PDF faylni yuklashda muammo yuz berdi
-                                    </p>
-                                </div>
-                            </div>
-                        }
+
+                {textMode ? (
+                    <div
+                        className={`max-w-3xl w-full px-6 py-8 mx-auto leading-relaxed transition-colors duration-200 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}
+                        style={{ fontSize: `${fontSize}px` }}
                     >
-                        {dualPageMode ? (
-                            <div className="flex gap-4">
+                        {isScanned ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <ImageIcon className="w-16 h-16 mb-4 text-gray-400" />
+                                <h3 className="text-xl font-semibold mb-2">Matn qatlami topilmadi</h3>
+                                <p className="text-gray-500 mb-6 max-w-md">
+                                    Ushbu kitob rasmlardan iborat (skaner qilingan) bo'lishi mumkin.
+                                    Shu sababli matn rejimini qo'llab-quvvatlamaydi.
+                                </p>
+                                <button
+                                    onClick={() => setTextMode(false)}
+                                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                                >
+                                    Original holatga qaytish
+                                </button>
+                            </div>
+                        ) : pageText ? (
+                            <p className="whitespace-pre-wrap">{pageText}</p>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-20 text-center opacity-60">
+                                <p>Matn yuklanmoqda...</p>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className={`transition-opacity duration-150 ${darkMode ? 'bg-[#2d2d2d]' : 'bg-white'}`}>
+                        <Document
+                            file={fileUrl}
+                            onLoadSuccess={onDocumentLoadSuccess}
+                            loading=""
+                            error={
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <p className={`text-lg font-semibold mb-2 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                                            Xatolik yuz berdi
+                                        </p>
+                                        <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                                            PDF faylni yuklashda muammo yuz berdi
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        >
+                            {dualPageMode ? (
+                                <div className="flex gap-4">
+                                    <Page
+                                        pageNumber={pageNumber}
+                                        width={pageWidth}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        className={darkMode ? 'pdf-dark-mode' : ''}
+                                    />
+                                    {pageNumber < numPages && (
+                                        <Page
+                                            pageNumber={pageNumber + 1}
+                                            width={pageWidth}
+                                            renderTextLayer={false}
+                                            renderAnnotationLayer={false}
+                                            className={darkMode ? 'pdf-dark-mode' : ''}
+                                        />
+                                    )}
+                                </div>
+                            ) : (
                                 <Page
                                     pageNumber={pageNumber}
                                     width={pageWidth}
@@ -408,27 +616,10 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                                     renderAnnotationLayer={false}
                                     className={darkMode ? 'pdf-dark-mode' : ''}
                                 />
-                                {pageNumber < numPages && (
-                                    <Page
-                                        pageNumber={pageNumber + 1}
-                                        width={pageWidth}
-                                        renderTextLayer={false}
-                                        renderAnnotationLayer={false}
-                                        className={darkMode ? 'pdf-dark-mode' : ''}
-                                    />
-                                )}
-                            </div>
-                        ) : (
-                            <Page
-                                pageNumber={pageNumber}
-                                width={pageWidth}
-                                renderTextLayer={false}
-                                renderAnnotationLayer={false}
-                                className={darkMode ? 'pdf-dark-mode' : ''}
-                            />
-                        )}
-                    </Document>
-                </div>
+                            )}
+                        </Document>
+                    </div>
+                )}
             </div>
 
             {/* Dark mode PDF styling */}

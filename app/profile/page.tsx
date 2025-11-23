@@ -111,26 +111,26 @@ export default function ProfilePage() {
 
     return (
         <ProtectedRoute>
-            <div className="container py-10 px-4 md:px-6 max-w-4xl mx-auto">
+            <div className="container py-6 md:py-10 px-4 md:px-6 max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Profil</h1>
-                        <p className="text-muted-foreground mt-1">Shaxsiy ma'lumotlaringizni boshqaring</p>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Profil</h1>
+                        <p className="text-sm md:text-base text-muted-foreground mt-1">Shaxsiy ma'lumotlaringizni boshqaring</p>
                     </div>
                     {!isEditing ? (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors min-h-[44px] w-full sm:w-auto"
                         >
                             <Edit2 className="w-4 h-4" />
                             Tahrirlash
                         </button>
                     ) : (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <button
                                 onClick={handleCancel}
-                                className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors min-h-[44px]"
                             >
                                 <X className="w-4 h-4" />
                                 Bekor qilish
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 min-h-[44px]"
                             >
                                 <Save className="w-4 h-4" />
                                 {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
@@ -147,58 +147,58 @@ export default function ProfilePage() {
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                     {/* Left Column - Profile Info */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-4 md:space-y-6">
                         {/* Avatar and Basic Info */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <div className="flex flex-col sm:flex-row items-start gap-6">
+                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
+                            <div className="flex flex-col sm:flex-row items-start gap-4 md:gap-6">
                                 {/* Avatar */}
-                                <div className="relative group">
-                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-white">
+                                <div className="relative group mx-auto sm:mx-0">
+                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl md:text-3xl font-bold text-white">
                                         {profile.name.charAt(0).toUpperCase()}
                                     </div>
                                     {isEditing && (
                                         <button className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Camera className="w-6 h-6 text-white" />
+                                            <Camera className="w-5 h-5 md:w-6 md:h-6 text-white" />
                                         </button>
                                     )}
                                 </div>
 
                                 {/* Info */}
-                                <div className="flex-1">
+                                <div className="flex-1 w-full">
                                     {isEditing ? (
-                                        <div className="space-y-4">
+                                        <div className="space-y-3 md:space-y-4">
                                             <div>
-                                                <label className="text-sm font-medium mb-1 block">Ism</label>
+                                                <label className="text-xs md:text-sm font-medium mb-1 block">Ism</label>
                                                 <input
                                                     type="text"
                                                     value={editedProfile.name}
                                                     onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
-                                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none"
+                                                    className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none min-h-[44px]"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-sm font-medium mb-1 block">Universitet</label>
+                                                <label className="text-xs md:text-sm font-medium mb-1 block">Universitet</label>
                                                 <input
                                                     type="text"
                                                     value={editedProfile.university || ''}
                                                     onChange={(e) => setEditedProfile({ ...editedProfile, university: e.target.value })}
-                                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none"
+                                                    className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none min-h-[44px]"
                                                 />
                                             </div>
                                         </div>
                                     ) : (
                                         <>
-                                            <h2 className="text-2xl font-bold mb-1">{profile.name}</h2>
-                                            <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                                                <Mail className="w-4 h-4" />
-                                                <span className="text-sm">{profile.email}</span>
+                                            <h2 className="text-xl md:text-2xl font-bold mb-1">{profile.name}</h2>
+                                            <div className="flex items-center gap-2 text-muted-foreground mb-2 md:mb-3">
+                                                <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                                                <span className="text-xs md:text-sm truncate">{profile.email}</span>
                                             </div>
                                             {profile.university && (
                                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                                    <Building2 className="w-4 h-4" />
-                                                    <span className="text-sm">{profile.university}</span>
+                                                    <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                                                    <span className="text-xs md:text-sm">{profile.university}</span>
                                                 </div>
                                             )}
                                         </>
@@ -207,18 +207,18 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Bio */}
-                            <div className="mt-6 pt-6 border-t border-border">
-                                <label className="text-sm font-medium mb-2 block">Bio</label>
+                            <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border">
+                                <label className="text-xs md:text-sm font-medium mb-2 block">Bio</label>
                                 {isEditing ? (
                                     <textarea
                                         value={editedProfile.bio || ''}
                                         onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
                                         rows={3}
                                         placeholder="O'zingiz haqingizda qisqacha yozing..."
-                                        className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none resize-none"
+                                        className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none resize-none"
                                     />
                                 ) : (
-                                    <p className="text-muted-foreground">
+                                    <p className="text-sm md:text-base text-muted-foreground">
                                         {profile.bio || 'Bio qo\'shilmagan'}
                                     </p>
                                 )}
@@ -226,8 +226,8 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Account Info */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <h3 className="font-bold mb-4">Hisob Ma'lumotlari</h3>
+                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
+                            <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Hisob Ma'lumotlari</h3>
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between py-2">
                                     <div className="flex items-center gap-3">
@@ -258,24 +258,24 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Right Column - Stats */}
-                    <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+                    <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24 lg:self-start">
                         {/* Level Card */}
-                        <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-2xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-primary">Daraja</h3>
-                                <Award className="w-5 h-5 text-primary" />
+                        <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl md:rounded-2xl p-4 md:p-6">
+                            <div className="flex items-center justify-between mb-3 md:mb-4">
+                                <h3 className="font-bold text-primary text-sm md:text-base">Daraja</h3>
+                                <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                             </div>
                             <div className="text-center">
-                                <div className="text-5xl font-bold mb-2">{profile.level}</div>
-                                <p className="text-sm text-muted-foreground">Hozirgi daraja</p>
+                                <div className="text-4xl md:text-5xl font-bold mb-2">{profile.level}</div>
+                                <p className="text-xs md:text-sm text-muted-foreground">Hozirgi daraja</p>
                             </div>
                         </div>
 
                         {/* XP Card */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold">Tajriba</h3>
-                                <TrendingUp className="w-5 h-5 text-primary" />
+                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
+                            <div className="flex items-center justify-between mb-3 md:mb-4">
+                                <h3 className="font-bold text-sm md:text-base">Tajriba</h3>
+                                <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between">
@@ -295,14 +295,14 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Streak Card */}
-                        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-2xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-amber-600 dark:text-amber-500">Streak</h3>
-                                <div className="text-2xl">🔥</div>
+                        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
+                            <div className="flex items-center justify-between mb-3 md:mb-4">
+                                <h3 className="font-bold text-amber-600 dark:text-amber-500 text-sm md:text-base">Streak</h3>
+                                <div className="text-xl md:text-2xl">🔥</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-4xl font-bold mb-2">{profile.streak_days}</div>
-                                <p className="text-sm text-muted-foreground">Kun ketma-ket</p>
+                                <div className="text-3xl md:text-4xl font-bold mb-2">{profile.streak_days}</div>
+                                <p className="text-xs md:text-sm text-muted-foreground">Kun ketma-ket</p>
                             </div>
                         </div>
                     </div>

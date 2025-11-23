@@ -105,18 +105,18 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
 
     return (
         <div className="space-y-8">
-            {/* Stats Header */}
-            <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl p-8 relative overflow-hidden">
+            {/* Stats Header - Mobile Optimized */}
+            <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl p-4 md:p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex items-center gap-6">
-                        <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-4xl shadow-inner">
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
+                    <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl md:text-4xl shadow-inner flex-shrink-0">
                             🏆
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold mb-2">Yutuqlar</h2>
-                            <p className="text-muted-foreground text-lg">
+                            <h2 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Yutuqlar</h2>
+                            <p className="text-muted-foreground text-sm md:text-lg">
                                 {unlockedCount} / {totalAchievements} ochilgan
                             </p>
                         </div>
@@ -124,10 +124,10 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
 
                     <div className="flex-1 w-full md:max-w-md">
                         <div className="flex justify-between items-end mb-2">
-                            <span className="text-sm font-medium text-muted-foreground">Umumiy jarayon</span>
-                            <span className="text-2xl font-bold text-primary">{progressPercent}%</span>
+                            <span className="text-xs md:text-sm font-medium text-muted-foreground">Umumiy jarayon</span>
+                            <span className="text-xl md:text-2xl font-bold text-primary">{progressPercent}%</span>
                         </div>
-                        <div className="w-full h-4 bg-muted/50 rounded-full overflow-hidden p-1 border border-border/50">
+                        <div className="w-full h-3 md:h-4 bg-muted/50 rounded-full overflow-hidden p-0.5 md:p-1 border border-border/50">
                             <div
                                 className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-1000 ease-out shadow-lg shadow-primary/20"
                                 style={{ width: `${progressPercent}%` }}
@@ -137,7 +137,7 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
                 </div>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs - Mobile Optimized */}
             <div className="flex p-1 bg-muted/50 rounded-xl w-full md:w-fit">
                 {[
                     { id: 'all', label: 'Barchasi', icon: Grid },
@@ -147,13 +147,13 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
-                                ? 'bg-background text-foreground shadow-sm scale-105'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                        className={`flex-1 md:flex-none flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all duration-300 min-h-[44px] ${activeTab === tab.id
+                            ? 'bg-background text-foreground shadow-sm scale-105'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                             }`}
                     >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.label}
+                        <tab.icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline">{tab.label}</span>
                     </button>
                 ))}
             </div>
@@ -173,18 +173,18 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
 
                     return (
                         <div key={tier} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex items-center gap-3 mb-6">
-                                <span className="text-2xl">{tierConfig[tier].icon}</span>
-                                <h3 className={`text-2xl font-bold ${tierConfig[tier].color}`}>
+                            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                                <span className="text-xl md:text-2xl flex-shrink-0">{tierConfig[tier].icon}</span>
+                                <h3 className={`text-lg md:text-2xl font-bold ${tierConfig[tier].color}`}>
                                     {tierConfig[tier].name}
                                 </h3>
                                 <div className="h-px flex-1 bg-border/50" />
-                                <span className="text-sm text-muted-foreground font-medium px-3 py-1 rounded-full bg-muted/50">
-                                    {tierAchievements.length} ta
+                                <span className="text-xs md:text-sm text-muted-foreground font-medium px-2 md:px-3 py-1 rounded-full bg-muted/50">
+                                    {tierAchievements.length}
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
                                 {tierAchievements.map(achievement => {
                                     const { current, target } = getProgress(achievement.key);
                                     return (

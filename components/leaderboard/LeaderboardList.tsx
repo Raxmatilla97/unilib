@@ -18,7 +18,7 @@ export function LeaderboardList({ users, currentUserId, type }: LeaderboardListP
     }
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
             {users.map((user) => (
                 <LeaderboardItem
                     key={user.user_id}

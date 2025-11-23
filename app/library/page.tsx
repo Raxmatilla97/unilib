@@ -128,10 +128,10 @@ export default async function LibraryPage({ searchParams }: PageProps) {
     );
 
     return (
-        <div className="container py-10 px-4 md:px-6">
-            <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold">Kutubxona</h1>
-                <p className="text-muted-foreground">{totalBooks} ta kitob</p>
+        <div className="container py-6 md:py-10 px-4 md:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 md:mb-8">
+                <h1 className="text-2xl md:text-3xl font-bold">Kutubxona</h1>
+                <p className="text-sm md:text-base text-muted-foreground">{totalBooks} ta kitob</p>
             </div>
 
             {/* Filters */}
@@ -143,7 +143,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                         {books.map((book: any) => (
                             <BookCard
                                 key={book.id}
@@ -161,19 +161,20 @@ export default async function LibraryPage({ searchParams }: PageProps) {
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-8">
+                        <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
                             <Link
                                 href={`/library?page=${page - 1}`}
-                                className={`flex items-center gap-1 px-4 py-2 rounded-lg border transition-colors ${page <= 1
+                                className={`flex items-center justify-center gap-1 px-3 md:px-4 py-2 rounded-lg border transition-colors min-h-[40px] ${page <= 1
                                     ? 'pointer-events-none opacity-50 border-border bg-muted'
                                     : 'border-border hover:bg-muted'
                                     }`}
+                                aria-label="Previous page"
                             >
                                 <ChevronLeft className="w-4 h-4" />
-                                Oldingi
+                                <span className="hidden sm:inline">Oldingi</span>
                             </Link>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 md:gap-2">
                                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                                     let pageNum;
                                     if (totalPages <= 5) {
@@ -190,7 +191,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
                                         <Link
                                             key={pageNum}
                                             href={`/library?page=${pageNum}`}
-                                            className={`px-4 py-2 rounded-lg border transition-colors ${page === pageNum
+                                            className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-lg border transition-colors text-sm md:text-base ${page === pageNum
                                                 ? 'bg-primary text-primary-foreground border-primary'
                                                 : 'border-border hover:bg-muted'
                                                 }`}
@@ -203,12 +204,13 @@ export default async function LibraryPage({ searchParams }: PageProps) {
 
                             <Link
                                 href={`/library?page=${page + 1}`}
-                                className={`flex items-center gap-1 px-4 py-2 rounded-lg border transition-colors ${page >= totalPages
+                                className={`flex items-center justify-center gap-1 px-3 md:px-4 py-2 rounded-lg border transition-colors min-h-[40px] ${page >= totalPages
                                     ? 'pointer-events-none opacity-50 border-border bg-muted'
                                     : 'border-border hover:bg-muted'
                                     }`}
+                                aria-label="Next page"
                             >
-                                Keyingi
+                                <span className="hidden sm:inline">Keyingi</span>
                                 <ChevronRight className="w-4 h-4" />
                             </Link>
                         </div>

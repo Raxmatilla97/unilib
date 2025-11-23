@@ -6,7 +6,8 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen overflow-hidden bg-background">
       {/* Hero Section - Compact & Professional */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+      {/* Hero Section - Compact & Professional */}
+      <section className="relative pt-12 pb-16 md:pt-24 md:pb-32 overflow-hidden">
         {/* Subtle Background Pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.15] text-primary"
           style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
@@ -22,38 +23,38 @@ export default function Home() {
         <div className="absolute top-40 right-[15%] w-8 h-8 bg-primary/20 rounded-full blur-sm animate-pulse hidden md:block" />
 
         <div className="container relative z-10 px-4 md:px-6 text-center max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 text-primary font-semibold text-xs md:text-sm mb-6 shadow-sm animate-fade-in">
-            <Sparkles className="w-3.5 h-3.5 fill-primary/20" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 text-primary font-semibold text-xs md:text-sm mb-4 md:mb-6 shadow-sm animate-fade-in">
+            <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 fill-primary/20" />
             <span>Universitet Kutubxonalarining Kelajagi</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-slide-up leading-[1.1] text-foreground">
+          <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 md:mb-6 animate-slide-up leading-[1.1] text-foreground">
             Cheksiz Bilimlar <br />
             <span className="text-primary relative inline-block">
               Sizning Qo'lingizda
               {/* Underline decoration */}
-              <svg className="absolute w-full h-2.5 -bottom-1 left-0 text-accent opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <svg className="absolute w-full h-2 md:h-2.5 -bottom-1 left-0 text-accent opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
               </svg>
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up delay-100 leading-relaxed font-medium">
+          <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 md:mb-10 animate-slide-up delay-100 leading-relaxed font-medium">
             UniLib — bu shunchaki kutubxona emas. Bu sizning <span className="text-primary font-bold">shaxsiy AI yordamchingiz</span>,
             o'quv guruhi markazi va muvaffaqiyat sari yo'llanmangizdir.
           </p>
 
-          <div className="animate-slide-up delay-200 mb-12 relative z-20">
+          <div className="animate-slide-up delay-200 mb-8 md:mb-12 relative z-20">
             <AISearchBar className="shadow-xl shadow-primary/5 border-primary/20 max-w-2xl mx-auto" />
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 animate-slide-up delay-300">
-            <Link href="/library" className="group relative px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-bold text-base shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all hover:-translate-y-0.5">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 animate-slide-up delay-300">
+            <Link href="/library" className="group relative px-6 py-3 md:py-3.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm md:text-base shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all hover:-translate-y-0.5 min-h-[44px] flex items-center justify-center">
               <span className="flex items-center gap-2">
                 Katalogga O'tish <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
-            <Link href="/groups" className="px-6 py-3.5 rounded-xl bg-card text-foreground font-bold text-base border border-border hover:border-primary/50 hover:bg-muted/30 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+            <Link href="/groups" className="px-6 py-3 md:py-3.5 rounded-xl bg-card text-foreground font-bold text-sm md:text-base border border-border hover:border-primary/50 hover:bg-muted/30 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 min-h-[44px] flex items-center justify-center">
               Guruhlarga Qo'shilish
             </Link>
           </div>
@@ -76,20 +77,20 @@ export default function Home() {
       </section>
 
       {/* Stats Section - Compact Cards */}
-      <section className="py-16 md:py-20 bg-muted/30">
+      <section className="py-12 md:py-20 bg-muted/30">
         <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
             {[
               { label: "Mavjud Kitoblar", value: "10k+", icon: Library, color: "text-primary", bg: "bg-primary/10" },
               { label: "Faol Talabalar", value: "5k+", icon: Users, color: "text-primary", bg: "bg-primary/10" },
               { label: "O'quv Guruhlari", value: "150+", icon: MessageCircle, color: "text-primary", bg: "bg-primary/10" },
               { label: "Iqtiboslar", value: "1M+", icon: Quote, color: "text-primary", bg: "bg-primary/10" }
             ].map((stat, i) => (
-              <div key={i} className="p-6 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all group text-center">
-                <div className={`w-12 h-12 mx-auto rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon className="w-6 h-6" />
+              <div key={i} className="p-4 md:p-6 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all group text-center">
+                <div className={`w-10 h-10 md:w-12 md:h-12 mx-auto rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
-                <div className="text-3xl font-bold text-foreground mb-1 tracking-tight">{stat.value}</div>
+                <div className="text-2xl md:text-3xl font-bold text-foreground mb-1 tracking-tight">{stat.value}</div>
                 <div className="text-muted-foreground font-medium uppercase tracking-wide text-[10px] md:text-xs">{stat.label}</div>
               </div>
             ))}
@@ -98,16 +99,16 @@ export default function Home() {
       </section>
 
       {/* Features Grid - Compact */}
-      <section id="features" className="py-20 md:py-24 bg-background scroll-mt-16">
+      <section id="features" className="py-16 md:py-24 bg-background scroll-mt-16">
         <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">Muvaffaqiyat Kalitlari</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <div className="text-center mb-10 md:mb-16">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 text-foreground">Muvaffaqiyat Kalitlari</h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Bizning platforma sizga o'qish jarayonini osonlashtirish va samaradorlikni oshirish uchun eng zamonaviy vositalarni taqdim etadi.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               {
                 icon: Users,
@@ -130,9 +131,9 @@ export default function Home() {
                 desc: "Ilmiy ishlaringiz uchun soniyalar ichida mukammal iqtiboslar yarating."
               }
             ].map((feature, i) => (
-              <div key={i} className="group p-6 rounded-xl bg-muted/20 hover:bg-card border border-transparent hover:border-border hover:shadow-lg transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-card border border-border flex items-center justify-center mb-4 text-primary shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                  <feature.icon className="w-6 h-6" />
+              <div key={i} className="group p-5 md:p-6 rounded-xl bg-muted/20 hover:bg-card border border-transparent hover:border-border hover:shadow-lg transition-all duration-300">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-card border border-border flex items-center justify-center mb-3 md:mb-4 text-primary shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <feature.icon className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <h3 className="text-lg font-bold mb-2 text-foreground">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -195,22 +196,22 @@ export default function Home() {
       </section>
 
       {/* Featured Books Section - Premium Grid */}
-      <section className="py-20 md:py-24 bg-background">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-10 gap-4">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 md:mb-10 gap-4">
             <div>
               <div className="flex items-center gap-2 text-primary font-bold mb-1 uppercase tracking-wider text-xs">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 Tavsiya Etamiz
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold">Hafta Trendlari</h2>
+              <h2 className="text-2xl md:text-4xl font-bold">Hafta Trendlari</h2>
             </div>
-            <Link href="/library" className="px-5 py-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition-colors font-medium flex items-center gap-2 group text-sm">
+            <Link href="/library" className="px-5 py-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition-colors font-medium flex items-center gap-2 group text-sm min-h-[44px]">
               Barcha kitoblar <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               { title: 'Introduction to Algorithms', author: 'Thomas H. Cormen', gradient: 'from-blue-600 to-indigo-700', rating: 4.9 },
               { title: 'Clean Code', author: 'Robert C. Martin', gradient: 'from-emerald-500 to-teal-700', rating: 4.8 },
@@ -229,7 +230,7 @@ export default function Home() {
                   <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
 
                   {/* Minimalist Cover Design */}
-                  <div className="absolute inset-0 flex flex-col justify-between p-5 text-white">
+                  <div className="absolute inset-0 flex flex-col justify-between p-3 md:p-5 text-white">
                     <div className="flex justify-end">
                       <div className="bg-black/20 backdrop-blur-md px-2 py-1 rounded flex items-center gap-1 text-[10px] font-bold border border-white/10">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -237,9 +238,9 @@ export default function Home() {
                       </div>
                     </div>
                     <div>
-                      <BookOpen className="w-8 h-8 mb-4 opacity-80" />
-                      <h3 className="font-bold leading-tight mb-1 text-lg line-clamp-3 drop-shadow-md">{book.title}</h3>
-                      <p className="text-xs opacity-90 font-medium text-white/80">{book.author}</p>
+                      <BookOpen className="w-6 h-6 md:w-8 md:h-8 mb-2 md:mb-4 opacity-80" />
+                      <h3 className="font-bold leading-tight mb-1 text-sm md:text-lg line-clamp-3 drop-shadow-md">{book.title}</h3>
+                      <p className="text-[10px] md:text-xs opacity-90 font-medium text-white/80">{book.author}</p>
                     </div>
                   </div>
                 </div>
@@ -452,9 +453,9 @@ export default function Home() {
       </section>
 
       {/* CTA Section - Adaptive Design */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-20">
         <div className="container px-4 md:px-6 max-w-5xl mx-auto">
-          <div className="relative rounded-[2.5rem] overflow-hidden p-10 md:p-20 text-center shadow-xl shadow-primary/5 dark:shadow-slate-900/20">
+          <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-6 md:p-20 text-center shadow-xl shadow-primary/5 dark:shadow-slate-900/20">
 
             {/* Layer 1: Light Mode Background (White Card) */}
             <div className="absolute inset-0 bg-white border-2 border-primary/10 dark:hidden" />
@@ -467,18 +468,18 @@ export default function Home() {
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/5 dark:bg-accent/20 blur-[100px] rounded-full pointer-events-none" />
 
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-primary dark:text-white">
+              <h2 className="text-2xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight text-primary dark:text-white">
                 O'qish jarayonini <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 dark:to-emerald-400">o'zgartirishga</span> tayyormisiz?
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground dark:text-slate-300 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
+              <p className="text-base md:text-xl text-muted-foreground dark:text-slate-300 mb-8 md:mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
                 Akademik maqsadlariga erishish uchun UniLib dan foydalanayotgan minglab talabalarga qo'shiling.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/library" className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25 hover:-translate-y-1">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+                <Link href="/library" className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base md:text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25 hover:-translate-y-1 min-h-[44px]">
                   Hozir Boshlash
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/register" className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-white dark:bg-white/10 text-primary dark:text-white font-bold text-lg hover:bg-gray-50 dark:hover:bg-white/20 backdrop-blur-sm transition-all border-2 border-primary/10 dark:border-white/10 shadow-sm">
+                <Link href="/register" className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-xl bg-white dark:bg-white/10 text-primary dark:text-white font-bold text-base md:text-lg hover:bg-gray-50 dark:hover:bg-white/20 backdrop-blur-sm transition-all border-2 border-primary/10 dark:border-white/10 shadow-sm min-h-[44px]">
                   Ro'yxatdan O'tish
                 </Link>
               </div>

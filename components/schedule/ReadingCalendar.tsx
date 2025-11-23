@@ -75,43 +75,47 @@ export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, on
     today.setHours(0, 0, 0, 0);
 
     return (
-        <div className="bg-card border border-border rounded-2xl p-6">
+        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <CalendarIcon className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold">
-                        {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            <div className="flex items-center justify-between mb-4 md:mb-6 gap-2">
+                <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                    <CalendarIcon className="w-5 h-5 md:w-6 md:h-6 text-primary flex-shrink-0" />
+                    <h2 className="text-lg md:text-2xl font-bold truncate">
+                        <span className="hidden sm:inline">{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</span>
+                        <span className="sm:hidden">{monthNames[currentDate.getMonth()].slice(0, 3)} {currentDate.getFullYear()}</span>
                     </h2>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                     <button
                         onClick={previousMonth}
-                        className="p-2 rounded-lg hover:bg-muted transition-colors"
+                        className="p-2 rounded-lg hover:bg-muted transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
+                        aria-label="Previous month"
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                     <button
                         onClick={nextMonth}
-                        className="p-2 rounded-lg hover:bg-muted transition-colors"
+                        className="p-2 rounded-lg hover:bg-muted transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
+                        aria-label="Next month"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                     <button
                         onClick={onAddSchedule}
-                        className="ml-2 flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                        className="ml-1 md:ml-2 flex items-center gap-2 px-3 md:px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors min-h-[40px]"
+                        aria-label="Add schedule"
                     >
                         <Plus className="w-4 h-4" />
-                        Reja qo'shish
+                        <span className="hidden sm:inline text-sm">Reja qo'shish</span>
                     </button>
                 </div>
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {/* Day names */}
                 {dayNames.map(day => (
-                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+                    <div key={day} className="text-center text-[10px] md:text-sm font-medium text-muted-foreground py-1 md:py-2">
                         {day}
                     </div>
                 ))}
@@ -134,25 +138,25 @@ export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, on
                             key={date.toISOString()}
                             onClick={() => onDateClick(date)}
                             className={`
-                                aspect-square p-2 rounded-lg border transition-all relative
+                                aspect-square p-1 md:p-2 rounded-md md:rounded-lg border transition-all relative
                                 ${isToday ? 'border-primary bg-primary/5' : 'border-border'}
                                 ${isPast ? 'opacity-80' : ''}
                                 hover:bg-muted hover:border-primary
                                 flex flex-col items-center justify-center
                             `}
                         >
-                            <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
+                            <span className={`text-xs md:text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
                                 {date.getDate()}
                             </span>
 
                             {/* Progress Indicators */}
-                            <div className="flex gap-1 mt-1">
+                            <div className="flex gap-0.5 md:gap-1 mt-0.5 md:mt-1">
                                 {isCompleted ? (
-                                    <div className="w-2 h-2 rounded-full bg-green-500" title="Kunlik maqsad bajarildi" />
+                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500" title="Kunlik maqsad bajarildi" />
                                 ) : hasProgress ? (
-                                    <div className="w-2 h-2 rounded-full bg-orange-500" title="O'qildi, lekin maqsadga yetilmadi" />
+                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500" title="O'qildi, lekin maqsadga yetilmadi" />
                                 ) : daySchedules.length > 0 ? (
-                                    <div className="w-2 h-2 rounded-full bg-primary/30" title="Rejalashtirilgan" />
+                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary/30" title="Rejalashtirilgan" />
                                 ) : null}
                             </div>
                         </button>
@@ -161,13 +165,13 @@ export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, on
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded border-2 border-primary bg-primary/10" />
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded border-2 border-primary bg-primary/10" />
                     <span>Bugun</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-primary" />
+                <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded bg-primary" />
                     <span>Rejalashtirilgan</span>
                 </div>
             </div>

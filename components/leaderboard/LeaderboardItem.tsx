@@ -47,42 +47,43 @@ export function LeaderboardItem({ rank, user, isCurrentUser, type }: Leaderboard
 
     return (
         <div className={cn(
-            "flex items-center gap-4 p-4 rounded-xl border transition-all",
+            "flex items-center gap-2 md:gap-4 p-3 md:p-4 rounded-lg md:rounded-xl border transition-all",
             getRankStyle(rank),
             isCurrentUser && "ring-2 ring-primary ring-offset-2 ring-offset-background"
         )}>
-            <div className="flex items-center justify-center w-8">
+            <div className="flex items-center justify-center w-6 md:w-8 flex-shrink-0">
                 {getRankIcon(rank)}
             </div>
 
-            <Avatar className="w-10 h-10 border-2 border-background">
+            <Avatar className="w-8 h-8 md:w-10 md:h-10 border-2 border-background flex-shrink-0">
                 <AvatarImage src={user.avatar_url} />
                 <AvatarFallback>{user.full_name?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
 
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-bold truncate">
+                    <h3 className="font-bold text-sm md:text-base truncate">
                         {user.full_name || 'Foydalanuvchi'}
-                        {isCurrentUser && <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Siz</span>}
+                        {isCurrentUser && <span className="ml-1 md:ml-2 text-[10px] md:text-xs bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 rounded-full">Siz</span>}
                     </h3>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10px] md:text-xs text-muted-foreground">
                     {user.level}-daraja
                 </p>
             </div>
 
-            <div className="text-right">
-                <div className="font-bold text-lg flex items-center justify-end gap-1">
+            <div className="text-right flex-shrink-0">
+                <div className="font-bold text-sm md:text-lg flex items-center justify-end gap-1">
                     {type === 'xp' ? (
                         <>
-                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                            {user.xp?.toLocaleString()} XP
+                            <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-yellow-500" />
+                            <span className="hidden sm:inline">{user.xp?.toLocaleString()} XP</span>
+                            <span className="sm:hidden text-xs">{(user.xp || 0) >= 1000 ? `${Math.floor((user.xp || 0) / 1000)}k` : user.xp}</span>
                         </>
                     ) : (
                         <>
-                            <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-                            {user.streak_days} kun
+                            <Flame className="w-3 h-3 md:w-4 md:h-4 text-orange-500 fill-orange-500" />
+                            <span>{user.streak_days} <span className="hidden sm:inline">kun</span></span>
                         </>
                     )}
                 </div>

@@ -147,41 +147,41 @@ export default function SchedulePage() {
 
     return (
         <ProtectedRoute>
-            <div className="container py-10 px-4 md:px-6 max-w-6xl mx-auto">
+            <div className="container py-6 md:py-10 px-4 md:px-6 max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold tracking-tight mb-2">
+                <div className="mb-6 md:mb-8">
+                    <h1 className="text-2xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
                         📅 O'qish Rejam
                     </h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm md:text-base text-muted-foreground">
                         Kitoblaringizni rejalashtiring va maqsadlaringizga erishing
                     </p>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className="bg-card border border-border rounded-xl p-6">
-                        <div className="text-3xl font-bold text-primary mb-1">
+                <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
+                    <div className="bg-card border border-border rounded-lg md:rounded-xl p-3 md:p-6">
+                        <div className="text-2xl md:text-3xl font-bold text-primary mb-0.5 md:mb-1">
                             {stats.active}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs md:text-sm text-muted-foreground">
                             Faol rejalar
                         </div>
                     </div>
-                    <div className="bg-card border border-border rounded-xl p-6">
-                        <div className="text-3xl font-bold text-green-500 mb-1">
+                    <div className="bg-card border border-border rounded-lg md:rounded-xl p-3 md:p-6">
+                        <div className="text-2xl md:text-3xl font-bold text-green-500 mb-0.5 md:mb-1">
                             {stats.completed}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs md:text-sm text-muted-foreground">
                             Tugatilgan
                         </div>
                     </div>
-                    <div className="bg-card border border-border rounded-xl p-6">
-                        <div className="text-3xl font-bold text-orange-500 mb-1">
+                    <div className="bg-card border border-border rounded-lg md:rounded-xl p-3 md:p-6">
+                        <div className="text-2xl md:text-3xl font-bold text-orange-500 mb-0.5 md:mb-1">
                             🔥 {stats.streak}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                            Kunlik streak
+                        <div className="text-xs md:text-sm text-muted-foreground">
+                            <span className="hidden sm:inline">Kunlik </span>streak
                         </div>
                     </div>
                 </div>
@@ -196,9 +196,9 @@ export default function SchedulePage() {
 
                 {/* Schedule List */}
                 {schedules.length > 0 && (
-                    <div className="mt-8">
-                        <h2 className="text-2xl font-bold mb-4">Faol Rejalar</h2>
-                        <div className="space-y-4">
+                    <div className="mt-6 md:mt-8">
+                        <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Faol Rejalar</h2>
+                        <div className="space-y-3 md:space-y-4">
                             {schedules.map((schedule: any) => {
                                 const now = new Date();
                                 const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -210,40 +210,40 @@ export default function SchedulePage() {
                                 return (
                                     <div
                                         key={schedule.id}
-                                        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow"
+                                        className="bg-card border border-border rounded-lg md:rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow"
                                     >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <h3 className="font-bold text-lg mb-1">
+                                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-bold text-base md:text-lg mb-1">
                                                     {schedule.books?.title}
                                                 </h3>
-                                                <p className="text-sm text-muted-foreground mb-3">
+                                                <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                                                     {schedule.books?.author}
                                                 </p>
-                                                <div className="flex items-center gap-4 text-sm">
-                                                    <span>
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs md:text-sm">
+                                                    <span className="flex items-center gap-1">
                                                         📅 {new Date(schedule.start_date).toLocaleDateString('uz-UZ')} - {new Date(schedule.end_date).toLocaleDateString('uz-UZ')}
                                                     </span>
                                                     {schedule.daily_goal_pages && (
-                                                        <span>
+                                                        <span className="flex items-center gap-1">
                                                             📖 {schedule.daily_goal_pages} sahifa/kun
                                                         </span>
                                                     )}
                                                     {schedule.daily_goal_minutes && (
-                                                        <span>
+                                                        <span className="flex items-center gap-1">
                                                             ⏱️ {schedule.daily_goal_minutes} daqiqa/kun
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="text-right min-w-[120px]">
-                                                <div className="text-sm text-muted-foreground mb-2">
+                                            <div className="text-left md:text-right md:min-w-[120px] flex-shrink-0">
+                                                <div className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2">
                                                     Bugungi Progress
                                                 </div>
-                                                <div className="text-2xl font-bold text-primary mb-1">
+                                                <div className="text-xl md:text-2xl font-bold text-primary mb-1">
                                                     {Math.round(progressPercent)}%
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
+                                                <div className="text-[10px] md:text-xs text-muted-foreground">
                                                     {todayProgress?.pages_read || 0} / {schedule.daily_goal_pages} sahifa
                                                 </div>
                                                 <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-2">
@@ -256,10 +256,10 @@ export default function SchedulePage() {
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+                                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border">
                                             <button
                                                 onClick={() => handleEdit(schedule)}
-                                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
+                                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs md:text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors min-h-[44px]"
                                             >
                                                 <Pencil className="w-4 h-4" />
                                                 Tahrirlash
@@ -267,7 +267,7 @@ export default function SchedulePage() {
                                             <button
                                                 onClick={() => handleDelete(schedule.id)}
                                                 disabled={deletingId === schedule.id}
-                                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors disabled:opacity-50"
+                                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs md:text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                                 {deletingId === schedule.id ? 'O\'chirilmoqda...' : 'O\'chirish'}
