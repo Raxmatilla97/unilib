@@ -1,10 +1,10 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { UserRole } from '@/lib/permissions';
+import { Role } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 
-export async function updateUserRole(userId: string, newRole: UserRole) {
+export async function updateUserRole(userId: string, newRole: Role) {
     try {
         const { error } = await supabaseAdmin
             .from('profiles')
