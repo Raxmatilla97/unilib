@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { BookCard } from '@/components/library/BookCard';
 import { LibraryFilters } from '@/components/library/LibraryFilters';
 import { supabaseAdmin } from '@/lib/supabase/server';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 
 export const revalidate = 60; // Cache for 60 seconds
 
@@ -128,95 +128,112 @@ export default async function LibraryPage({ searchParams }: PageProps) {
     );
 
     return (
-        <div className="container py-6 md:py-10 px-4 md:px-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold">Kutubxona</h1>
-                <p className="text-sm md:text-base text-muted-foreground">{totalBooks} ta kitob</p>
-            </div>
+        <div className="min-h-screen bg-background relative overflow-hidden">
+            {/* Dynamic Background */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[600px] bg-primary/5 blur-[120px] rounded-full opacity-50 pointer-events-none" />
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light pointer-events-none"></div>
 
-            {/* Filters */}
-            <LibraryFilters />
-
-            {books.length === 0 ? (
-                <div className="flex items-center justify-center min-h-[60vh]">
-                    <p className="text-muted-foreground">Hech qanday kitob topilmadi.</p>
+            <div className="container relative z-10 py-12 md:py-20 px-4 md:px-6">
+                <div className="flex flex-col gap-4 mb-12 text-center">
+                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                        Kutubxona
+                    </h1>
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        {totalBooks} ta kitob va qo'llanmalar sizni kutmoqda.
+                    </p>
                 </div>
-            ) : (
-                <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                        {books.map((book: any) => (
-                            <BookCard
-                                key={book.id}
-                                id={book.id}
-                                title={book.title}
-                                author={book.author}
-                                rating={book.rating}
-                                coverColor={book.cover_color || 'bg-blue-500'}
-                                category={book.category}
-                                cover_url={book.cover_url}
-                                readersCount={book.readersCount}
-                            />
-                        ))}
-                    </div>
 
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
-                            <Link
-                                href={`/library?page=${page - 1}`}
-                                className={`flex items-center justify-center gap-1 px-3 md:px-4 py-2 rounded-lg border transition-colors min-h-[40px] ${page <= 1
-                                    ? 'pointer-events-none opacity-50 border-border bg-muted'
-                                    : 'border-border hover:bg-muted'
-                                    }`}
-                                aria-label="Previous page"
-                            >
-                                <ChevronLeft className="w-4 h-4" />
-                                <span className="hidden sm:inline">Oldingi</span>
-                            </Link>
+                {/* Filters */}
+                <div className="mb-10">
+                    <LibraryFilters />
+                </div>
 
-                            <div className="flex items-center gap-1 md:gap-2">
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    let pageNum;
-                                    if (totalPages <= 5) {
-                                        pageNum = i + 1;
-                                    } else if (page <= 3) {
-                                        pageNum = i + 1;
-                                    } else if (page >= totalPages - 2) {
-                                        pageNum = totalPages - 4 + i;
-                                    } else {
-                                        pageNum = page - 2 + i;
-                                    }
-
-                                    return (
-                                        <Link
-                                            key={pageNum}
-                                            href={`/library?page=${pageNum}`}
-                                            className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-lg border transition-colors text-sm md:text-base ${page === pageNum
-                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                : 'border-border hover:bg-muted'
-                                                }`}
-                                        >
-                                            {pageNum}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-
-                            <Link
-                                href={`/library?page=${page + 1}`}
-                                className={`flex items-center justify-center gap-1 px-3 md:px-4 py-2 rounded-lg border transition-colors min-h-[40px] ${page >= totalPages
-                                    ? 'pointer-events-none opacity-50 border-border bg-muted'
-                                    : 'border-border hover:bg-muted'
-                                    }`}
-                                aria-label="Next page"
-                            >
-                                <span className="hidden sm:inline">Keyingi</span>
-                                <ChevronRight className="w-4 h-4" />
-                            </Link>
+                {books.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center min-h-[40vh] text-center p-8 rounded-3xl bg-muted/20 border border-border/50">
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                            <BookOpen className="w-8 h-8 text-muted-foreground" />
                         </div>
-                    )}
-                </>
-            )}
+                        <h3 className="text-xl font-bold mb-2">Hech qanday kitob topilmadi</h3>
+                        <p className="text-muted-foreground">Qidiruv so'zini o'zgartirib yoki filtrlarni tozalab ko'ring.</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                            {books.map((book: any) => (
+                                <BookCard
+                                    key={book.id}
+                                    id={book.id}
+                                    title={book.title}
+                                    author={book.author}
+                                    rating={book.rating}
+                                    coverColor={book.cover_color || 'bg-blue-500'}
+                                    category={book.category}
+                                    cover_url={book.cover_url}
+                                    readersCount={book.readersCount}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center gap-2 mt-16">
+                                <Link
+                                    href={`/library?page=${page - 1}`}
+                                    className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${page <= 1
+                                        ? 'pointer-events-none opacity-50 bg-muted text-muted-foreground'
+                                        : 'bg-card border border-border hover:border-primary/50 hover:shadow-lg'
+                                        }`}
+                                    aria-label="Previous page"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                    <span className="hidden sm:inline">Oldingi</span>
+                                </Link>
+
+                                <div className="flex items-center gap-2 px-4">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        let pageNum;
+                                        if (totalPages <= 5) {
+                                            pageNum = i + 1;
+                                        } else if (page <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (page >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + i;
+                                        } else {
+                                            pageNum = page - 2 + i;
+                                        }
+
+                                        return (
+                                            <Link
+                                                key={pageNum}
+                                                href={`/library?page=${pageNum}`}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold transition-all ${page === pageNum
+                                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-110'
+                                                    : 'bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground'
+                                                    }`}
+                                            >
+                                                {pageNum}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+
+                                <Link
+                                    href={`/library?page=${page + 1}`}
+                                    className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${page >= totalPages
+                                        ? 'pointer-events-none opacity-50 bg-muted text-muted-foreground'
+                                        : 'bg-card border border-border hover:border-primary/50 hover:shadow-lg'
+                                        }`}
+                                    aria-label="Next page"
+                                >
+                                    <span className="hidden sm:inline">Keyingi</span>
+                                    <ChevronRight className="w-5 h-5" />
+                                </Link>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }

@@ -49,85 +49,109 @@ export function LibraryFilters() {
     const hasActiveFilters = search || category !== 'all' || rating !== 'all' || sort !== 'newest';
 
     return (
-        <div className="mb-8 space-y-4">
+        <div className="space-y-6">
             {/* Search Bar */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    placeholder="Kitob yoki muallif qidiring..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 md:py-3 text-sm md:text-base rounded-lg md:rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
-                />
-                {search && (
-                    <button
-                        onClick={() => setSearch('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-                )}
+                <div className="relative flex items-center bg-background/50 backdrop-blur-xl border border-border rounded-2xl shadow-sm focus-within:border-primary/50 focus-within:shadow-lg focus-within:shadow-primary/5 transition-all">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="Kitob nomi, muallif yoki kalit so'z..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-12 pr-12 py-4 text-base bg-transparent border-none outline-none placeholder:text-muted-foreground/70"
+                    />
+                    {search && (
+                        <button
+                            onClick={() => setSearch('')}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition-colors"
+                        >
+                            <X className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters Row */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 md:gap-3 items-center">
+            <div className="flex flex-wrap gap-3 items-center justify-center sm:justify-start">
                 {/* Category Filter */}
-                <select
-                    value={category}
-                    onChange={(e) => {
-                        setCategory(e.target.value);
-                        updateFilters({ category: e.target.value });
-                    }}
-                    className="col-span-2 sm:col-span-1 w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
-                >
-                    <option value="all">Barcha kategoriyalar</option>
-                    <option value="Programming">Dasturlash</option>
-                    <option value="Science">Fan</option>
-                    <option value="Mathematics">Matematika</option>
-                    <option value="Literature">Adabiyot</option>
-                    <option value="History">Tarix</option>
-                    <option value="Philosophy">Falsafa</option>
-                    <option value="Physics">Fizika</option>
-                    <option value="Chemistry">Kimyo</option>
-                    <option value="Biology">Biologiya</option>
-                    <option value="Economics">Iqtisod</option>
-                    <option value="Psychology">Psixologiya</option>
-                </select>
+                <div className="relative group">
+                    <select
+                        value={category}
+                        onChange={(e) => {
+                            setCategory(e.target.value);
+                            updateFilters({ category: e.target.value });
+                        }}
+                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium min-w-[180px]"
+                    >
+                        <option value="all">Barcha yo'nalishlar</option>
+                        <option value="Kompyuter Ilmlari">Kompyuter Ilmlari</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Fizika">Fizika</option>
+                        <option value="Iqtisodiyot">Iqtisodiyot</option>
+                        <option value="Psixologiya">Psixologiya</option>
+                        <option value="Adabiyot">Adabiyot</option>
+                        <option value="Tarix">Tarix</option>
+                        <option value="Biologiya">Biologiya</option>
+                        <option value="Muhandislik">Muhandislik</option>
+                        <option value="Falsafa">Falsafa</option>
+                        <option value="San'at">San'at</option>
+                        <option value="Biznes">Biznes</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                </div>
 
                 {/* Rating Filter */}
-                <select
-                    value={rating}
-                    onChange={(e) => {
-                        setRating(e.target.value);
-                        updateFilters({ rating: e.target.value });
-                    }}
-                    className="w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
-                >
-                    <option value="all">Barcha reytinglar</option>
-                    <option value="4">4+ ⭐</option>
-                    <option value="3">3+ ⭐</option>
-                </select>
+                <div className="relative group">
+                    <select
+                        value={rating}
+                        onChange={(e) => {
+                            setRating(e.target.value);
+                            updateFilters({ rating: e.target.value });
+                        }}
+                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium"
+                    >
+                        <option value="all">Reyting</option>
+                        <option value="4">4+ Yulduz</option>
+                        <option value="3">3+ Yulduz</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                </div>
 
                 {/* Sort */}
-                <select
-                    value={sort}
-                    onChange={(e) => {
-                        setSort(e.target.value);
-                        updateFilters({ sort: e.target.value });
-                    }}
-                    className="w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 text-sm rounded-lg bg-card border border-border focus:border-primary outline-none cursor-pointer min-h-[44px]"
-                >
-                    <option value="newest">Yangi qo'shilganlar</option>
-                    <option value="rating">Yuqori rating</option>
-                    <option value="title">A-Z</option>
-                </select>
+                <div className="relative group">
+                    <select
+                        value={sort}
+                        onChange={(e) => {
+                            setSort(e.target.value);
+                            updateFilters({ sort: e.target.value });
+                        }}
+                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium"
+                    >
+                        <option value="newest">Eng yangilar</option>
+                        <option value="rating">Yuqori reyting</option>
+                        <option value="title">A-Z</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                </div>
 
                 {/* Clear Filters */}
                 {hasActiveFilters && (
                     <button
                         onClick={clearFilters}
-                        className="col-span-2 sm:col-span-1 w-full sm:w-auto px-3 md:px-4 py-2 md:py-2.5 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+                        className="px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-sm font-medium transition-all flex items-center gap-2"
                     >
                         <X className="w-4 h-4" />
                         Tozalash

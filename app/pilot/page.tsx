@@ -60,9 +60,8 @@ export default function PilotPage() {
 
             {/* Simple Search Bar */}
             <div className="w-full max-w-2xl mb-12 animate-slide-up delay-200 relative z-20">
-              <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative flex items-center bg-background/80 backdrop-blur-xl border border-primary/20 rounded-2xl shadow-2xl shadow-primary/5 overflow-hidden transition-all group-hover:border-primary/50 group-hover:shadow-primary/20">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative flex items-center bg-background/80 backdrop-blur-xl border border-primary/20 rounded-2xl shadow-2xl shadow-primary/5 overflow-hidden transition-all">
                   <Search className="w-6 h-6 text-muted-foreground ml-6" />
                   <input
                     type="text"
