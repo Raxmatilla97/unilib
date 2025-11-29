@@ -59,7 +59,7 @@ export function hasPermission(userRole: Role, requiredRole: Role): boolean {
  * Only Super Admin and System Admin
  */
 export function canManageOrganizations(userRole: Role): boolean {
-    return [ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN].includes(userRole);
+    return ([ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN] as Role[]).includes(userRole);
 }
 
 /**
@@ -75,13 +75,13 @@ export function canManageOrganization(userRole: Role): boolean {
  * Librarians and above (within organization)
  */
 export function canManageBooks(userRole: Role): boolean {
-    return [
+    return ([
         ROLES.SUPER_ADMIN,
         ROLES.SYSTEM_ADMIN,
         ROLES.ORG_ADMIN,
         ROLES.HEAD_LIBRARIAN,
         ROLES.LIBRARIAN
-    ].includes(userRole);
+    ] as Role[]).includes(userRole);
 }
 
 /**
@@ -113,7 +113,7 @@ export function canManageStudyGroups(userRole: Role): boolean {
  * Only Super Admin and System Admin
  */
 export function canViewAllOrganizations(userRole: Role): boolean {
-    return [ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN].includes(userRole);
+    return ([ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN] as Role[]).includes(userRole);
 }
 
 /**
@@ -160,14 +160,14 @@ export function getAssignableRoles(userRole: Role): Role[] {
  * Check if user is admin (any level)
  */
 export function isAdmin(userRole: Role): boolean {
-    return [ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN, ROLES.ORG_ADMIN].includes(userRole);
+    return ([ROLES.SUPER_ADMIN, ROLES.SYSTEM_ADMIN, ROLES.ORG_ADMIN] as Role[]).includes(userRole);
 }
 
 /**
  * Check if user is librarian (any level)
  */
 export function isLibrarian(userRole: Role): boolean {
-    return [ROLES.HEAD_LIBRARIAN, ROLES.LIBRARIAN].includes(userRole);
+    return ([ROLES.HEAD_LIBRARIAN, ROLES.LIBRARIAN] as Role[]).includes(userRole);
 }
 
 /**
@@ -175,7 +175,7 @@ export function isLibrarian(userRole: Role): boolean {
  * Students, Teachers, and Parents
  */
 export function canBorrowBooks(userRole: Role): boolean {
-    return [ROLES.STUDENT, ROLES.TEACHER, ROLES.PARENT].includes(userRole);
+    return ([ROLES.STUDENT, ROLES.TEACHER, ROLES.PARENT] as Role[]).includes(userRole);
 }
 
 /**

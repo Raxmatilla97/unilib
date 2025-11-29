@@ -7,14 +7,14 @@ import {
     Shield,
     Trash2
 } from 'lucide-react';
-import { UserRole } from '@/lib/permissions';
+import { Role, ROLES } from '@/lib/permissions';
 import { updateUserRole, deleteUser } from '@/app/admin/users/actions';
 
 interface User {
     id: string;
     name: string;
     email: string;
-    role: UserRole;
+    role: Role;
 
 
     university?: string;
@@ -45,7 +45,7 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
         user.email?.toLowerCase().includes(search.toLowerCase())
     );
 
-    const handleRoleUpdate = async (userId: string, newRole: UserRole) => {
+    const handleRoleUpdate = async (userId: string, newRole: Role) => {
         setIsLoading(userId);
         try {
             const result = await updateUserRole(userId, newRole);
@@ -129,19 +129,19 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                                         {editingId === user.id ? (
                                             <select
                                                 value={user.role}
-                                                onChange={(e) => handleRoleUpdate(user.id, e.target.value as UserRole)}
+                                                onChange={(e) => handleRoleUpdate(user.id, e.target.value as Role)}
                                                 disabled={isLoading === user.id}
                                                 className="bg-background border border-border rounded px-2 py-1 text-xs"
                                             >
-                                                <option value="USER">User</option>
-                                                <option value="LIBRARIAN">Kutubxonachi</option>
-                                                <option value="MODERATOR">Moderator</option>
-                                                <option value="SUPER_ADMIN">Super Admin</option>
+                                                <option value={ROLES.STUDENT}>Student</option>
+                                                <option value={ROLES.LIBRARIAN}>Kutubxonachi</option>
+                                                <option value={ROLES.ORG_ADMIN}>Org Admin</option>
+                                                <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
                                             </select>
                                         ) : (
-                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.role === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500' :
-                                                user.role === 'MODERATOR' ? 'bg-purple-500/10 text-purple-500' :
-                                                    user.role === 'LIBRARIAN' ? 'bg-blue-500/10 text-blue-500' :
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.role === ROLES.SUPER_ADMIN ? 'bg-red-500/10 text-red-500' :
+                                                user.role === ROLES.ORG_ADMIN ? 'bg-purple-500/10 text-purple-500' :
+                                                    user.role === ROLES.LIBRARIAN ? 'bg-blue-500/10 text-blue-500' :
                                                         'bg-gray-500/10 text-gray-500'
                                                 }`}>
                                                 {user.role}
@@ -208,20 +208,20 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                                 {editingId === user.id ? (
                                     <select
                                         value={user.role}
-                                        onChange={(e) => handleRoleUpdate(user.id, e.target.value as UserRole)}
+                                        onChange={(e) => handleRoleUpdate(user.id, e.target.value as Role)}
                                         disabled={isLoading === user.id}
                                         className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm"
                                     >
-                                        <option value="USER">User</option>
-                                        <option value="LIBRARIAN">Kutubxonachi</option>
-                                        <option value="MODERATOR">Moderator</option>
-                                        <option value="SUPER_ADMIN">Super Admin</option>
+                                        <option value={ROLES.STUDENT}>Student</option>
+                                        <option value={ROLES.LIBRARIAN}>Kutubxonachi</option>
+                                        <option value={ROLES.ORG_ADMIN}>Org Admin</option>
+                                        <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
                                     </select>
                                 ) : (
                                     <div className="flex items-center justify-between">
-                                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${user.role === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500' :
-                                            user.role === 'MODERATOR' ? 'bg-purple-500/10 text-purple-500' :
-                                                user.role === 'LIBRARIAN' ? 'bg-blue-500/10 text-blue-500' :
+                                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${user.role === ROLES.SUPER_ADMIN ? 'bg-red-500/10 text-red-500' :
+                                            user.role === ROLES.ORG_ADMIN ? 'bg-purple-500/10 text-purple-500' :
+                                                user.role === ROLES.LIBRARIAN ? 'bg-blue-500/10 text-blue-500' :
                                                     'bg-gray-500/10 text-gray-500'
                                             }`}>
                                             {user.role}
