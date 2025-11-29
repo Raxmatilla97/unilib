@@ -52,7 +52,7 @@ export default function EditBookPage() {
     }
 
     return (
-        <AdminRoute requiredPermission="books:update">
+        <AdminRoute>
             <BookForm initialData={book} />
         </AdminRoute>
     );
