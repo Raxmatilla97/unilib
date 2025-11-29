@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
-import { Search, User, BookOpen, Users, LayoutDashboard, Award, Menu, X, Sun, Moon, LogOut, Quote, Sparkles, Info, Mail, Trophy, Calendar, Shield } from 'lucide-react';
+import { Search, User, BookOpen, Users, LayoutDashboard, Award, Menu, X, Sun, Moon, LogOut, Quote, Sparkles, Info, Mail, Trophy, Calendar, Shield, Star, Zap } from 'lucide-react';
 
 export function Header() {
     const pathname = usePathname();
@@ -40,9 +40,10 @@ export function Header() {
     const isLandingPage = pathname === '/';
 
     const navItems = isLandingPage ? [
-        { href: '/library', label: 'Kutubxona', icon: BookOpen },
         { href: '#features', label: 'Xususiyatlar', icon: Sparkles },
-        { href: '#about', label: 'Biz haqimizda', icon: Info },
+        { href: '#about', label: 'Afzalliklar', icon: Star },
+        { href: '#pricing', label: 'Narxlar', icon: Zap },
+        { href: '#faq', label: 'Savollar', icon: Info },
         { href: '#contact', label: 'Aloqa', icon: Mail },
     ] : [
         { href: '/dashboard', label: 'Kabinet', icon: LayoutDashboard },
@@ -60,14 +61,14 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center px-4 md:px-6 justify-between">
+        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
+            <div className="container flex h-20 items-center px-4 md:px-6 justify-between">
                 {/* Logo - Always show */}
                 <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 font-bold text-lg md:text-xl">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-primary" />
                     </div>
-                    <span className="hidden sm:inline">UniLib</span>
+                    <span className="hidden sm:inline">LibraryID</span>
                 </Link>
 
                 {/* Desktop Nav - Only on landing page (sidebar handles logged-in navigation) */}
@@ -185,7 +186,7 @@ export function Header() {
             </div>
 
             {/* Mobile Menu - Improved spacing and touch targets */}
-            <div className={`md:hidden border-t border-border bg-card ${isMobileMenuOpen ? 'block' : 'hidden'} max-h-[calc(100vh-4rem)] overflow-y-auto`}>
+            <div className={`md:hidden border-t border-border bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 ${isMobileMenuOpen ? 'block' : 'hidden'} max-h-[calc(100vh-4rem)] overflow-y-auto`}>
                 <div className="container px-4 py-4 space-y-2">
                     {/* Search - Larger touch target */}
                     {user && (

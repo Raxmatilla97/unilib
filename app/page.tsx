@@ -1,492 +1,498 @@
 import Link from 'next/link';
-import { AISearchBar } from '@/components/search/AISearchBar';
-import { Users, Trophy, LayoutDashboard, Quote, BookOpen, ArrowRight, Sparkles, Search, MessageCircle, TrendingUp, Star, Code, Calculator, Atom, Globe, Brain, PenTool, History, Dna, Building, Palette, Briefcase, GraduationCap, Library, Lightbulb, Bookmark, Mail } from 'lucide-react';
+import {
+    CheckCircle, ArrowRight, Sparkles, Shield, Zap, Users,
+    TrendingUp, Clock, BookOpen, QrCode, Smartphone, BarChart3,
+    Building2, GraduationCap, School, Library, Award, Target,
+    Globe, Mail, Phone, ChevronRight, Star, Laptop, WifiOff,
+    Play, Layers, PieChart, Lock, History, X, Database, ChevronDown
+} from 'lucide-react';
+import { HeroActions } from '@/components/landing/HeroActions';
 
-export default function Home() {
-  return (
-    <div className="flex flex-col min-h-screen overflow-hidden bg-background">
-      {/* Hero Section - Compact & Professional */}
-      {/* Hero Section - Compact & Professional */}
-      <section className="relative pt-12 pb-16 md:pt-24 md:pb-32 overflow-hidden">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.15] text-primary"
-          style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
-        </div>
+export default function LandingPage() {
+    return (
+        <div className="flex flex-col min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-primary">
 
-        {/* Animated Gradient Orbs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 blur-[100px] rounded-full pointer-events-none animate-pulse-slow" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 blur-[100px] rounded-full pointer-events-none animate-pulse-slow delay-1000" />
+            {/* Hero Section */}
+            <section className="relative pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
+                {/* Dynamic Background */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[600px] bg-primary/10 blur-[120px] rounded-full opacity-50 pointer-events-none" />
 
-        {/* Floating Shapes */}
-        <div className="absolute top-20 left-[10%] w-16 h-16 border border-primary/20 rounded-2xl rotate-12 animate-fade-in opacity-20 hidden md:block" />
-        <div className="absolute bottom-20 right-[10%] w-24 h-24 border border-accent/20 rounded-full animate-fade-in delay-300 opacity-20 hidden md:block" />
-        <div className="absolute top-40 right-[15%] w-8 h-8 bg-primary/20 rounded-full blur-sm animate-pulse hidden md:block" />
+                {/* Grid Pattern */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        <div className="container relative z-10 px-4 md:px-6 text-center max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-background/80 backdrop-blur-sm border border-primary/20 text-primary font-semibold text-xs md:text-sm mb-4 md:mb-6 shadow-sm animate-fade-in">
-            <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 fill-primary/20" />
-            <span>Universitet Kutubxonalarining Kelajagi</span>
-          </div>
+                <div className="container relative z-10 px-4 md:px-6 mx-auto">
+                    <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
 
-          <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 md:mb-6 animate-slide-up leading-[1.1] text-foreground">
-            Cheksiz Bilimlar <br />
-            <span className="text-primary relative inline-block">
-              Sizning Qo'lingizda
-              {/* Underline decoration */}
-              <svg className="absolute w-full h-2 md:h-2.5 -bottom-1 left-0 text-accent opacity-80" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
-              </svg>
-            </span>
-          </h1>
+                        {/* Badge */}
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium text-sm mb-8 animate-fade-in backdrop-blur-sm">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                            </span>
+                            <span>O'zbekiston Milliy Kutubxona ID Tizimi</span>
+                        </div>
 
-          <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 md:mb-10 animate-slide-up delay-100 leading-relaxed font-medium">
-            UniLib — bu shunchaki kutubxona emas. Bu sizning <span className="text-primary font-bold">shaxsiy AI yordamchingiz</span>,
-            o'quv guruhi markazi va muvaffaqiyat sari yo'llanmangizdir.
-          </p>
+                        {/* Headline */}
+                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                            Kutubxonangizni <br />
+                            <span className="text-primary inline-block relative">
+                                Kelajakka
+                                <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
+                                </svg>
+                            </span>{' '}
+                            Olib O'ting
+                        </h1>
 
-          <div className="animate-slide-up delay-200 mb-8 md:mb-12 relative z-20">
-            <AISearchBar className="shadow-xl shadow-primary/5 border-primary/20 max-w-2xl mx-auto" />
-          </div>
+                        {/* Subheadline */}
+                        <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
+                            LibraryID — bu ta'lim muassasalari uchun yagona raqamli ekotizim.
+                            Jarayonlarni 90% ga tezlashtiring va to'liq nazoratga ega bo'ling.
+                        </p>
 
-          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 animate-slide-up delay-300">
-            <Link href="/library" className="group relative px-6 py-3 md:py-3.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm md:text-base shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all hover:-translate-y-0.5 min-h-[44px] flex items-center justify-center">
-              <span className="flex items-center gap-2">
-                Katalogga O'tish <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-            <Link href="/groups" className="px-6 py-3 md:py-3.5 rounded-xl bg-card text-foreground font-bold text-sm md:text-base border border-border hover:border-primary/50 hover:bg-muted/30 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 min-h-[44px] flex items-center justify-center">
-              Guruhlarga Qo'shilish
-            </Link>
-          </div>
-        </div>
-      </section>
+                        {/* CTA Buttons */}
+                        <HeroActions />
 
-      {/* Trusted By - Compact */}
-      <section className="py-8 border-y border-border/40 bg-card/50">
-        <div className="container px-4 md:px-6 text-center">
-          <p className="text-xs font-bold text-muted-foreground mb-6 uppercase tracking-[0.2em]">Bizga ishonch bildirgan universitetlar</p>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-            {['MIT', 'Stanford', 'Harvard', 'Oxford', 'Cambridge', 'Toshkent Davlat Universiteti'].map((uni, i) => (
-              <div key={i} className="text-lg md:text-xl font-bold flex items-center gap-2 hover:text-primary transition-colors cursor-default">
-                <GraduationCap className="w-6 h-6" />
-                {uni}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                        {/* Dashboard Preview (Glassmorphism) */}
+                        <div className="mt-16 md:mt-24 relative w-full max-w-5xl mx-auto perspective-1000">
+                            <div className="relative rounded-2xl border border-border/50 bg-background/50 backdrop-blur-xl shadow-2xl overflow-hidden transform rotate-x-12 hover:rotate-x-0 transition-transform duration-700 ease-out group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
 
-      {/* Stats Section - Compact Cards */}
-      <section className="py-12 md:py-20 bg-muted/30">
-        <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-            {[
-              { label: "Mavjud Kitoblar", value: "10k+", icon: Library, color: "text-primary", bg: "bg-primary/10" },
-              { label: "Faol Talabalar", value: "5k+", icon: Users, color: "text-primary", bg: "bg-primary/10" },
-              { label: "O'quv Guruhlari", value: "150+", icon: MessageCircle, color: "text-primary", bg: "bg-primary/10" },
-              { label: "Iqtiboslar", value: "1M+", icon: Quote, color: "text-primary", bg: "bg-primary/10" }
-            ].map((stat, i) => (
-              <div key={i} className="p-4 md:p-6 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all group text-center">
-                <div className={`w-10 h-10 md:w-12 md:h-12 mx-auto rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
-                </div>
-                <div className="text-2xl md:text-3xl font-bold text-foreground mb-1 tracking-tight">{stat.value}</div>
-                <div className="text-muted-foreground font-medium uppercase tracking-wide text-[10px] md:text-xs">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                                {/* Mockup Header */}
+                                <div className="h-10 border-b border-border/50 bg-muted/30 flex items-center px-4 gap-2">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                                        <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                                    </div>
+                                    <div className="ml-4 h-5 w-64 rounded-full bg-muted/50 text-[10px] flex items-center px-3 text-muted-foreground">
+                                        libraryid.uz/dashboard
+                                    </div>
+                                </div>
 
-      {/* Features Grid - Compact */}
-      <section id="features" className="py-16 md:py-24 bg-background scroll-mt-16">
-        <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="text-center mb-10 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 text-foreground">Muvaffaqiyat Kalitlari</h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Bizning platforma sizga o'qish jarayonini osonlashtirish va samaradorlikni oshirish uchun eng zamonaviy vositalarni taqdim etadi.
-            </p>
-          </div>
+                                {/* Mockup Content */}
+                                <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                                    {/* Sidebar Mock */}
+                                    <div className="hidden md:block space-y-4">
+                                        <div className="h-8 w-32 bg-primary/20 rounded-lg mb-6" />
+                                        {[1, 2, 3, 4, 5].map(i => (
+                                            <div key={i} className="h-10 w-full bg-muted/50 rounded-lg" />
+                                        ))}
+                                    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[
-              {
-                icon: Users,
-                title: "O'quv Guruhlari",
-                desc: "Fanlar bo'yicha guruhlarga qo'shiling va real vaqtda muhokama qiling."
-              },
-              {
-                icon: Trophy,
-                title: "Gamifikatsiya",
-                desc: "O'qiganingiz sari darajangizni oshiring va maxsus nishonlarga ega bo'ling."
-              },
-              {
-                icon: LayoutDashboard,
-                title: "Aqlli Boshqaruv",
-                desc: "Shaxsiy kabinetingizda o'sish ko'rsatkichlaringizni tahlil qiling."
-              },
-              {
-                icon: Quote,
-                title: "Iqtibos Generatori",
-                desc: "Ilmiy ishlaringiz uchun soniyalar ichida mukammal iqtiboslar yarating."
-              }
-            ].map((feature, i) => (
-              <div key={i} className="group p-5 md:p-6 rounded-xl bg-muted/20 hover:bg-card border border-transparent hover:border-border hover:shadow-lg transition-all duration-300">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-card border border-border flex items-center justify-center mb-3 md:mb-4 text-primary shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                  <feature.icon className="w-5 h-5 md:w-6 md:h-6" />
-                </div>
-                <h3 className="text-lg font-bold mb-2 text-foreground">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                                    {/* Main Content Mock */}
+                                    <div className="md:col-span-2 space-y-6">
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="h-24 rounded-xl bg-card border border-border/50 p-4">
+                                                    <div className="h-8 w-8 rounded-lg bg-primary/10 mb-2" />
+                                                    <div className="h-4 w-16 bg-muted rounded" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="h-64 rounded-xl bg-card border border-border/50 p-4">
+                                            <div className="flex items-end gap-2 h-full pb-4 px-4">
+                                                {[40, 70, 45, 90, 60, 80, 50, 75, 65, 85].map((h, i) => (
+                                                    <div key={i} className="flex-1 bg-primary/20 rounded-t-sm hover:bg-primary/40 transition-colors" style={{ height: `${h}%` }} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-      {/* How It Works Section - Compact */}
-      <section className="py-20 md:py-24 bg-muted/30">
-        <div className="container px-4 md:px-6 max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">3 Qadamda Boshlang</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              UniLib bilan ishlash juda oddiy va qulay.
-            </p>
-          </div>
+                            {/* Floating Elements */}
+                            <div className="absolute -right-12 top-1/4 p-4 rounded-2xl bg-card/80 backdrop-blur-md border border-border shadow-xl animate-float hidden lg:block">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                                        <CheckCircle className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold">Kitob Qaytarildi</div>
+                                        <div className="text-xs text-muted-foreground">Hozirgina • Alisher K.</div>
+                                    </div>
+                                </div>
+                            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
-            <div className="hidden md:block absolute top-10 left-[20%] right-[20%] h-[2px] bg-border" />
-
-            {[
-              {
-                icon: Search,
-                title: "Kashf Eting",
-                desc: "AI qidiruv tizimi orqali kerakli manbani toping.",
-                step: "01"
-              },
-              {
-                icon: Users,
-                title: "Hamkorlik",
-                desc: "Guruhlarga qo'shiling va bilim almashing.",
-                step: "02"
-              },
-              {
-                icon: TrendingUp,
-                title: "Rivojlaning",
-                desc: "Bilim darajangizni oshirib boring.",
-                step: "03"
-              }
-            ].map((item, i) => (
-              <div key={i} className="relative flex flex-col items-center text-center z-10 group">
-                <div className="w-20 h-20 rounded-full bg-card border-4 border-muted flex items-center justify-center mb-5 shadow-lg group-hover:border-primary transition-colors duration-300 relative">
-                  <item.icon className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-xs shadow-md border-2 border-background">
-                    {item.step}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Books Section - Premium Grid */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 md:mb-10 gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-primary font-bold mb-1 uppercase tracking-wider text-xs">
-                <Star className="w-3.5 h-3.5 fill-current" />
-                Tavsiya Etamiz
-              </div>
-              <h2 className="text-2xl md:text-4xl font-bold">Hafta Trendlari</h2>
-            </div>
-            <Link href="/library" className="px-5 py-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition-colors font-medium flex items-center gap-2 group text-sm min-h-[44px]">
-              Barcha kitoblar <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { title: 'Introduction to Algorithms', author: 'Thomas H. Cormen', gradient: 'from-blue-600 to-indigo-700', rating: 4.9 },
-              { title: 'Clean Code', author: 'Robert C. Martin', gradient: 'from-emerald-500 to-teal-700', rating: 4.8 },
-              { title: 'Design Patterns', author: 'Erich Gamma', gradient: 'from-slate-600 to-slate-800', rating: 4.7 },
-              { title: 'The Pragmatic Programmer', author: 'Andrew Hunt', gradient: 'from-amber-600 to-orange-700', rating: 4.9 },
-              { title: 'Artificial Intelligence', author: 'Stuart Russell', gradient: 'from-purple-600 to-indigo-600', rating: 4.8 },
-              { title: 'Deep Learning', author: 'Ian Goodfellow', gradient: 'from-rose-600 to-pink-700', rating: 4.7 },
-              { title: 'System Design Interview', author: 'Alex Xu', gradient: 'from-cyan-600 to-blue-700', rating: 4.9 },
-              { title: 'Cracking the Coding Interview', author: 'Gayle Laakmann', gradient: 'from-green-600 to-emerald-700', rating: 4.8 }
-            ].map((book, i) => (
-              <Link key={i} href={`/library/${i + 1}`} className="group block">
-                <div className="aspect-[2/3] rounded-xl overflow-hidden mb-3 relative shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-1">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${book.gradient} opacity-90`} />
-
-                  {/* Texture overlay */}
-                  <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
-
-                  {/* Minimalist Cover Design */}
-                  <div className="absolute inset-0 flex flex-col justify-between p-3 md:p-5 text-white">
-                    <div className="flex justify-end">
-                      <div className="bg-black/20 backdrop-blur-md px-2 py-1 rounded flex items-center gap-1 text-[10px] font-bold border border-white/10">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        {book.rating}
-                      </div>
+                            <div className="absolute -left-12 bottom-1/4 p-4 rounded-2xl bg-card/80 backdrop-blur-md border border-border shadow-xl animate-float delay-1000 hidden lg:block">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                                        <Users className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold">+125 O'quvchi</div>
+                                        <div className="text-xs text-muted-foreground">Bu hafta qo'shildi</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                      <BookOpen className="w-6 h-6 md:w-8 md:h-8 mb-2 md:mb-4 opacity-80" />
-                      <h3 className="font-bold leading-tight mb-1 text-sm md:text-lg line-clamp-3 drop-shadow-md">{book.title}</h3>
-                      <p className="text-[10px] md:text-xs opacity-90 font-medium text-white/80">{book.author}</p>
+                </div>
+            </section>
+
+            {/* Stats Section */}
+            <section className="py-10 border-y border-border/50 bg-muted/20 backdrop-blur-sm overflow-hidden">
+                <div className="container px-4 mx-auto">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                        {[
+                            { label: "Muassasalar", value: "50+", icon: Building2 },
+                            { label: "O'quvchilar", value: "25k+", icon: Users },
+                            { label: "Kitoblar", value: "100k+", icon: BookOpen },
+                            { label: "Tejalgan Vaqt", value: "90%", icon: Clock },
+                        ].map((stat, i) => (
+                            <div key={i} className="flex flex-col items-center justify-center text-center group">
+                                <div className="mb-3 p-3 rounded-2xl bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                                    <stat.icon className="w-6 h-6 text-primary" />
+                                </div>
+                                <div className="text-3xl md:text-4xl font-bold tracking-tight mb-1">{stat.value}</div>
+                                <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</div>
+                            </div>
+                        ))}
                     </div>
-                  </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* Popular Categories - Compact Pills */}
-      <section className="py-16 md:py-20 bg-muted/30">
-        <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ommabop Yo'nalishlar</h2>
-            <p className="text-muted-foreground text-sm md:text-base">Qiziqishlaringiz bo'yicha adabiyotlarni toping</p>
-          </div>
+            {/* Bento Grid Features */}
+            <section id="features" className="py-24 md:py-32 relative overflow-hidden">
+                <div className="container px-4 mx-auto relative z-10">
+                    <div className="text-center max-w-3xl mx-auto mb-20">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Barcha Jarayonlar <span className="text-primary">Bitta Tizimda</span></h2>
+                        <p className="text-lg text-muted-foreground">
+                            Eski uslubdagi qog'ozbozlikdan voz keching. LibraryID sizga zamonaviy boshqaruv vositalarini taqdim etadi.
+                        </p>
+                    </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { name: 'Computer Science', icon: Code },
-              { name: 'Mathematics', icon: Calculator },
-              { name: 'Physics', icon: Atom },
-              { name: 'Economics', icon: TrendingUp },
-              { name: 'Psychology', icon: Brain },
-              { name: 'Literature', icon: PenTool },
-              { name: 'History', icon: History },
-              { name: 'Biology', icon: Dna },
-              { name: 'Engineering', icon: Building },
-              { name: 'Philosophy', icon: Globe },
-              { name: 'Art', icon: Palette },
-              { name: 'Business', icon: Briefcase }
-            ].map((cat, i) => (
-              <Link key={i} href={`/library?category=${cat.name}`} className="group p-4 rounded-xl bg-card border border-border hover:border-primary hover:shadow-md transition-all text-center flex flex-col items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
-                  <cat.icon className="w-5 h-5" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                        {/* Large Card 1 */}
+                        <div className="md:col-span-2 rounded-3xl bg-card border border-border p-8 md:p-12 relative overflow-hidden group hover:border-primary/50 transition-all duration-500">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors" />
+                            <div className="relative z-10">
+                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                                    <QrCode className="w-7 h-7 text-primary" />
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold mb-4">Yagona ID Karta Tizimi</h3>
+                                <p className="text-muted-foreground text-lg max-w-md mb-8">
+                                    Har bir o'quvchi va xodim uchun maxsus QR kodli ID karta.
+                                    Kitob olish, binoga kirish va davomat uchun yagona yechim.
+                                </p>
+                                <div className="flex items-center gap-4 text-sm font-medium">
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-background border border-border">
+                                        <Zap className="w-4 h-4 text-yellow-500" />
+                                        5 soniyada skanerlash
+                                    </div>
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-background border border-border">
+                                        <Shield className="w-4 h-4 text-green-500" />
+                                        100% Xavfsiz
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tall Card */}
+                        <div className="md:row-span-2 rounded-3xl bg-card border border-border p-8 relative overflow-hidden group hover:border-primary/50 transition-all duration-500 flex flex-col">
+                            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-background to-transparent z-10" />
+                            <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
+                                <BarChart3 className="w-7 h-7 text-accent" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">Real-time Statistika</h3>
+                            <p className="text-muted-foreground mb-8">
+                                Kutubxona faoliyatini to'liq nazorat qiling. Eng ko'p o'qiladigan kitoblar va faol o'quvchilar reytingi.
+                            </p>
+
+                            {/* Chart Mockup */}
+                            <div className="mt-auto relative h-64 w-full bg-muted/20 rounded-xl border border-border/50 p-4 flex items-end justify-between gap-2 group-hover:scale-105 transition-transform duration-500">
+                                {[30, 50, 45, 70, 60, 90, 80].map((h, i) => (
+                                    <div key={i} className="w-full bg-accent/50 rounded-t-sm" style={{ height: `${h}%` }} />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Card 3 */}
+                        <div className="rounded-3xl bg-card border border-border p-8 relative overflow-hidden group hover:border-primary/50 transition-all duration-500">
+                            <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6">
+                                <Award className="w-6 h-6 text-green-500" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">Gamifikatsiya</h3>
+                            <p className="text-muted-foreground">
+                                O'quvchilarni kitob o'qishga ruhlantiring. XP, darajalar va yutuqlar tizimi.
+                            </p>
+                        </div>
+
+                        {/* Card 4 */}
+                        <div className="rounded-3xl bg-card border border-border p-8 relative overflow-hidden group hover:border-primary/50 transition-all duration-500">
+                            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                                <WifiOff className="w-6 h-6 text-orange-500" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">Offline Rejim</h3>
+                            <p className="text-muted-foreground">
+                                Internet bo'lmaganda ham ishlashda davom eting. Ma'lumotlar keyin sinxronlanadi.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div className="font-medium text-sm text-foreground">{cat.name}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* Testimonials - Compact Cards */}
-      <section className="py-20 md:py-24 bg-background">
-        <div className="container px-4 md:px-6 max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">Talabalar Muvaffaqiyati</h2>
+            {/* Comparison Section */}
+            <section id="about" className="py-24 md:py-32 bg-background relative overflow-hidden">
+                <div className="container px-4 mx-auto max-w-7xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Nega Aynan <span className="text-primary">LibraryID?</span></h2>
+                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                            Eski uslubdagi kutubxona va zamonaviy tizim o'rtasidagi farqni his qiling.
+                        </p>
+                    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                quote: "UniLib o'qish uslubimni o'zgartirdi. AI qidiruvi men topa olmagan kitoblarni topib beradi.",
-                author: "Alex Chen",
-                role: "Kompyuter Ilmlari",
-                avatar: "AC"
-              },
-              {
-                quote: "O'quv guruhlari ajoyib. Men murakkab mavzularni tushunishga yordam beradigan hamjamiyatni topdim.",
-                author: "Sarah Johnson",
-                role: "Tibbiyot",
-                avatar: "SJ"
-              },
-              {
-                quote: "Gamifikatsiya menga juda yoqadi! Nishonlarni yutish o'qishni o'yinga aylantiradi.",
-                author: "Michael Park",
-                role: "Adabiyotshunoslik",
-                avatar: "MP"
-              },
-              {
-                quote: "Iqtibos generatori mening eng sevimli vositam. Vaqtimni 50% ga tejaydi.",
-                author: "Dildora Aliyeva",
-                role: "Tarix",
-                avatar: "DA"
-              },
-              {
-                quote: "Dashboard orqali o'z o'sishimni kuzatib borish juda qulay. Har kuni o'qishga motivatsiya beradi.",
-                author: "Jasur Karimov",
-                role: "Iqtisodiyot",
-                avatar: "JK"
-              },
-              {
-                quote: "Kutubxona bazasi juda boy. O'zbek tilidagi nodir adabiyotlarni ham topish mumkinligi quvonarli.",
-                author: "Malika Saidova",
-                role: "Filologiya",
-                avatar: "MS"
-              }
-            ].map((testimonial, i) => (
-              <div key={i} className="p-6 rounded-xl bg-muted/10 border border-transparent hover:border-border hover:bg-card hover:shadow-lg transition-all duration-300">
-                <div className="mb-4 text-yellow-500 flex gap-1">
-                  {[1, 2, 3, 4, 5].map((_, j) => (
-                    <Star key={j} className="w-3.5 h-3.5 fill-current" />
-                  ))}
+                    <div className="grid md:grid-cols-2 gap-8 relative">
+                        {/* Old Way */}
+                        <div className="p-8 rounded-3xl bg-red-500/5 border border-red-500/20 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-20">
+                                <History className="w-24 h-24 md:w-32 md:h-32 text-red-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-6 text-red-500 flex items-center gap-2">
+                                <span className="p-2 rounded-lg bg-red-500/10"><X className="w-6 h-6" /></span>
+                                Eski Tizim
+                            </h3>
+                            <ul className="space-y-4">
+                                {[
+                                    "Har bir kitobni qo'lda yozib olish",
+                                    "Uzun navbatlar va kutish vaqti",
+                                    "Kitoblar yo'qolishi va hisobsizligi",
+                                    "Statistika va hisobotlar yo'qligi",
+                                    "O'quvchilarda qiziqish pastligi"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-muted-foreground">
+                                        <X className="w-5 h-5 text-red-500 shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* New Way */}
+                        <div className="p-8 rounded-3xl bg-primary/5 border border-primary/20 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-20">
+                                <Sparkles className="w-24 h-24 md:w-32 md:h-32 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
+                                <span className="p-2 rounded-lg bg-primary/10"><CheckCircle className="w-6 h-6" /></span>
+                                LibraryID
+                            </h3>
+                            <ul className="space-y-4">
+                                {[
+                                    "QR kod orqali 5 soniyada xizmat",
+                                    "Navbatlar yo'q, to'liq avtomatlashgan",
+                                    "100% nazorat va shaffoflik",
+                                    "Real vaqtda aniq statistika",
+                                    "Gamifikatsiya orqali yuqori motivatsiya"
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 font-medium">
+                                        <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <p className="text-base text-foreground/80 mb-6 leading-relaxed font-medium italic">
-                  "{testimonial.quote}"
-                </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-border/10">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm text-foreground">{testimonial.author}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{testimonial.role}</div>
-                  </div>
+            </section>
+
+            {/* Steps Section */}
+            <section className="py-24 md:py-32 bg-muted/20 overflow-hidden">
+                <div className="container px-4 mx-auto max-w-7xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">3 Qadamda <span className="text-primary">Ishga Tushiring</span></h2>
+                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                            Murakkab jarayonlar yo'q. Tizimni o'rnatish va ishlatish juda oson.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                step: "01",
+                                title: "Ro'yxatdan O'tish",
+                                desc: "Muassasangizni tizimga ulang va admin kabinetiga ega bo'ling.",
+                                icon: Building2
+                            },
+                            {
+                                step: "02",
+                                title: "Ma'lumotlarni Yuklash",
+                                desc: "O'quvchilar va kitoblar bazasini excel orqali oson yuklang.",
+                                icon: Database
+                            },
+                            {
+                                step: "03",
+                                title: "ID Kartalarni Tarqatish",
+                                desc: "QR kodli ID kartalarni tarqating va tizimdan foydalanishni boshlang.",
+                                icon: QrCode
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="relative p-8 rounded-3xl bg-background border border-border hover:border-primary/50 transition-all group">
+                                <div className="absolute -top-6 left-8 text-6xl font-black text-muted/20 group-hover:text-primary/10 transition-colors">
+                                    {item.step}
+                                </div>
+                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 relative z-10">
+                                    <item.icon className="w-7 h-7 text-primary" />
+                                </div>
+                                <h3 className="text-xl font-bold mb-3 relative z-10">{item.title}</h3>
+                                <p className="text-muted-foreground relative z-10">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* FAQ Section - Compact Accordion */}
-      <section className="py-20 md:py-24 bg-muted/30">
-        <div className="container px-4 md:px-6 max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border text-muted-foreground font-bold text-[10px] uppercase tracking-widest mb-3">
-              <Lightbulb className="w-3.5 h-3.5" />
-              Yordam Markazi
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ko'p So'raladigan Savollar</h2>
-          </div>
+            {/* FAQ Section */}
+            <section id="faq" className="py-24 md:py-32 bg-background overflow-hidden">
+                <div className="container px-4 mx-auto max-w-3xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Ko'p So'raladigan <span className="text-primary">Savollar</span></h2>
+                    </div>
 
-          <div className="space-y-3">
-            {[
-              { q: "UniLib talabalar uchun bepulmi?", a: "Ha! UniLib barcha universitet talabalari uchun mutlaqo bepul. Ro'yxatdan o'tish uchun talabalik guvohnomasi yoki universitet emaili talab qilinadi." },
-              { q: "Kitoblarni oflayn o'qish uchun yuklab olsam bo'ladimi?", a: "Albatta. Xavfsiz o'quvchi orqali oyiga 5 tagacha kitobni oflayn o'qish uchun yuklab olishingiz mumkin. Yuklab olingan kitoblar 30 kun davomida mavjud bo'ladi." },
-              { q: "AI qidiruvi qanday ishlaydi?", a: "Bizning AI shunchaki kalit so'zlarni emas, balki so'rovingizning mazmunini tahlil qiladi. Masalan, 'iqtisodiy inqirozlar haqida kitoblar' deb yozsangiz, u mavzuga oid eng yaxshi manbalarni saralab beradi." },
-              { q: "O'quv guruhlarini kim yaratadi?", a: "Har bir talaba o'quv guruhini yaratishi mumkin. O'qituvchilar ham rasmiy kurs guruhlarini ochishlari mumkin. Guruhlar ochiq yoki yopiq bo'lishi mumkin." },
-              { q: "Platformada qanday tillardagi kitoblar bor?", a: "Hozirda o'zbek, ingliz va rus tillaridagi 10,000 dan ortiq ilmiy va badiiy adabiyotlar mavjud. Baza har kuni yangilanib boriladi." },
-              { q: "Mobil ilovasi bormi?", a: "Hozirda biz veb-platformaga e'tibor qaratganmiz, ammo mobil ilova tez orada iOS va Android uchun taqdim etiladi." }
-            ].map((faq, i) => (
-              <div key={i} className="p-5 rounded-xl bg-card border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer">
-                <h3 className="text-base font-bold mb-2 flex items-center gap-3 text-foreground">
-                  <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] text-muted-foreground">?</span>
-                  {faq.q}
-                </h3>
-                <p className="text-muted-foreground pl-8 leading-relaxed text-sm">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* About Section */}
-      <section id="about" className="py-20 md:py-24 bg-muted/30 scroll-mt-16">
-        <div className="container px-4 md:px-6 max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">UniLib Haqida</h2>
-              <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
-                UniLib - bu zamonaviy talabalar uchun yaratilgan raqamli kutubxona platformasi. Biz o'qish jarayonini yanada samarali va qiziqarli qilish uchun eng so'nggi texnologiyalardan foydalanamiz.
-              </p>
-              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Platformamiz AI-powered qidiruv, real-time guruh muhokamalar, gamifikatsiya elementlari va ko'plab boshqa xususiyatlarni o'z ichiga oladi.
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-card border border-border">
-                  <div className="text-2xl font-bold text-primary mb-1">10k+</div>
-                  <div className="text-sm text-muted-foreground">Kitoblar</div>
+                    <div className="space-y-4">
+                        {[
+                            {
+                                q: "Tizimni o'rnatish uchun server kerakmi?",
+                                a: "Yo'q, LibraryID bulutli (cloud) tizim. Sizga faqat internet va kompyuter kerak."
+                            },
+                            {
+                                q: "Internet yo'q bo'lsa nima bo'ladi?",
+                                a: "Tizim offline rejimda ham ishlaydi. Internet paydo bo'lganda ma'lumotlar avtomatik sinxronlanadi."
+                            },
+                            {
+                                q: "ID kartalarni qayerdan olamiz?",
+                                a: "Biz sizga tayyor dizayn beramiz yoki o'zimiz chop etib yetkazib berishimiz mumkin."
+                            },
+                            {
+                                q: "Eski ma'lumotlarni qanday o'tkazamiz?",
+                                a: "Excel fayl orqali barcha kitoblar va o'quvchilarni bir zumda import qilishingiz mumkin."
+                            }
+                        ].map((item, i) => (
+                            <details key={i} className="group p-6 rounded-2xl bg-muted/20 open:bg-primary/5 transition-colors">
+                                <summary className="flex items-center justify-between font-bold text-lg cursor-pointer list-none">
+                                    {item.q}
+                                    <span className="transition-transform group-open:rotate-180">
+                                        <ChevronDown className="w-5 h-5" />
+                                    </span>
+                                </summary>
+                                <p className="mt-4 text-muted-foreground leading-relaxed">
+                                    {item.a}
+                                </p>
+                            </details>
+                        ))}
+                    </div>
                 </div>
-                <div className="p-4 rounded-lg bg-card border border-border">
-                  <div className="text-2xl font-bold text-primary mb-1">5k+</div>
-                  <div className="text-sm text-muted-foreground">Foydalanuvchilar</div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="pricing" className="py-24 md:py-32 bg-muted/20 overflow-hidden">
+                <div className="container px-4 mx-auto max-w-7xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Shaffof Narxlar</h2>
+                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                            Muassasangiz turiga mos keluvchi rejani tanlang. Yashirin to'lovlar yo'q.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                name: 'Maktab',
+                                price: '40,000',
+                                desc: 'Kichik va o\'rta maktablar uchun',
+                                features: ['200 tagacha o\'quvchi', '1,000 tagacha kitob', 'Asosiy funksiyalar', 'Email support']
+                            },
+                            {
+                                name: 'Kollej',
+                                price: '100,000',
+                                desc: 'Kollej va litseylar uchun',
+                                popular: true,
+                                features: ['500 tagacha o\'quvchi', '3,000 tagacha kitob', 'Barcha funksiyalar', 'Priority support', 'SMS xabarnomalar']
+                            },
+                            {
+                                name: 'Universitet',
+                                price: '250,000',
+                                desc: 'Oliy ta\'lim muassasalari uchun',
+                                features: ['Cheksiz o\'quvchi', 'Cheksiz kitob', 'Premium funksiyalar', '24/7 support', 'API integratsiya']
+                            }
+                        ].map((plan, i) => (
+                            <div key={i} className={`relative p-8 rounded-3xl border transition-all duration-300 ${plan.popular
+                                    ? 'bg-card border-primary shadow-2xl shadow-primary/10 md:scale-105 z-10'
+                                    : 'bg-background border-border hover:border-primary/50'
+                                }`}>
+                                {plan.popular && (
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-lg">
+                                        Eng Ommabop
+                                    </div>
+                                )}
+                                <div className="mb-8">
+                                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                                    <p className="text-sm text-muted-foreground mb-6">{plan.desc}</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-4xl font-bold">{plan.price}</span>
+                                        <span className="text-muted-foreground">so'm/oy</span>
+                                    </div>
+                                </div>
+                                <ul className="space-y-4 mb-8">
+                                    {plan.features.map((f, j) => (
+                                        <li key={j} className="flex items-center gap-3 text-sm">
+                                            <CheckCircle className={`w-5 h-5 ${plan.popular ? 'text-primary' : 'text-muted-foreground'}`} />
+                                            {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Link
+                                    href="#demo"
+                                    className={`block w-full py-4 rounded-xl font-bold text-center transition-all ${plan.popular
+                                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg'
+                                            : 'bg-muted hover:bg-muted/80'
+                                        }`}
+                                >
+                                    Tanlash
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border">
-                <BookOpen className="w-32 h-32 text-primary" />
-              </div>
-            </div>
-          </div>
+            </section>
+
+            {/* CTA Section */}
+            <section id="demo" className="py-24 md:py-32 relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary/5" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
+
+                <div className="container px-4 mx-auto relative z-10 text-center max-w-4xl">
+                    <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight">
+                        Kutubxonangizni Bugun <br />
+                        <span className="text-primary">Raqamlashtiring</span>
+                    </h2>
+                    <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
+                        30 kunlik bepul sinov davri. Kredit karta talab qilinmaydi.
+                        Hozir ro'yxatdan o'ting va 5 daqiqada ishga tushiring.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link
+                            href="/register"
+                            className="px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-xl shadow-xl hover:shadow-2xl hover:bg-primary/90 transition-all hover:-translate-y-1"
+                        >
+                            Bepul Boshlash
+                        </Link>
+                        <Link
+                            href="#contact"
+                            className="px-10 py-5 rounded-2xl bg-card border border-border hover:border-primary/50 text-foreground font-bold text-xl hover:bg-muted/50 transition-all"
+                        >
+                            Bog'lanish
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* Hidden Contact Anchor for Footer */}
+            <div id="contact" />
+
         </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20 md:py-24 bg-background scroll-mt-16">
-        <div className="container px-4 md:px-6 max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">Biz Bilan Bog'laning</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Savollaringiz bormi? Biz sizga yordam berishga tayyormiz!
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl bg-card border border-border text-center hover:shadow-lg transition-all">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Mail className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-bold mb-2">Email</h3>
-              <p className="text-sm text-muted-foreground">info@unilib.uz</p>
-            </div>
-            <div className="p-6 rounded-lg bg-card border border-border text-center hover:shadow-lg transition-all">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-bold mb-2">Telegram</h3>
-              <p className="text-sm text-muted-foreground">@unilib_support</p>
-            </div>
-            <div className="p-6 rounded-xl bg-card border border-border text-center hover:shadow-lg transition-all">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-bold mb-2">Manzil</h3>
-              <p className="text-sm text-muted-foreground">Toshkent, O'zbekiston</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Adaptive Design */}
-      <section className="py-12 md:py-20">
-        <div className="container px-4 md:px-6 max-w-5xl mx-auto">
-          <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-6 md:p-20 text-center shadow-xl shadow-primary/5 dark:shadow-slate-900/20">
-
-            {/* Layer 1: Light Mode Background (White Card) */}
-            <div className="absolute inset-0 bg-white border-2 border-primary/10 dark:hidden" />
-
-            {/* Layer 2: Dark Mode Background (Slate Gradient) */}
-            <div className="absolute inset-0 hidden dark:block bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-800" />
-
-            {/* Abstract shapes */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 dark:bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/5 dark:bg-accent/20 blur-[100px] rounded-full pointer-events-none" />
-
-            <div className="relative z-10">
-              <h2 className="text-2xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight text-primary dark:text-white">
-                O'qish jarayonini <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 dark:to-emerald-400">o'zgartirishga</span> tayyormisiz?
-              </h2>
-              <p className="text-base md:text-xl text-muted-foreground dark:text-slate-300 mb-8 md:mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
-                Akademik maqsadlariga erishish uchun UniLib dan foydalanayotgan minglab talabalarga qo'shiling.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-                <Link href="/library" className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base md:text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25 hover:-translate-y-1 min-h-[44px]">
-                  Hozir Boshlash
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-                <Link href="/register" className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-xl bg-white dark:bg-white/10 text-primary dark:text-white font-bold text-base md:text-lg hover:bg-gray-50 dark:hover:bg-white/20 backdrop-blur-sm transition-all border-2 border-primary/10 dark:border-white/10 shadow-sm min-h-[44px]">
-                  Ro'yxatdan O'tish
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    );
 }
