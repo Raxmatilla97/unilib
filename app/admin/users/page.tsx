@@ -18,10 +18,13 @@ async function getUsers(page: number = 1, limit: number = 10) {
         return { users: [], totalUsers: 0, totalPages: 0 };
     }
 
-    // Get paginated data
+    // Get paginated data with active loans count
     const { data: users, error } = await supabaseAdmin
         .from('profiles')
-        .select('*')
+        .select(`
+            *,
+            book_checkouts!book_checkouts_user_id_fkey(id, status)
+        `)
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -30,8 +33,14 @@ async function getUsers(page: number = 1, limit: number = 10) {
         return { users: [], totalUsers: 0, totalPages: 0 };
     }
 
+    // Count active loans for each user
+    const usersWithLoans = users?.map(user => ({
+        ...user,
+        activeLoansCount: user.book_checkouts?.filter((loan: any) => loan.status === 'active').length || 0
+    })) || [];
+
     return {
-        users: users || [],
+        users: usersWithLoans,
         totalUsers: count || 0,
         totalPages: Math.ceil((count || 0) / limit)
     };

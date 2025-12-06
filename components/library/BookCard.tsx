@@ -11,9 +11,10 @@ interface BookCardProps {
     category: string;
     cover_url?: string;
     readersCount?: number;
+    views_count?: number;
 }
 
-export function BookCard({ id, title, author, rating, coverColor, category, cover_url, readersCount }: BookCardProps) {
+export function BookCard({ id, title, author, rating, coverColor, category, cover_url, readersCount, views_count }: BookCardProps) {
     return (
         <Link href={`/library/${id}`} className="group block h-full">
             <div className="relative h-full flex flex-col bg-background/40 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/5 hover:border-primary/50 hover:-translate-y-1 transition-all duration-300">
@@ -62,10 +63,10 @@ export function BookCard({ id, title, author, rating, coverColor, category, cove
                                 <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
                                 <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">{rating}</span>
                             </div>
-                            {readersCount !== undefined && (
-                                <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium" title={`${readersCount} marta ko'rilgan`}>
+                            {views_count !== undefined && views_count > 0 && (
+                                <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium" title={`${views_count} marta ko'rilgan`}>
                                     <Eye className="w-3.5 h-3.5" />
-                                    <span>{readersCount}</span>
+                                    <span>{views_count}</span>
                                 </div>
                             )}
                         </div>

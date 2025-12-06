@@ -15,10 +15,12 @@ interface User {
     name: string;
     email: string;
     role: Role;
-
-
+    student_id?: string;
+    xp?: number;
+    streak?: number;
     university?: string;
     created_at: string;
+    activeLoansCount?: number;
 }
 
 interface UsersTableProps {
@@ -63,18 +65,21 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
     };
 
     const handleDelete = async (userId: string) => {
-        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+        if (!confirm('Rostdan ham bu foydalanuvchini o\'chirmoqchimisiz? Bu amalni qaytarib bo\'lmaydi.')) return;
 
         setIsLoading(userId);
         try {
             const result = await deleteUser(userId);
             if (result.success) {
                 setUsers(users.filter(u => u.id !== userId));
+                alert('Foydalanuvchi o\'chirildi!');
             } else {
-                alert('Failed to delete user');
+                alert(`Xatolik: ${result.error || 'Foydalanuvchini o\'chirib bo\'lmadi'}`);
+                console.error('Delete failed:', result.error);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Delete error:', error);
+            alert('Xatolik yuz berdi!');
         } finally {
             setIsLoading(null);
         }
@@ -106,8 +111,10 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                         <thead className="bg-muted/50 text-muted-foreground font-medium">
                             <tr>
                                 <th className="px-4 py-3">Foydalanuvchi</th>
+                                <th className="px-4 py-3">Student ID</th>
                                 <th className="px-4 py-3">Email</th>
-                                <th className="px-4 py-3">Universitet</th>
+                                <th className="px-4 py-3">XP</th>
+                                <th className="px-4 py-3">Qarzlar</th>
                                 <th className="px-4 py-3">Rol</th>
                                 <th className="px-4 py-3 text-right">Amallar</th>
                             </tr>
@@ -123,8 +130,35 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                                             {user.name || 'Nomsiz'}
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                                    <td className="px-4 py-3 text-muted-foreground">{user.university || '-'}</td>
+                                    <td className="px-4 py-3">
+                                        {user.student_id ? (
+                                            <span className="font-mono text-xs bg-blue-500/10 text-blue-600 px-2 py-1 rounded">
+                                                {user.student_id}
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted-foreground text-xs">-</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 text-muted-foreground text-sm">{user.email}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-orange-600">{user.xp || 0}</span>
+                                            {user.streak && user.streak > 0 && (
+                                                <span className="text-xs bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full">
+                                                    🔥 {user.streak}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {user.activeLoansCount && user.activeLoansCount > 0 ? (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-600">
+                                                {user.activeLoansCount} aktiv
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted-foreground text-xs">-</span>
+                                        )}
+                                    </td>
                                     <td className="px-4 py-3">
                                         {editingId === user.id ? (
                                             <select

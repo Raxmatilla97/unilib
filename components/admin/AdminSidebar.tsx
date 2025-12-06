@@ -13,6 +13,7 @@ import {
     Settings,
     Building2,
     ChevronRight,
+    History,
     X
 } from 'lucide-react';
 
@@ -26,12 +27,12 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const { hasPermission, isSuperAdmin } = useAuth();
 
     const navItems = [
-        {
-            href: '/super-admin',
-            label: 'Super Admin',
-            icon: Building2,
-            show: isSuperAdmin()
-        },
+        // {
+        //     href: '/super-admin',
+        //     label: 'Super Admin',
+        //     icon: Building2,
+        //     show: isSuperAdmin()
+        // },
         {
             href: '/admin',
             label: 'Dashboard',
@@ -39,9 +40,27 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             show: true
         },
         {
-            href: '/admin/books',
-            label: 'Kitoblar',
+            href: '/admin/books/online',
+            label: 'Online Kitoblar',
             icon: BookOpen,
+            show: hasPermission(ROLES.LIBRARIAN)
+        },
+        {
+            href: '/admin/books/offline',
+            label: 'Offline Kitoblar',
+            icon: BookOpen,
+            show: hasPermission(ROLES.LIBRARIAN)
+        },
+        {
+            href: '/admin/checker',
+            label: 'Kitob Berish/Qaytarish',
+            icon: ChevronRight,
+            show: hasPermission(ROLES.LIBRARIAN)
+        },
+        {
+            href: '/admin/transactions',
+            label: 'Qarzlar Tarixi',
+            icon: History,
             show: hasPermission(ROLES.LIBRARIAN)
         },
         {
@@ -57,10 +76,10 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             show: hasPermission(ROLES.TEACHER)
         },
         {
-            href: '/admin/analytics',
+            href: '/admin/statistika',
             label: 'Statistika',
             icon: BarChart3,
-            show: hasPermission(ROLES.TEACHER)
+            show: hasPermission(ROLES.LIBRARIAN)
         },
         {
             href: '/admin/settings',

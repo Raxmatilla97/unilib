@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase/client';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import QRCode from 'qrcode';
 import {
     User,
     Mail,
@@ -23,6 +24,8 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [activeLoans, setActiveLoans] = useState<any[]>([]);
 
     const [profile, setProfile] = useState({
         name: '',
@@ -33,7 +36,9 @@ export default function ProfilePage() {
         xp: 0,
         level: 1,
         streak_days: 0,
-        created_at: ''
+        created_at: '',
+        student_id: '',
+        organization_id: ''
     });
 
     const [editedProfile, setEditedProfile] = useState(profile);
@@ -57,6 +62,37 @@ export default function ProfilePage() {
             if (data) {
                 setProfile(data);
                 setEditedProfile(data);
+
+                // Generate QR code
+                if (data.student_id) {
+                    const qrText = `STUDENT-UNI-${data.student_id}`;
+                    const qrDataUrl = await QRCode.toDataURL(qrText, {
+                        width: 200,
+                        margin: 2,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    });
+                    setQrCodeUrl(qrDataUrl);
+                }
+
+                // Fetch active loans
+                const { data: loans } = await supabase
+                    .from('book_checkouts')
+                    .select(`
+                        *,
+                        physical_book_copies(
+                            barcode,
+                            copy_number,
+                            books(title, author, cover_color)
+                        )
+                    `)
+                    .eq('user_id', data.id)
+                    .eq('status', 'active')
+                    .order('due_date', { ascending: true });
+
+                setActiveLoans(loans || []);
             }
         } catch (error) {
             console.error('Error fetching profile:', JSON.stringify(error, null, 2));
@@ -204,6 +240,12 @@ export default function ProfilePage() {
                                                     <span className="text-xs md:text-sm">{profile.university}</span>
                                                 </div>
                                             )}
+                                            {profile.student_id && (
+                                                <div className="flex items-center gap-2 text-muted-foreground mt-2">
+                                                    <User className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                                                    <span className="text-xs md:text-sm font-mono">ID: {profile.student_id}</span>
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -227,6 +269,57 @@ export default function ProfilePage() {
                                 )}
                             </div>
                         </div>
+
+                        {/* Active Loans */}
+                        {activeLoans.length > 0 && (
+                            <div className="bg-card border border-border rounded-xl md:rounded-2xl overflow-hidden">
+                                <div className="p-4 md:p-6 border-b border-border">
+                                    <h3 className="font-bold text-sm md:text-base flex items-center gap-2">
+                                        <BookOpen className="w-5 h-5" />
+                                        Qarzda Kitoblar ({activeLoans.length})
+                                    </h3>
+                                </div>
+                                <div className="divide-y divide-border">
+                                    {activeLoans.map((loan) => {
+                                        const book = (loan.physical_book_copies as any)?.books;
+                                        const copy = loan.physical_book_copies as any;
+                                        const dueDate = new Date(loan.due_date);
+                                        const isOverdue = dueDate < new Date();
+                                        const daysRemaining = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+                                        return (
+                                            <div key={loan.id} className="p-4 hover:bg-muted/30 transition-colors">
+                                                <div className="flex gap-4">
+                                                    <div className={`w-12 h-16 rounded ${book?.cover_color || 'bg-primary'} flex-shrink-0`}></div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-semibold truncate">{book?.title}</h4>
+                                                        <p className="text-sm text-muted-foreground">{book?.author}</p>
+                                                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                                            <span className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+                                                                #{copy?.copy_number}
+                                                            </span>
+                                                            <div className="flex items-center gap-1 text-xs">
+                                                                <Calendar className="w-3 h-3" />
+                                                                <span>Muddat: {dueDate.toLocaleDateString()}</span>
+                                                            </div>
+                                                            {isOverdue ? (
+                                                                <span className="px-2 py-0.5 bg-red-500/10 text-red-600 text-xs rounded-full font-medium">
+                                                                    MUDDATI O'TGAN ({Math.abs(daysRemaining)} kun)
+                                                                </span>
+                                                            ) : daysRemaining <= 3 ? (
+                                                                <span className="px-2 py-0.5 bg-yellow-500/10 text-yellow-600 text-xs rounded-full font-medium">
+                                                                    {daysRemaining} kun qoldi
+                                                                </span>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Account Info */}
                         <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
@@ -308,6 +401,28 @@ export default function ProfilePage() {
                                 <p className="text-xs md:text-sm text-muted-foreground">Kun ketma-ket</p>
                             </div>
                         </div>
+
+                        {/* QR Code Card */}
+                        {profile.student_id && qrCodeUrl && (
+                            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
+                                <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Student QR Code</h3>
+                                <div className="bg-white p-4 rounded-lg flex items-center justify-center">
+                                    <img
+                                        src={qrCodeUrl}
+                                        alt="Student QR Code"
+                                        className="w-48 h-48"
+                                    />
+                                </div>
+                                <div className="mt-3 text-center space-y-1">
+                                    <p className="text-xs font-mono text-muted-foreground">
+                                        ID: {profile.student_id}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Kutubxonachiga ko'rsating
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

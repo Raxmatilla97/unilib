@@ -24,7 +24,7 @@ async function getBooks(
     // Build query with filters
     let booksQuery = supabaseAdmin
         .from('books')
-        .select('id, title, author, rating, cover_color, category, cover_url');
+        .select('id, title, author, rating, cover_color, category, cover_url, views_count');
 
     // Apply search filter
     if (search && search.trim()) {
@@ -171,6 +171,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
                                     category={book.category}
                                     cover_url={book.cover_url}
                                     readersCount={book.readersCount}
+                                    views_count={book.views_count}
                                 />
                             ))}
                         </div>
