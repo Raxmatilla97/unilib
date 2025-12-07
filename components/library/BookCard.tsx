@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, BookOpen, Eye } from 'lucide-react';
+import { Star, BookOpen, Eye, Wifi, WifiOff } from 'lucide-react';
 
 interface BookCardProps {
     id: string;
@@ -12,9 +12,10 @@ interface BookCardProps {
     cover_url?: string;
     readersCount?: number;
     views_count?: number;
+    hasPhysicalCopy?: boolean;
 }
 
-export function BookCard({ id, title, author, rating, coverColor, category, cover_url, readersCount, views_count }: BookCardProps) {
+export function BookCard({ id, title, author, rating, coverColor, category, cover_url, readersCount, views_count, hasPhysicalCopy }: BookCardProps) {
     return (
         <Link href={`/library/${id}`} className="group block h-full">
             <div className="relative h-full flex flex-col bg-background/40 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/5 hover:border-primary/50 hover:-translate-y-1 transition-all duration-300">
@@ -39,6 +40,21 @@ export function BookCard({ id, title, author, rating, coverColor, category, cove
                     <span className="absolute top-3 left-3 z-10 text-[10px] font-bold uppercase tracking-wider text-white bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/10">
                         {category}
                     </span>
+
+                    {/* Online/Offline Badge */}
+                    <div className="absolute top-3 right-3 z-10">
+                        {hasPhysicalCopy ? (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white bg-orange-500/90 px-2.5 py-1 rounded-lg backdrop-blur-md border border-orange-400/30 shadow-lg" title="Offline kitob - kutubxonadan olish mumkin">
+                                <WifiOff className="w-3 h-3" />
+                                <span>Offline</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white bg-green-500/90 px-2.5 py-1 rounded-lg backdrop-blur-md border border-green-400/30 shadow-lg" title="Online kitob - hozir o'qish mumkin">
+                                <Wifi className="w-3 h-3" />
+                                <span>Online</span>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Quick Action Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">

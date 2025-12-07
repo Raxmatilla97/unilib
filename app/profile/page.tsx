@@ -355,17 +355,27 @@ export default function ProfilePage() {
 
                     {/* Right Column - Stats */}
                     <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24 lg:self-start">
-                        {/* Level Card */}
-                        <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <div className="flex items-center justify-between mb-3 md:mb-4">
-                                <h3 className="font-bold text-primary text-sm md:text-base">Daraja</h3>
-                                <Award className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                        {/* QR Code Card - Moved to top */}
+                        {profile.student_id && qrCodeUrl && (
+                            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
+                                <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Student QR Code</h3>
+                                <div className="bg-white p-4 rounded-lg flex items-center justify-center">
+                                    <img
+                                        src={qrCodeUrl}
+                                        alt="Student QR Code"
+                                        className="w-48 h-48"
+                                    />
+                                </div>
+                                <div className="mt-3 text-center space-y-1">
+                                    <p className="text-xs font-mono text-muted-foreground">
+                                        ID: {profile.student_id}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Kutubxonachiga ko'rsating
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-4xl md:text-5xl font-bold mb-2">{profile.level}</div>
-                                <p className="text-xs md:text-sm text-muted-foreground">Hozirgi daraja</p>
-                            </div>
-                        </div>
+                        )}
 
                         {/* XP Card */}
                         <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
@@ -401,28 +411,6 @@ export default function ProfilePage() {
                                 <p className="text-xs md:text-sm text-muted-foreground">Kun ketma-ket</p>
                             </div>
                         </div>
-
-                        {/* QR Code Card */}
-                        {profile.student_id && qrCodeUrl && (
-                            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
-                                <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Student QR Code</h3>
-                                <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                                    <img
-                                        src={qrCodeUrl}
-                                        alt="Student QR Code"
-                                        className="w-48 h-48"
-                                    />
-                                </div>
-                                <div className="mt-3 text-center space-y-1">
-                                    <p className="text-xs font-mono text-muted-foreground">
-                                        ID: {profile.student_id}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Kutubxonachiga ko'rsating
-                                    </p>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

@@ -62,16 +62,8 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
-            <div className="container flex h-20 items-center px-4 md:px-6 justify-between">
-                {/* Logo - Always show */}
-                <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 font-bold text-lg md:text-xl">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-primary" />
-                    </div>
-                    <span className="hidden sm:inline">LibraryID</span>
-                </Link>
-
-                {/* Desktop Nav - Only on landing page (sidebar handles logged-in navigation) */}
+            <div className={`container flex h-16 items-center px-4 md:px-6 ${isLandingPage ? 'justify-between' : 'justify-end'}`}>
+                {/* Desktop Nav - Only on landing page */}
                 {isLandingPage && (
                     <nav className="hidden md:flex items-center gap-1">
                         {navItems.map((item) => {
