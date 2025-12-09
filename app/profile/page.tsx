@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase/client';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import QRCode from 'qrcode';
+import { useProfileData } from '@/lib/react-query/hooks';
 import {
     User,
     Mail,
@@ -18,94 +17,100 @@ import {
     X,
     Camera
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase/client';
+import { ProfileSkeleton } from '@/components/loading/ProfileSkeleton';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ProfilePage() {
     const { user } = useAuth();
+    const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState('');
-    const [activeLoans, setActiveLoans] = useState<any[]>([]);
+    const [barcodeUrl, setBarcodeUrl] = useState('');
 
-    const [profile, setProfile] = useState({
+    // ✅ Use React Query hook with automatic caching
+    const { data, isLoading, error } = useProfileData(user?.id);
+
+    const [editedProfile, setEditedProfile] = useState({
         name: '',
-        email: '',
         university: '',
-        bio: '',
-        avatar_url: '',
-        xp: 0,
-        level: 1,
-        streak_days: 0,
-        created_at: '',
-        student_id: '',
-        organization_id: ''
+        bio: ''
     });
 
-    const [editedProfile, setEditedProfile] = useState(profile);
-
+    // ✅ Memoize QR code and Barcode generation
     useEffect(() => {
-        if (user) {
-            fetchProfile();
-        }
-    }, [user]);
+        const generateCodes = async () => {
+            // Use student_number if available, fallback to student_id
+            const studentId = data?.profile?.student_number || data?.profile?.student_id;
+            if (!studentId) return;
 
-    const fetchProfile = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user?.id)
-                .single();
+            // QR Code
+            const qrCacheKey = `qr-${studentId}`;
+            const qrCached = localStorage.getItem(qrCacheKey);
 
-            if (error) throw error;
-
-            if (data) {
-                setProfile(data);
-                setEditedProfile(data);
-
-                // Generate QR code
-                if (data.student_id) {
-                    const qrText = `STUDENT-UNI-${data.student_id}`;
-                    const qrDataUrl = await QRCode.toDataURL(qrText, {
-                        width: 200,
-                        margin: 2,
-                        color: {
-                            dark: '#000000',
-                            light: '#FFFFFF'
-                        }
-                    });
-                    setQrCodeUrl(qrDataUrl);
-                }
-
-                // Fetch active loans
-                const { data: loans } = await supabase
-                    .from('book_checkouts')
-                    .select(`
-                        *,
-                        physical_book_copies(
-                            barcode,
-                            copy_number,
-                            books(title, author, cover_color)
-                        )
-                    `)
-                    .eq('user_id', data.id)
-                    .eq('status', 'active')
-                    .order('due_date', { ascending: true });
-
-                setActiveLoans(loans || []);
+            if (qrCached) {
+                setQrCodeUrl(qrCached);
+            } else {
+                const QRCode = (await import('qrcode')).default;
+                const qrText = `STUDENT-UNI-${studentId}`;
+                const qrDataUrl = await QRCode.toDataURL(qrText, {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                });
+                setQrCodeUrl(qrDataUrl);
+                localStorage.setItem(qrCacheKey, qrDataUrl);
             }
-        } catch (error) {
-            console.error('Error fetching profile:', JSON.stringify(error, null, 2));
-            if (error) {
-                console.error('Error details:', error);
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    const handleSave = async () => {
+            // Barcode
+            const barcodeCacheKey = `barcode-${studentId}`;
+            const barcodeCached = localStorage.getItem(barcodeCacheKey);
+
+            if (barcodeCached) {
+                setBarcodeUrl(barcodeCached);
+            } else {
+                const JsBarcode = (await import('jsbarcode')).default;
+                const canvas = document.createElement('canvas');
+                JsBarcode(canvas, studentId, {
+                    format: 'CODE128',
+                    width: 2,
+                    height: 80,
+                    displayValue: true,
+                    fontSize: 14,
+                    margin: 10
+                });
+                const barcodeDataUrl = canvas.toDataURL();
+                setBarcodeUrl(barcodeDataUrl);
+                localStorage.setItem(barcodeCacheKey, barcodeDataUrl);
+            }
+        };
+
+        generateCodes();
+    }, [data?.profile?.student_number, data?.profile?.student_id]);
+
+    // Update edited profile when data loads
+    useEffect(() => {
+        if (data?.profile) {
+            setEditedProfile({
+                name: data.profile.name || '',
+                university: data.profile.university || '',
+                bio: data.profile.bio || ''
+            });
+        }
+    }, [data?.profile]);
+
+    // ✅ Memoized save handler
+    const handleSave = useCallback(async () => {
+        if (!user?.id) return;
+
         setIsSaving(true);
+        const toastId = toast.loading('Saqlanmoqda...');
+
         try {
             const { error } = await supabase
                 .from('profiles')
@@ -114,301 +119,349 @@ export default function ProfilePage() {
                     university: editedProfile.university,
                     bio: editedProfile.bio
                 })
-                .eq('id', user?.id);
+                .eq('id', user.id);
 
             if (error) throw error;
 
-            setProfile(editedProfile);
+            toast.success('Profil yangilandi!', { id: toastId });
             setIsEditing(false);
+            queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            toast.error('Xatolik yuz berdi. Qaytadan urinib ko\'ring.', { id: toastId });
         } finally {
             setIsSaving(false);
         }
-    };
+    }, [user?.id, editedProfile, queryClient]);
 
-    const handleCancel = () => {
-        setEditedProfile(profile);
+    // ✅ Memoized cancel handler
+    const handleCancel = useCallback(() => {
+        if (data?.profile) {
+            setEditedProfile({
+                name: data.profile.name || '',
+                university: data.profile.university || '',
+                bio: data.profile.bio || ''
+            });
+        }
         setIsEditing(false);
-    };
+    }, [data?.profile]);
 
     if (isLoading) {
         return (
             <ProtectedRoute>
+                <ProfileSkeleton />
+            </ProtectedRoute>
+        );
+    }
+
+    if (error || !data?.profile) {
+        return (
+            <ProtectedRoute>
                 <div className="container py-10 px-4 md:px-6">
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <div className="text-center">
-                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-muted-foreground">Yuklanmoqda...</p>
-                        </div>
+                    <div className="text-center text-red-500">
+                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
             </ProtectedRoute>
         );
     }
 
+    const profile = data.profile;
+    const activeLoans = data.activeLoans;
+
     return (
         <ProtectedRoute>
-            <div className="container py-6 md:py-10 px-4 md:px-6 max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Profil</h1>
-                        <p className="text-sm md:text-base text-muted-foreground mt-1">Shaxsiy ma'lumotlaringizni boshqaring</p>
+            {/* Premium Background */}
+            <div className="min-h-screen bg-background relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[800px] h-[400px] bg-primary/5 blur-[100px] rounded-full opacity-60 pointer-events-none" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-soft-light pointer-events-none"></div>
+
+                <div className="container relative z-10 py-8 md:py-12 px-4 md:px-6 max-w-6xl mx-auto">
+                    {/* Premium Header */}
+                    <div className="mb-8 md:mb-10">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                                    Shaxsiy Profil
+                                </h1>
+                                <p className="text-base md:text-lg text-muted-foreground">
+                                    Ma'lumotlaringizni boshqaring va yangilang
+                                </p>
+                            </div>
+                            {!isEditing ? (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 min-h-[48px] w-full sm:w-auto"
+                                >
+                                    <Edit2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                                    <span className="font-semibold">Tahrirlash</span>
+                                </button>
+                            ) : (
+                                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-muted/50 backdrop-blur-sm text-foreground rounded-xl hover:bg-muted transition-all min-h-[48px]"
+                                    >
+                                        <X className="w-5 h-5" />
+                                        <span className="font-medium">Bekor qilish</span>
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
+                                    >
+                                        <Save className="w-5 h-5" />
+                                        <span className="font-semibold">{isSaving ? 'Saqlanmoqda...' : 'Saqlash'}</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    {!isEditing ? (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors min-h-[44px] w-full sm:w-auto"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                            Tahrirlash
-                        </button>
-                    ) : (
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            <button
-                                onClick={handleCancel}
-                                className="flex items-center justify-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors min-h-[44px]"
-                            >
-                                <X className="w-4 h-4" />
-                                Bekor qilish
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 min-h-[44px]"
-                            >
-                                <Save className="w-4 h-4" />
-                                {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
-                            </button>
-                        </div>
-                    )}
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                    {/* Left Column - Profile Info */}
-                    <div className="lg:col-span-2 space-y-4 md:space-y-6">
-                        {/* Avatar and Basic Info */}
-                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <div className="flex flex-col sm:flex-row items-start gap-4 md:gap-6">
-                                {/* Avatar */}
-                                <div className="relative group mx-auto sm:mx-0">
-                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl md:text-3xl font-bold text-white">
-                                        {profile.name.charAt(0).toUpperCase()}
-                                    </div>
-                                    {isEditing && (
-                                        <button className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Camera className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Info */}
-                                <div className="flex-1 w-full">
-                                    {isEditing ? (
-                                        <div className="space-y-3 md:space-y-4">
-                                            <div>
-                                                <label className="text-xs md:text-sm font-medium mb-1 block">Ism</label>
-                                                <input
-                                                    type="text"
-                                                    value={editedProfile.name}
-                                                    onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
-                                                    className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none min-h-[44px]"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-xs md:text-sm font-medium mb-1 block">Universitet</label>
-                                                <input
-                                                    type="text"
-                                                    value={editedProfile.university || ''}
-                                                    onChange={(e) => setEditedProfile({ ...editedProfile, university: e.target.value })}
-                                                    className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none min-h-[44px]"
-                                                />
-                                            </div>
+                    {/* Main Content Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                        {/* Left Column - Profile Info */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Avatar and Basic Info Card */}
+                            <div className="bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl p-6 md:p-8 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                                <div className="flex flex-col sm:flex-row items-start gap-6">
+                                    {/* Avatar */}
+                                    <div className="relative group mx-auto sm:mx-0">
+                                        <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary via-primary/80 to-accent flex items-center justify-center text-3xl md:text-4xl font-bold text-white shadow-lg ring-4 ring-primary/20">
+                                            {profile.name.charAt(0).toUpperCase()}
                                         </div>
-                                    ) : (
-                                        <>
-                                            <h2 className="text-xl md:text-2xl font-bold mb-1">{profile.name}</h2>
-                                            <div className="flex items-center gap-2 text-muted-foreground mb-2 md:mb-3">
-                                                <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                                                <span className="text-xs md:text-sm truncate">{profile.email}</span>
+                                        {isEditing && (
+                                            <button className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <Camera className="w-6 h-6 text-white" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div className="flex-1 w-full">
+                                        {isEditing ? (
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label className="text-sm font-semibold mb-2 block text-foreground/80">Ism</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editedProfile.name}
+                                                        onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
+                                                        className="w-full px-4 py-3 text-base bg-background/50 backdrop-blur-sm border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-sm font-semibold mb-2 block text-foreground/80">Universitet</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editedProfile.university}
+                                                        onChange={(e) => setEditedProfile({ ...editedProfile, university: e.target.value })}
+                                                        className="w-full px-4 py-3 text-base bg-background/50 backdrop-blur-sm border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none"
+                                                    />
+                                                </div>
                                             </div>
-                                            {profile.university && (
-                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                    <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                                                    <span className="text-xs md:text-sm">{profile.university}</span>
+                                        ) : (
+                                            <>
+                                                <h2 className="text-2xl md:text-3xl font-bold mb-3">{profile.name}</h2>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-3 text-muted-foreground">
+                                                        <Mail className="w-4 h-4 flex-shrink-0" />
+                                                        <span className="text-sm truncate">{profile.email}</span>
+                                                    </div>
+                                                    {profile.university && (
+                                                        <div className="flex items-center gap-3 text-muted-foreground">
+                                                            <Building2 className="w-4 h-4 flex-shrink-0" />
+                                                            <span className="text-sm">{profile.university}</span>
+                                                        </div>
+                                                    )}
+                                                    {(profile.student_number || profile.student_id) && (
+                                                        <div className="flex items-center gap-3 mt-3">
+                                                            <User className="w-4 h-4 flex-shrink-0 text-primary" />
+                                                            <span className="text-sm font-mono font-semibold text-primary">
+                                                                ID: {profile.student_number || profile.student_id}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                            {profile.student_id && (
-                                                <div className="flex items-center gap-2 text-muted-foreground mt-2">
-                                                    <User className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
-                                                    <span className="text-xs md:text-sm font-mono">ID: {profile.student_id}</span>
-                                                </div>
-                                            )}
-                                        </>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Bio */}
+                                <div className="mt-6 pt-6 border-t border-border/40">
+                                    <label className="text-sm font-semibold mb-3 block">Bio</label>
+                                    {isEditing ? (
+                                        <textarea
+                                            value={editedProfile.bio}
+                                            onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
+                                            rows={3}
+                                            placeholder="O'zingiz haqingizda qisqacha yozing..."
+                                            className="w-full px-4 py-3 text-base bg-background/50 backdrop-blur-sm border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none resize-none"
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">
+                                            {profile.bio || 'Bio qo\'shilmagan'}
+                                        </p>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Bio */}
-                            <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border">
-                                <label className="text-xs md:text-sm font-medium mb-2 block">Bio</label>
-                                {isEditing ? (
-                                    <textarea
-                                        value={editedProfile.bio || ''}
-                                        onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
-                                        rows={3}
-                                        placeholder="O'zingiz haqingizda qisqacha yozing..."
-                                        className="w-full px-3 py-2 text-sm md:text-base bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none resize-none"
-                                    />
-                                ) : (
-                                    <p className="text-sm md:text-base text-muted-foreground">
-                                        {profile.bio || 'Bio qo\'shilmagan'}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                            {/* Active Loans */}
+                            {activeLoans.length > 0 && (
+                                <div className="bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl overflow-hidden shadow-xl">
+                                    <div className="p-6 border-b border-border/40 bg-gradient-to-r from-primary/5 to-transparent">
+                                        <h3 className="font-bold text-base flex items-center gap-2">
+                                            <BookOpen className="w-5 h-5 text-primary" />
+                                            Qarzda Kitoblar ({activeLoans.length})
+                                        </h3>
+                                    </div>
+                                    <div className="divide-y divide-border/40">
+                                        {activeLoans.map((loan: any) => {
+                                            const book = loan.physical_book_copies?.books;
+                                            const copy = loan.physical_book_copies;
+                                            const dueDate = new Date(loan.due_date);
+                                            const isOverdue = dueDate < new Date();
+                                            const daysRemaining = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
-                        {/* Active Loans */}
-                        {activeLoans.length > 0 && (
-                            <div className="bg-card border border-border rounded-xl md:rounded-2xl overflow-hidden">
-                                <div className="p-4 md:p-6 border-b border-border">
-                                    <h3 className="font-bold text-sm md:text-base flex items-center gap-2">
-                                        <BookOpen className="w-5 h-5" />
-                                        Qarzda Kitoblar ({activeLoans.length})
-                                    </h3>
-                                </div>
-                                <div className="divide-y divide-border">
-                                    {activeLoans.map((loan) => {
-                                        const book = (loan.physical_book_copies as any)?.books;
-                                        const copy = loan.physical_book_copies as any;
-                                        const dueDate = new Date(loan.due_date);
-                                        const isOverdue = dueDate < new Date();
-                                        const daysRemaining = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-
-                                        return (
-                                            <div key={loan.id} className="p-4 hover:bg-muted/30 transition-colors">
-                                                <div className="flex gap-4">
-                                                    <div className={`w-12 h-16 rounded ${book?.cover_color || 'bg-primary'} flex-shrink-0`}></div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-semibold truncate">{book?.title}</h4>
-                                                        <p className="text-sm text-muted-foreground">{book?.author}</p>
-                                                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                                            <span className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
-                                                                #{copy?.copy_number}
-                                                            </span>
-                                                            <div className="flex items-center gap-1 text-xs">
-                                                                <Calendar className="w-3 h-3" />
-                                                                <span>Muddat: {dueDate.toLocaleDateString()}</span>
+                                            return (
+                                                <div key={loan.id} className="p-4 hover:bg-muted/30 transition-colors">
+                                                    <div className="flex gap-4">
+                                                        <div className={`w-12 h-16 rounded-lg ${book?.cover_color || 'bg-primary'} flex-shrink-0 shadow-md`}></div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="font-semibold truncate">{book?.title}</h4>
+                                                            <p className="text-sm text-muted-foreground">{book?.author}</p>
+                                                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                                                <span className="text-xs font-mono bg-muted px-2 py-0.5 rounded">
+                                                                    #{copy?.copy_number}
+                                                                </span>
+                                                                <div className="flex items-center gap-1 text-xs">
+                                                                    <Calendar className="w-3 h-3" />
+                                                                    <span>Muddat: {dueDate.toLocaleDateString()}</span>
+                                                                </div>
+                                                                {isOverdue ? (
+                                                                    <span className="px-2 py-0.5 bg-red-500/10 text-red-600 text-xs rounded-full font-medium">
+                                                                        MUDDATI O'TGAN ({Math.abs(daysRemaining)} kun)
+                                                                    </span>
+                                                                ) : daysRemaining <= 3 ? (
+                                                                    <span className="px-2 py-0.5 bg-yellow-500/10 text-yellow-600 text-xs rounded-full font-medium">
+                                                                        {daysRemaining} kun qoldi
+                                                                    </span>
+                                                                ) : null}
                                                             </div>
-                                                            {isOverdue ? (
-                                                                <span className="px-2 py-0.5 bg-red-500/10 text-red-600 text-xs rounded-full font-medium">
-                                                                    MUDDATI O'TGAN ({Math.abs(daysRemaining)} kun)
-                                                                </span>
-                                                            ) : daysRemaining <= 3 ? (
-                                                                <span className="px-2 py-0.5 bg-yellow-500/10 text-yellow-600 text-xs rounded-full font-medium">
-                                                                    {daysRemaining} kun qoldi
-                                                                </span>
-                                                            ) : null}
                                                         </div>
                                                     </div>
                                                 </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Account Info */}
+                            <div className="bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl p-6 shadow-xl">
+                                <h3 className="font-bold mb-4 text-base">Hisob Ma'lumotlari</h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between py-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                <Mail className="w-5 h-5 text-primary" />
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Account Info */}
-                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Hisob Ma'lumotlari</h3>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between py-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                                            <Mail className="w-5 h-5 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Email</p>
-                                            <p className="text-sm text-muted-foreground">{profile.email}</p>
+                                            <div>
+                                                <p className="text-sm font-medium">Email</p>
+                                                <p className="text-sm text-muted-foreground">{profile.email}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex items-center justify-between py-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                                            <Calendar className="w-5 h-5 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Qo'shilgan sana</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {new Date(profile.created_at).toLocaleDateString('uz-UZ')}
-                                            </p>
+                                    <div className="flex items-center justify-between py-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                <Calendar className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium">Qo'shilgan sana</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {new Date(profile.created_at).toLocaleDateString('uz-UZ')}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Right Column - Stats */}
-                    <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24 lg:self-start">
-                        {/* QR Code Card - Moved to top */}
-                        {profile.student_id && qrCodeUrl && (
-                            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
-                                <h3 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Student QR Code</h3>
-                                <div className="bg-white p-4 rounded-lg flex items-center justify-center">
-                                    <img
-                                        src={qrCodeUrl}
-                                        alt="Student QR Code"
-                                        className="w-48 h-48"
-                                    />
+                        {/* Right Column - Stats */}
+                        <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+                            {/* QR Code Card */}
+                            {profile.student_id && qrCodeUrl && (
+                                <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 rounded-2xl p-6 shadow-xl">
+                                    <h3 className="font-bold mb-4 text-base">Talaba ID</h3>
+
+                                    {/* QR Code */}
+                                    <div className="bg-white p-4 rounded-xl flex items-center justify-center mb-4 shadow-md">
+                                        <img
+                                            src={qrCodeUrl}
+                                            alt="Student QR Code"
+                                            className="w-48 h-48"
+                                        />
+                                    </div>
+
+                                    {/* Barcode */}
+                                    {barcodeUrl && (
+                                        <div className="bg-white p-4 rounded-xl flex items-center justify-center mb-4 shadow-md">
+                                            <img
+                                                src={barcodeUrl}
+                                                alt="Student Barcode"
+                                                className="max-w-full h-auto"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="mt-3 text-center space-y-1">
+                                        <p className="text-xs font-mono text-muted-foreground font-semibold">
+                                            ID: {profile.student_number || profile.student_id}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Kutubxonachiga ko'rsating
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="mt-3 text-center space-y-1">
-                                    <p className="text-xs font-mono text-muted-foreground">
-                                        ID: {profile.student_id}
+                            )}
+
+                            {/* XP Card */}
+                            <div className="bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl p-6 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-base">Tajriba</h3>
+                                    <TrendingUp className="w-5 h-5 text-primary" />
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-2xl font-bold">{profile.xp} XP</span>
+                                        <span className="text-sm text-muted-foreground">Jami</span>
+                                    </div>
+                                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                                            style={{ width: `${(profile.xp % 1000) / 10}%` }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground text-center">
+                                        {1000 - (profile.xp % 1000)} XP keyingi darajaga
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Kutubxonachiga ko'rsating
-                                    </p>
                                 </div>
                             </div>
-                        )}
 
-                        {/* XP Card */}
-                        <div className="bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <div className="flex items-center justify-between mb-3 md:mb-4">
-                                <h3 className="font-bold text-sm md:text-base">Tajriba</h3>
-                                <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-2xl font-bold">{profile.xp} XP</span>
-                                    <span className="text-sm text-muted-foreground">Jami</span>
+                            {/* Streak Card */}
+                            <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-2xl p-6 shadow-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-bold text-amber-600 dark:text-amber-500 text-base">Streak</h3>
+                                    <div className="text-2xl">🔥</div>
                                 </div>
-                                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-gradient-to-r from-primary to-accent"
-                                        style={{ width: `${(profile.xp % 1000) / 10}%` }}
-                                    />
+                                <div className="text-center">
+                                    <div className="text-4xl font-bold mb-2">{profile.streak_days}</div>
+                                    <p className="text-sm text-muted-foreground">Kun ketma-ket</p>
                                 </div>
-                                <p className="text-xs text-muted-foreground text-center">
-                                    {1000 - (profile.xp % 1000)} XP keyingi darajaga
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Streak Card */}
-                        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <div className="flex items-center justify-between mb-3 md:mb-4">
-                                <h3 className="font-bold text-amber-600 dark:text-amber-500 text-sm md:text-base">Streak</h3>
-                                <div className="text-xl md:text-2xl">🔥</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-3xl md:text-4xl font-bold mb-2">{profile.streak_days}</div>
-                                <p className="text-xs md:text-sm text-muted-foreground">Kun ketma-ket</p>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,54 @@
+# Ignore node_modules
+node_modules
+npm-debug.log
+
+# Ignore Next.js build output
+.next
+out
+build
+
+# Ignore development files
+.env*.local
+.env.development
+.env.test
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore documentation
+README.md
+INSTRUCTIONS.md
+MIGRATION_INSTRUCTIONS.md
+VERCEL_DEPLOYMENT.md
+docs
+
+# Ignore test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__
+
+# Ignore TypeScript build info
+*.tsbuildinfo
+
+# Ignore logs
+*.log
+logs
+
+# Ignore temporary files
+tmp
+temp
+*.tmp

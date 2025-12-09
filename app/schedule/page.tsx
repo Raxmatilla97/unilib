@@ -1,149 +1,114 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ReadingCalendar } from '@/components/schedule/ReadingCalendar';
 import { ScheduleBookModal } from '@/components/schedule/ScheduleBookModal';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Pencil, Trash2 } from 'lucide-react';
-import { updateSchedule, deleteSchedule } from './actions';
+import { useScheduleData } from '@/lib/react-query/hooks';
+import { deleteSchedule } from './actions';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { ScheduleSkeleton } from '@/components/loading/ScheduleSkeleton';
 
 export default function SchedulePage() {
     const { user } = useAuth();
-    const [schedules, setSchedules] = useState<any[]>([]);
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>();
-    const [loading, setLoading] = useState(true);
     const [editingSchedule, setEditingSchedule] = useState<any>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [dailyProgress, setDailyProgress] = useState<any[]>([]);
-    const [stats, setStats] = useState({
-        active: 0,
-        completed: 0,
-        streak: 0
-    });
 
-    useEffect(() => {
-        if (user) {
-            fetchData();
-        }
-    }, [user]);
+    // ✅ Use React Query hook with automatic caching
+    const { data, isLoading, error } = useScheduleData(user?.id);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [schedulesResponse, progressResponse, profileResponse] = await Promise.all([
-                supabase
-                    .from('reading_schedule')
-                    .select(`
-                        *,
-                        books (
-                            title,
-                            author,
-                            pages
-                        )
-                    `)
-                    .eq('user_id', user?.id)
-                    .neq('status', 'deleted')
-                    .order('start_date', { ascending: true }),
-                supabase
-                    .from('daily_progress')
-                    .select('*')
-                    .gte('date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]), // Fetch current month's progress
-                supabase
-                    .from('profiles')
-                    .select('streak_days')
-                    .eq('id', user?.id)
-                    .single()
-            ]);
+    // ✅ Memoize stats calculation
+    const stats = useMemo(() => {
+        if (!data) return { active: 0, completed: 0, streak: 0 };
 
-            if (schedulesResponse.error) throw schedulesResponse.error;
-            if (progressResponse.error) throw progressResponse.error;
+        const activeCount = data.schedules.filter((s: any) => s.status === 'active').length;
+        const completedCount = data.schedules.filter((s: any) => s.status === 'completed').length;
 
-            const schedulesData = schedulesResponse.data || [];
-            setSchedules(schedulesData);
-            setDailyProgress(progressResponse.data || []);
+        return {
+            active: activeCount,
+            completed: completedCount,
+            streak: data.streak
+        };
+    }, [data]);
 
-            // Calculate stats
-            const activeCount = schedulesData.filter((s: any) => s.status === 'active').length;
-            const completedCount = schedulesData.filter((s: any) => s.status === 'completed').length;
-
-            setStats({
-                active: activeCount,
-                completed: completedCount,
-                streak: profileResponse.data?.streak_days || 0
-            });
-
-        } catch (error) {
-            console.error('Error fetching schedule data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDateClick = (date: Date) => {
+    const handleDateClick = useCallback((date: Date) => {
         setSelectedDate(date);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleAddSchedule = () => {
+    const handleAddSchedule = useCallback(() => {
         setSelectedDate(undefined);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleScheduleCreated = () => {
-        fetchData();
+    const handleScheduleCreated = useCallback(() => {
+        // Invalidate query to refetch data
+        queryClient.invalidateQueries({ queryKey: ['schedule', user?.id] });
         setEditingSchedule(null);
-    };
+    }, [queryClient, user?.id]);
 
-    const handleEdit = (schedule: any) => {
+    const handleEdit = useCallback((schedule: any) => {
         setEditingSchedule(schedule);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleDelete = async (scheduleId: string) => {
-        if (!confirm('Haqiqatan ham bu rejani o\'chirmoqchimisiz?')) {
-            return;
-        }
-
+    const handleDelete = useCallback(async (scheduleId: string) => {
         if (!user) {
             toast.error('Unauthorized');
             return;
         }
 
+        // Better confirmation with toast
+        const confirmed = window.confirm('Haqiqatan ham bu rejani o\'chirmoqchimisiz?');
+        if (!confirmed) return;
+
         setDeletingId(scheduleId);
+        const toastId = toast.loading('O\'chirilmoqda...');
+
         const result = await deleteSchedule(scheduleId, user.id);
         setDeletingId(null);
 
         if (result.success) {
-            toast.success('Reja muvaffaqiyatli o\'chirildi');
-            fetchData();
+            toast.success('Reja muvaffaqiyatli o\'chirildi', { id: toastId });
+            queryClient.invalidateQueries({ queryKey: ['schedule', user?.id] });
         } else {
-            toast.error(result.error || 'Xatolik yuz berdi');
+            toast.error(result.error || 'Xatolik yuz berdi', { id: toastId });
         }
-    };
+    }, [user, queryClient]);
 
-    const handleModalClose = () => {
+    const handleModalClose = useCallback(() => {
         setIsModalOpen(false);
         setEditingSchedule(null);
-    };
+    }, []);
 
-    if (loading) {
+    if (isLoading) {
+        return (
+            <ProtectedRoute>
+                <ScheduleSkeleton />
+            </ProtectedRoute>
+        );
+    }
+
+    if (error || !data) {
         return (
             <ProtectedRoute>
                 <div className="container py-10 px-4 md:px-6">
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <div className="text-center">
-                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-muted-foreground">Yuklanmoqda...</p>
-                        </div>
+                    <div className="text-center text-red-500">
+                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
             </ProtectedRoute>
         );
     }
+
+    const schedules = data.schedules;
+    const dailyProgress = data.dailyProgress;
 
     return (
         <ProtectedRoute>

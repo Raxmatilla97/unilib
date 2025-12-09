@@ -10,12 +10,14 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-heading" });
 
 export const metadata: Metadata = {
-  title: "UniLib - Intelligent University Library",
+  title: "Library ID - Intelligent University Library",
   description: "AI-powered digital library for modern education",
 };
 
@@ -33,19 +35,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <div className="flex-1 flex flex-col">
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <FooterWrapper />
-              </div>
-            </div>
-            <Toaster position="top-right" closeButton theme="dark" />
-          </AuthProvider>
+          <ErrorBoundary>
+            <QueryProvider>
+              <AuthProvider>
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <div className="flex-1 flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <FooterWrapper />
+                  </div>
+                </div>
+                <Toaster position="top-right" closeButton theme="dark" />
+              </AuthProvider>
+            </QueryProvider>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

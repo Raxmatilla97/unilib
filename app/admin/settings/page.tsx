@@ -83,7 +83,7 @@ export default async function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="text-sm font-medium text-muted-foreground">Tashkilot Nomi</label>
-                        <p className="text-lg font-semibold mt-1">UniLib Platform</p>
+                        <p className="text-lg font-semibold mt-1">Library ID Platform</p>
                     </div>
                     <div>
                         <label className="text-sm font-medium text-muted-foreground">Tashkilot Turi</label>

@@ -16,7 +16,8 @@ async function getBooks(
     search?: string,
     category?: string,
     minRating?: number,
-    sortBy: string = 'newest'
+    sortBy: string = 'newest',
+    onlineOnly: boolean = true // ✅ Default to online only
 ) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
@@ -39,6 +40,11 @@ async function getBooks(
     // Apply rating filter
     if (minRating && minRating > 0) {
         booksQuery = booksQuery.gte('rating', minRating);
+    }
+
+    // ✅ Apply online filter - only books with cover_url
+    if (onlineOnly) {
+        booksQuery = booksQuery.not('cover_url', 'is', null);
     }
 
     // Apply sorting
@@ -68,6 +74,10 @@ async function getBooks(
     }
     if (minRating && minRating > 0) {
         countQuery = countQuery.gte('rating', minRating);
+    }
+    // ✅ Apply online filter to count
+    if (onlineOnly) {
+        countQuery = countQuery.not('cover_url', 'is', null);
     }
 
     const [booksResponse, countResponse] = await Promise.all([
@@ -117,6 +127,8 @@ export default async function LibraryPage({ searchParams }: PageProps) {
     const category = params?.category as string | undefined;
     const minRating = params?.rating ? Number(params.rating) : undefined;
     const sortBy = (params?.sort as string) || 'newest';
+    // ✅ Extract online filter - default true
+    const onlineOnly = params?.online !== 'false';
 
     const { books, totalBooks, totalPages } = await getBooks(
         page,
@@ -124,7 +136,8 @@ export default async function LibraryPage({ searchParams }: PageProps) {
         search,
         category,
         minRating,
-        sortBy
+        sortBy,
+        onlineOnly // ✅ Pass online filter
     );
 
     return (

@@ -1,137 +1,87 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { XPProgressBar } from '@/components/gamification/XPProgressBar';
-import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface Achievement {
-    id: string;
-    key: string;
-    title: string;
-    description: string;
-    icon: string;
-    tier: 'bronze' | 'silver' | 'gold' | 'platinum';
-    xp_reward: number;
-}
-
-interface UserAchievement extends Achievement {
-    unlocked_at: string;
-    seen: boolean;
-}
-
+import { useAchievementsData } from '@/lib/react-query/hooks';
 import { markAchievementsAsSeen } from './actions';
+import { AchievementsSkeleton } from '@/components/loading/AchievementsSkeleton';
 
 export default function AchievementsPage() {
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [achievements, setAchievements] = useState<Achievement[]>([]);
-    const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
-    const [userStats, setUserStats] = useState({
-        xp: 0,
-        level: 1,
-        streak: 0,
-        booksCompleted: 0,
-        pagesRead: 0,
-        dailyGoalsCompleted: 0
-    });
 
-    useEffect(() => {
-        if (user) {
-            fetchData();
+    // ✅ Use React Query hook with automatic caching
+    const { data, isLoading, error } = useAchievementsData(user?.id);
+
+    // ✅ Memoize user stats
+    const userStats = useMemo(() => {
+        if (!data?.profile) {
+            return {
+                xp: 0,
+                level: 1,
+                streak: 0,
+                booksCompleted: 0,
+                pagesRead: 0,
+                dailyGoalsCompleted: 0
+            };
         }
-    }, [user]);
+
+        return {
+            xp: data.profile.xp || 0,
+            level: data.profile.level || 1,
+            streak: data.profile.streak_days || 0,
+            booksCompleted: data.profile.total_books_completed || 0,
+            pagesRead: data.profile.total_pages_read || 0,
+            dailyGoalsCompleted: data.profile.total_daily_goals_completed || 0
+        };
+    }, [data?.profile]);
+
+    // ✅ Memoize formatted user achievements
+    const userAchievements = useMemo(() => {
+        if (!data?.userAchievements) return [];
+
+        return data.userAchievements.map((ua: any) => ({
+            ...ua.achievements,
+            unlocked_at: ua.unlocked_at,
+            seen: ua.seen
+        }));
+    }, [data?.userAchievements]);
+
+    // ✅ Memoized mark as seen handler
+    const markAsSeen = useCallback(() => {
+        if (userAchievements.length > 0 && user) {
+            const unseenIds = userAchievements
+                .filter((ua: any) => !ua.seen)
+                .map((ua: any) => ua.id);
+
+            if (unseenIds.length > 0) {
+                markAchievementsAsSeen(unseenIds, user.id);
+            }
+        }
+    }, [userAchievements, user]);
 
     // Mark unseen achievements as seen
     useEffect(() => {
-        if (userAchievements.length > 0) {
-            const unseenIds = userAchievements
-                .filter(ua => !ua.seen)
-                .map(ua => ua.id);
+        const timer = setTimeout(markAsSeen, 3000);
+        return () => clearTimeout(timer);
+    }, [markAsSeen]);
 
-            if (unseenIds.length > 0) {
-                // Mark as seen after a short delay to allow user to see the "New" badge
-                const timer = setTimeout(() => {
-                    if (user) {
-                        markAchievementsAsSeen(unseenIds, user.id);
-                    }
-                }, 3000);
+    if (isLoading) {
+        return (
+            <ProtectedRoute>
+                <AchievementsSkeleton />
+            </ProtectedRoute>
+        );
+    }
 
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [userAchievements]);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch all achievements
-            const { data: allAchievements } = await supabase
-                .from('achievements')
-                .select('*')
-                .order('tier', { ascending: false })
-                .order('xp_reward', { ascending: true });
-
-            // Fetch user's unlocked achievements
-            const { data: unlockedAchievements } = await supabase
-                .from('user_achievements')
-                .select(`
-                    unlocked_at,
-                    seen,
-                    achievements (*)
-                `)
-                .eq('user_id', user?.id);
-
-            // Fetch user stats
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('xp, level, streak_days, total_books_completed, total_pages_read, total_daily_goals_completed')
-                .eq('id', user?.id)
-                .single();
-
-            if (allAchievements) {
-                setAchievements(allAchievements);
-            }
-
-            if (unlockedAchievements) {
-                const formattedUnlocked = unlockedAchievements.map((ua: any) => ({
-                    ...ua.achievements,
-                    unlocked_at: ua.unlocked_at,
-                    seen: ua.seen
-                }));
-                setUserAchievements(formattedUnlocked);
-            }
-
-            if (profile) {
-                setUserStats({
-                    xp: profile.xp || 0,
-                    level: profile.level || 1,
-                    streak: profile.streak_days || 0,
-                    booksCompleted: profile.total_books_completed || 0,
-                    pagesRead: profile.total_pages_read || 0,
-                    dailyGoalsCompleted: profile.total_daily_goals_completed || 0
-                });
-            }
-
-        } catch (error) {
-            console.error('Error fetching achievements:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading) {
+    if (error || !data) {
         return (
             <ProtectedRoute>
                 <div className="container py-10 px-4 md:px-6">
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <div className="text-center">
-                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-muted-foreground">Yuklanmoqda...</p>
-                        </div>
+                    <div className="text-center text-red-500">
+                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
             </ProtectedRoute>
@@ -231,7 +181,7 @@ export default function AchievementsPage() {
 
                 {/* Achievements List */}
                 <AchievementsList
-                    achievements={achievements}
+                    achievements={data.achievements}
                     userAchievements={userAchievements}
                     userStats={userStats}
                 />

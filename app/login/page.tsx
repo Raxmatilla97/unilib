@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { BookOpen, Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -13,6 +14,8 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [emailFocused, setEmailFocused] = useState(false);
+    const [passwordFocused, setPasswordFocused] = useState(false);
     const { login, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
 
@@ -23,7 +26,8 @@ export default function LoginPage() {
         }
     }, [user, authLoading, router]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // ✅ Memoized submit handler
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
@@ -31,15 +35,26 @@ export default function LoginPage() {
         try {
             const result = await login(email, password);
             if (!result.success) {
-                setError(result.error || 'Foydalanuvchi topilmadi yoki parol noto\'g\'ri. Ro\'yxatdan o\'tmaganmisiz?');
+                setError(result.error || 'Email yoki parol noto\'g\'ri');
                 setIsLoading(false);
+            } else {
+                // ✅ Success feedback
+                toast.success('Muvaffaqiyatli!', {
+                    description: 'Tizimga kirildi. Dashboard\'ga yo\'naltirilmoqda...',
+                    icon: <CheckCircle className="w-5 h-5" />
+                });
+                // Don't set isLoading to false - useEffect will redirect
             }
-            // Don't redirect here - useEffect will handle it when user state is set
         } catch (err) {
             setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
             setIsLoading(false);
         }
-    };
+    }, [email, password, login]);
+
+    // ✅ Memoized toggle handler
+    const togglePasswordVisibility = useCallback(() => {
+        setShowPassword(prev => !prev);
+    }, []);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative overflow-hidden">
@@ -53,7 +68,7 @@ export default function LoginPage() {
             <div className="w-full max-w-md relative z-10">
 
                 {/* Card */}
-                <div className="bg-card border border-border rounded-2xl shadow-xl p-8">
+                <div className="bg-card border border-border rounded-2xl shadow-xl p-8 backdrop-blur-sm">
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-semibold text-sm mb-4">
                             <Sparkles className="w-4 h-4" />
@@ -64,8 +79,9 @@ export default function LoginPage() {
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
-                            {error}
+                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex items-start gap-2">
+                            <span className="text-lg">⚠️</span>
+                            <span>{error}</span>
                         </div>
                     )}
 
@@ -75,13 +91,17 @@ export default function LoginPage() {
                                 Email
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${emailFocused ? 'text-primary' : 'text-muted-foreground'
+                                    }`} />
                                 <input
                                     id="email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    onFocus={() => setEmailFocused(true)}
+                                    onBlur={() => setEmailFocused(false)}
                                     required
+                                    aria-label="Email manzil"
                                     className="w-full pl-11 pr-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
                                     placeholder="sizning@email.uz"
                                 />
@@ -93,20 +113,25 @@ export default function LoginPage() {
                                 Parol
                             </label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${passwordFocused ? 'text-primary' : 'text-muted-foreground'
+                                    }`} />
                                 <input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    onFocus={() => setPasswordFocused(true)}
+                                    onBlur={() => setPasswordFocused(false)}
                                     required
+                                    aria-label="Parol"
                                     className="w-full pl-11 pr-11 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground"
                                     placeholder="••••••••"
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={togglePasswordVisibility}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    aria-label={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -123,7 +148,7 @@ export default function LoginPage() {
                                 />
                                 <span className="text-sm text-muted-foreground">Eslab qolish</span>
                             </label>
-                            <Link href="#" className="text-sm text-primary hover:underline">
+                            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                                 Parolni unutdingizmi?
                             </Link>
                         </div>

@@ -32,7 +32,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     </button>
                     <div>
                         <h2 className="text-lg font-semibold">Boshqaruv paneli</h2>
-                        <p className="text-xs text-muted-foreground hidden sm:block">UniLib Admin</p>
+                        <p className="text-xs text-muted-foreground hidden sm:block">Library ID Admin</p>
                     </div>
                 </div>
 

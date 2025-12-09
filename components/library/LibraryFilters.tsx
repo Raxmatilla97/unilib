@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, X, Globe } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function LibraryFilters() {
     const router = useRouter();
@@ -12,6 +12,8 @@ export function LibraryFilters() {
     const [category, setCategory] = useState(searchParams.get('category') || 'all');
     const [rating, setRating] = useState(searchParams.get('rating') || 'all');
     const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
+    // ✅ Online books filter - default enabled
+    const [onlineOnly, setOnlineOnly] = useState(searchParams.get('online') !== 'false');
 
     // Debounce search
     useEffect(() => {
@@ -21,7 +23,7 @@ export function LibraryFilters() {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const updateFilters = (updates: Record<string, string>) => {
+    const updateFilters = useCallback((updates: Record<string, string>) => {
         const params = new URLSearchParams(searchParams.toString());
 
         Object.entries(updates).forEach(([key, value]) => {
@@ -36,15 +38,22 @@ export function LibraryFilters() {
         params.delete('page');
 
         router.push(`/library?${params.toString()}`);
-    };
+    }, [searchParams, router]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setSearch('');
         setCategory('all');
         setRating('all');
         setSort('newest');
-        router.push('/library');
-    };
+        setOnlineOnly(true); // Keep online filter on
+        router.push('/library?online=true');
+    }, [router]);
+
+    const toggleOnlineOnly = useCallback(() => {
+        const newValue = !onlineOnly;
+        setOnlineOnly(newValue);
+        updateFilters({ online: newValue ? 'true' : 'false' });
+    }, [onlineOnly, updateFilters]);
 
     const hasActiveFilters = search || category !== 'all' || rating !== 'all' || sort !== 'newest';
 
@@ -74,6 +83,21 @@ export function LibraryFilters() {
 
             {/* Filters Row */}
             <div className="flex flex-wrap gap-3 items-center justify-center sm:justify-start">
+                {/* ✅ Online Books Toggle - Prominent */}
+                <button
+                    onClick={toggleOnlineOnly}
+                    className={`px-5 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2 ${onlineOnly
+                            ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
+                            : 'bg-background/50 backdrop-blur-md border border-border hover:border-primary/50'
+                        }`}
+                >
+                    <Globe className="w-4 h-4" />
+                    Faqat Online Kitoblar
+                    {onlineOnly && (
+                        <span className="ml-1 w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
+                    )}
+                </button>
+
                 {/* Category Filter */}
                 <div className="relative group">
                     <select

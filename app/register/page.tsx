@@ -1,10 +1,32 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, Mail, Lock, User, Building, ArrowRight, Sparkles, Check, Eye, EyeOff } from 'lucide-react';
+import { BookOpen, Mail, Lock, User, Building, ArrowRight, Sparkles, Check, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+
+// Password strength calculator
+function calculatePasswordStrength(password: string): { strength: number; text: string; color: string } {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+    const levels = [
+        { strength: 0, text: 'Juda zaif', color: 'bg-red-500' },
+        { strength: 1, text: 'Zaif', color: 'bg-orange-500' },
+        { strength: 2, text: 'O\'rtacha', color: 'bg-yellow-500' },
+        { strength: 3, text: 'Yaxshi', color: 'bg-blue-500' },
+        { strength: 4, text: 'Kuchli', color: 'bg-green-500' },
+        { strength: 5, text: 'Juda kuchli', color: 'bg-emerald-500' },
+    ];
+
+    return levels[strength];
+}
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -16,6 +38,7 @@ export default function RegisterPage() {
     });
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -29,7 +52,39 @@ export default function RegisterPage() {
         }
     }, [user, authLoading, router]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // ✅ Memoized password strength
+    const passwordStrength = useMemo(() => {
+        if (!formData.password) return { strength: 0, text: '', color: '' };
+        return calculatePasswordStrength(formData.password);
+    }, [formData.password]);
+
+    // ✅ Real-time validation
+    const validateField = useCallback((name: string, value: string) => {
+        const errors: Record<string, string> = {};
+
+        switch (name) {
+            case 'email':
+                if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    errors.email = 'Email formati noto\'g\'ri';
+                }
+                break;
+            case 'password':
+                if (value && value.length < 6) {
+                    errors.password = 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak';
+                }
+                break;
+            case 'confirmPassword':
+                if (value && value !== formData.password) {
+                    errors.confirmPassword = 'Parollar mos kelmayapti';
+                }
+                break;
+        }
+
+        setFieldErrors(prev => ({ ...prev, ...errors, [name]: errors[name] || '' }));
+    }, [formData.password]);
+
+    // ✅ Memoized submit handler
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -61,25 +116,31 @@ export default function RegisterPage() {
 
             if (!result.success) {
                 if (result.error?.includes('User already registered')) {
-                    setError('Bu email bilan allaqachon ro\'yxatdan o\'tilgan. Iltimos, tizimga kiring.');
+                    setError('Bu email bilan allaqachon ro\'yxatdan o\'tilgan');
                 } else {
                     setError(result.error || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
                 }
                 setIsLoading(false);
+            } else {
+                // ✅ Success feedback
+                toast.success('Muvaffaqiyatli!', {
+                    description: 'Hisobingiz yaratildi. Dashboard\'ga yo\'naltirilmoqda...',
+                    icon: <CheckCircle className="w-5 h-5" />
+                });
+                // Don't set isLoading to false - useEffect will redirect
             }
-            // Don't redirect here - useEffect will handle it when user state is set
         } catch (err) {
             setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
             setIsLoading(false);
         }
-    };
+    }, [formData, agreedToTerms, register]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    // ✅ Memoized change handler
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        validateField(name, value);
+    }, [validateField]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative overflow-hidden">
@@ -93,7 +154,7 @@ export default function RegisterPage() {
             <div className="w-full max-w-md relative z-10">
 
                 {/* Card */}
-                <div className="bg-card border border-border rounded-2xl shadow-xl p-8">
+                <div className="bg-card border border-border rounded-2xl shadow-xl p-8 backdrop-blur-sm">
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-semibold text-sm mb-4">
                             <Sparkles className="w-4 h-4" />
@@ -104,8 +165,9 @@ export default function RegisterPage() {
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
-                            {error}
+                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex items-start gap-2">
+                            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                            <span>{error}</span>
                         </div>
                     )}
 
@@ -123,6 +185,7 @@ export default function RegisterPage() {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
+                                    aria-label="To'liq ism"
                                     className="w-full pl-11 pr-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
                                     placeholder="Ism Familiya"
                                 />
@@ -142,10 +205,19 @@ export default function RegisterPage() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
+                                    aria-label="Email manzil"
+                                    aria-invalid={!!fieldErrors.email}
+                                    className={`w-full pl-11 pr-4 py-3 rounded-xl bg-muted/50 border transition-all outline-none text-foreground placeholder:text-muted-foreground ${fieldErrors.email ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-primary focus:bg-background'
+                                        }`}
                                     placeholder="sizning@email.uz"
                                 />
                             </div>
+                            {fieldErrors.email && (
+                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    {fieldErrors.email}
+                                </p>
+                            )}
                         </div>
 
                         <div>
@@ -179,6 +251,7 @@ export default function RegisterPage() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
+                                    aria-label="Parol"
                                     className="w-full pl-11 pr-11 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground"
                                     placeholder="Kamida 6 ta belgi"
                                 />
@@ -190,6 +263,25 @@ export default function RegisterPage() {
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
+                            {/* ✅ Password Strength Indicator */}
+                            {formData.password && (
+                                <div className="mt-2">
+                                    <div className="flex gap-1">
+                                        {[1, 2, 3, 4, 5].map((level) => (
+                                            <div
+                                                key={level}
+                                                className={`h-1 flex-1 rounded-full transition-all duration-300 ${passwordStrength.strength >= level
+                                                    ? passwordStrength.color
+                                                    : 'bg-muted'
+                                                    }`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Parol kuchi: <span className="font-semibold">{passwordStrength.text}</span>
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <div>
@@ -205,7 +297,10 @@ export default function RegisterPage() {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
-                                    className="w-full pl-11 pr-11 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground"
+                                    aria-label="Parolni tasdiqlang"
+                                    aria-invalid={!!fieldErrors.confirmPassword}
+                                    className={`w-full pl-11 pr-11 py-3 rounded-xl bg-muted/50 border transition-all outline-none text-foreground ${fieldErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-primary focus:bg-background'
+                                        }`}
                                     placeholder="Parolni qayta kiriting"
                                 />
                                 <button
@@ -216,6 +311,18 @@ export default function RegisterPage() {
                                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
+                            {fieldErrors.confirmPassword && (
+                                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    {fieldErrors.confirmPassword}
+                                </p>
+                            )}
+                            {formData.confirmPassword && !fieldErrors.confirmPassword && formData.password === formData.confirmPassword && (
+                                <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
+                                    <Check className="w-3 h-3" />
+                                    Parollar mos keladi
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex items-start gap-3 pt-2">

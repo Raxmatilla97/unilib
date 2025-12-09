@@ -3,7 +3,8 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { BookDetailClient } from '@/components/library/BookDetailClient';
 
-export const dynamic = 'force-dynamic';
+// ✅ ISR - Revalidate every 60 seconds instead of force-dynamic
+export const revalidate = 60;
 
 async function getBook(id: string) {
     const { data, error } = await supabaseAdmin
@@ -25,6 +26,8 @@ async function getSimilarBooks(category: string, currentId: string) {
         .select('id, title, author, rating, cover_color, category, cover_url')
         .eq('category', category)
         .neq('id', currentId)
+        .not('cover_url', 'is', null) // ✅ Only online books
+        .order('rating', { ascending: false }) // ✅ Best rated first
         .limit(4);
 
     return data || [];
@@ -43,7 +46,8 @@ async function getReviews(bookId: string) {
             )
         `)
         .eq('book_id', bookId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10); // ✅ Limit to 10 reviews
 
     return data?.map(review => ({
         id: review.id,
@@ -83,10 +87,10 @@ async function getUserId() {
 
 async function incrementViews(bookId: string) {
     try {
-        // Call the API route to increment views
-        await supabaseAdmin.rpc('increment_book_views', { book_uuid: bookId });
-    } catch (error) {
-        console.error('Failed to increment views:', error);
+        // ✅ Fire and forget - don't await
+        supabaseAdmin.rpc('increment_book_views', { book_uuid: bookId }).catch(() => { });
+    } catch {
+        // Silently fail
     }
 }
 
@@ -98,14 +102,15 @@ export default async function BookDetailPage(props: { params: Promise<{ id: stri
         notFound();
     }
 
+    // ✅ Increment views asynchronously (don't block rendering)
+    incrementViews(book.id);
+
+    // ✅ Parallel queries for better performance
     const [similarBooks, reviews, userId] = await Promise.all([
         getSimilarBooks(book.category, book.id),
         getReviews(book.id),
         getUserId()
     ]);
-
-    // Increment views count
-    await incrementViews(book.id);
 
     return (
         <BookDetailClient

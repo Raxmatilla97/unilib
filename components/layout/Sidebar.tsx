@@ -9,54 +9,86 @@ import {
     Award,
     Quote,
     LayoutDashboard,
-    Home,
     ChevronLeft,
     ChevronRight,
     Shield,
     Calendar,
     Trophy,
-    Building2
+    Building2,
+    User
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 export function Sidebar() {
     const pathname = usePathname();
     const { user, isAdmin } = useAuth();
+
+    // ✅ localStorage for collapse state
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('sidebar-collapsed');
+            if (saved !== null) {
+                setIsCollapsed(saved === 'true');
+            }
+        }
+    }, []);
+
+    // ✅ Memoized toggle handler
+    const toggleCollapse = useCallback(() => {
+        setIsCollapsed(prev => {
+            const newValue = !prev;
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('sidebar-collapsed', String(newValue));
+            }
+            return newValue;
+        });
+    }, []);
 
     // Don't show sidebar on auth pages, landing page, or admin pages
     if (!user || pathname === '/' || pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin')) {
         return null;
     }
 
-    const navItems = [
+    // ✅ Memoized navItems
+    const navItems = useMemo(() => [
         { href: '/dashboard', label: 'Kabinet', icon: LayoutDashboard },
-        { href: '/schedule', label: 'O\'qish Rejam', icon: Calendar },
+        { href: '/profile', label: 'Profil', icon: User },
         { href: '/library', label: 'Kutubxona', icon: BookOpen },
+        { href: '/schedule', label: 'O\'qish Rejam', icon: Calendar },
         { href: '/groups', label: 'Guruhlar', icon: Users },
         { href: '/achievements', label: 'Yutuqlar', icon: Trophy },
         { href: '/leaderboard', label: 'Reyting', icon: Award },
         { href: '/citations', label: 'Iqtiboslar', icon: Quote },
-    ];
+    ], []);
 
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className={`hidden md:flex flex-col bg-card border-r border-border h-screen sticky top-0 transition-all duration-300 overflow-x-hidden ${isCollapsed ? 'w-16' : 'w-64'
+            <aside className={`hidden md:flex flex-col bg-card/80 backdrop-blur-xl border-r border-border/40 h-screen sticky top-0 transition-all duration-300 overflow-x-hidden ${isCollapsed ? 'w-16' : 'w-64'
                 }`}>
                 {/* Logo */}
-                <div className={`h-16 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'}`}>
+                <div className={`h-16 border-b border-border/40 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'}`}>
                     {!isCollapsed && (
-                        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <BookOpen className="w-5 h-5 text-primary" />
+                        <Link href="/" className="flex items-center gap-2 font-bold text-xl group">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-primary/20 blur-lg group-hover:bg-primary/30 transition-all rounded-lg"></div>
+                                <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <BookOpen className="w-5 h-5 text-primary" />
+                                </div>
                             </div>
-                            <span>LibraryID</span>
+                            <span className="group-hover:text-primary transition-colors">Library ID</span>
                         </Link>
                     )}
                     {isCollapsed && (
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <BookOpen className="w-5 h-5 text-primary" />
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-primary/20 blur-lg group-hover:bg-primary/30 transition-all rounded-lg"></div>
+                            <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <BookOpen className="w-5 h-5 text-primary" />
+                            </div>
                         </div>
                     )}
                 </div>
@@ -80,12 +112,17 @@ export function Sidebar() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${isActive
-                                    ? 'bg-primary text-primary-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
+                                    ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-[1.01]'
                                     } ${isCollapsed ? 'justify-center px-2' : ''}`}
-                                title={isCollapsed ? item.label : ''}
+                                title={item.label}
+                                aria-label={item.label}
                             >
+                                {/* Active Indicator */}
+                                {isActive && !isCollapsed && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-foreground rounded-r-full"></div>
+                                )}
                                 <Icon className="w-5 h-5 flex-shrink-0" />
                                 {!isCollapsed && <span className="font-medium">{item.label}</span>}
                                 {isActive && !isCollapsed && <ChevronRight className="w-4 h-4 ml-auto" />}
@@ -97,12 +134,16 @@ export function Sidebar() {
                     {user?.role === 'super_admin' && (
                         <Link
                             href="/super-admin"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group mt-2 border-t border-border pt-4 ${pathname.startsWith('/super-admin')
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                            className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group mt-2 border-t border-border/40 pt-4 ${pathname.startsWith('/super-admin')
+                                ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-[1.01]'
                                 } ${isCollapsed ? 'justify-center px-2' : ''}`}
-                            title={isCollapsed ? 'Super Admin' : ''}
+                            title="Super Admin"
+                            aria-label="Super Admin"
                         >
+                            {pathname.startsWith('/super-admin') && !isCollapsed && (
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-foreground rounded-r-full"></div>
+                            )}
                             <Building2 className="w-5 h-5 flex-shrink-0" />
                             {!isCollapsed && <span className="font-medium">Super Admin</span>}
                             {pathname.startsWith('/super-admin') && !isCollapsed && <ChevronRight className="w-4 h-4 ml-auto" />}
@@ -113,12 +154,17 @@ export function Sidebar() {
                     {isAdmin() && (
                         <Link
                             href="/admin"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group mt-2 ${!user?.role?.includes('super_admin') ? 'border-t border-border pt-4' : ''} ${pathname.startsWith('/admin')
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                            className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group mt-2 ${!user?.role?.includes('super_admin') ? 'border-t border-border/40 pt-4' : ''
+                                } ${pathname.startsWith('/admin')
+                                    ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-[1.01]'
                                 } ${isCollapsed ? 'justify-center px-2' : ''}`}
-                            title={isCollapsed ? 'Admin Panel' : ''}
+                            title="Admin Panel"
+                            aria-label="Admin Panel"
                         >
+                            {pathname.startsWith('/admin') && !isCollapsed && (
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-foreground rounded-r-full"></div>
+                            )}
                             <Shield className="w-5 h-5 flex-shrink-0" />
                             {!isCollapsed && <span className="font-medium">Admin Panel</span>}
                             {pathname.startsWith('/admin') && !isCollapsed && <ChevronRight className="w-4 h-4 ml-auto" />}
@@ -127,10 +173,12 @@ export function Sidebar() {
                 </nav>
 
                 {/* Collapse Toggle */}
-                <div className={`border-t border-border ${isCollapsed ? 'p-2' : 'p-4'}`}>
+                <div className={`border-t border-border/40 ${isCollapsed ? 'p-2' : 'p-4'}`}>
                     <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all ${isCollapsed ? 'px-0' : 'px-4'}`}
+                        onClick={toggleCollapse}
+                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all hover:scale-105 ${isCollapsed ? 'px-0' : 'px-4'
+                            }`}
+                        aria-label={isCollapsed ? 'Kengaytirish' : 'Yig\'ish'}
                     >
                         {isCollapsed ? (
                             <ChevronRight className="w-5 h-5" />
