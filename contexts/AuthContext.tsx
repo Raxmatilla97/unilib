@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { Role, hasPermission, ROLES } from '@/lib/permissions';
@@ -29,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     // Check for existing session on mount
     useEffect(() => {
@@ -36,7 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+            if (event === 'SIGNED_OUT') {
+                setUser(null);
+                router.push('/login');
+                router.refresh();
+                return;
+            }
+
+            if (event === 'TOKEN_REFRESHED') {
                 if (!session) {
                     setUser(null);
                     return;
@@ -51,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [router]);
 
     const checkUser = async () => {
         try {
@@ -158,15 +167,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await supabase.auth.signOut();
         } catch (error) {
             console.error('Error signing out:', error);
+        } finally {
+            setUser(null);
+            router.push('/login');
+            router.refresh();
         }
-        setUser(null);
-        // Force clear any potential stale state
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('sb-access-token');
-            localStorage.removeItem('sb-refresh-token');
-        }
-        // Force reload to clear Next.js client cache
-        window.location.href = '/login';
     };
 
     const checkPermission = (requiredRole: Role): boolean => {
