@@ -86,12 +86,8 @@ async function getUserId() {
 }
 
 async function incrementViews(bookId: string) {
-    try {
-        // ✅ Fire and forget - don't await
-        supabaseAdmin.rpc('increment_book_views', { book_uuid: bookId }).catch(() => { });
-    } catch {
-        // Silently fail
-    }
+    // ✅ Fire and forget - use void to ignore promise
+    void supabaseAdmin.rpc('increment_book_views', { book_uuid: bookId });
 }
 
 export default async function BookDetailPage(props: { params: Promise<{ id: string }> }) {
