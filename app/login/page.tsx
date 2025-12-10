@@ -82,6 +82,15 @@ export default function LoginPage() {
                             description: 'HEMIS orqali kirildi. Dashboard\'ga yo\'naltirilmoqda...',
                             icon: <CheckCircle className="w-5 h-5" />
                         });
+
+                        // Background sync (non-blocking)
+                        if (user?.id) {
+                            fetch('/api/hemis/background-sync', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: user.id }),
+                            }).catch(err => console.log('Background sync failed:', err));
+                        }
                     }
                 } else {
                     toast.success('Muvaffaqiyatli!', {

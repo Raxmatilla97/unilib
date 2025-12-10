@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Sync HEMIS data to user profile
- * Updates profile with latest HEMIS information
+ * Background HEMIS sync - checks if sync is needed and performs it
+ * Called automatically after login if JWT is fresh
  */
 export async function POST(request: NextRequest) {
     try {
@@ -11,28 +11,44 @@ export async function POST(request: NextRequest) {
 
         if (!userId) {
             return NextResponse.json(
-                { success: false, error: 'User ID kiritilishi shart' },
+                { success: false, error: 'User ID required' },
                 { status: 400 }
             );
         }
 
         const supabase = await createClient();
 
-        // Get user's HEMIS token from profile
+        // Get user's last sync time and HEMIS token
         const { data: profile } = await supabase
             .from('profiles')
-            .select('hemis_token, student_number')
+            .select('hemis_token, last_synced_at, student_number')
             .eq('id', userId)
             .single();
 
         if (!profile?.hemis_token || !profile?.student_number) {
             return NextResponse.json(
-                { success: false, error: 'HEMIS ma\'lumotlari topilmadi. Avval HEMIS orqali login qiling.' },
+                { success: false, error: 'HEMIS data not found' },
                 { status: 404 }
             );
         }
 
-        console.log('[HEMIS Sync] Syncing data for student:', profile.student_number);
+        // Check if sync is needed (24 hours)
+        const lastSynced = profile.last_synced_at ? new Date(profile.last_synced_at) : null;
+        const now = new Date();
+        const hoursSinceSync = lastSynced
+            ? (now.getTime() - lastSynced.getTime()) / (1000 * 60 * 60)
+            : 999;
+
+        if (hoursSinceSync < 24) {
+            console.log('[Background Sync] Sync not needed, last synced', hoursSinceSync.toFixed(1), 'hours ago');
+            return NextResponse.json({
+                success: true,
+                message: 'Sync not needed',
+                lastSynced: profile.last_synced_at,
+            });
+        }
+
+        console.log('[Background Sync] Syncing data for student:', profile.student_number);
 
         // Fetch latest data from HEMIS
         const HEMIS_API_URL = 'https://student.umft.uz/rest/v1/';
@@ -41,9 +57,10 @@ export async function POST(request: NextRequest) {
         });
 
         if (!meResponse.ok) {
+            console.log('[Background Sync] HEMIS token expired or invalid');
             return NextResponse.json(
-                { success: false, error: 'HEMIS\'dan ma\'lumot olib bo\'lmadi. Qaytadan login qiling.' },
-                { status: 500 }
+                { success: false, error: 'HEMIS token expired' },
+                { status: 401 }
             );
         }
 
@@ -80,24 +97,25 @@ export async function POST(request: NextRequest) {
             .eq('id', userId);
 
         if (updateError) {
-            console.error('[HEMIS Sync] Update error:', updateError);
+            console.error('[Background Sync] Update error:', updateError);
             return NextResponse.json(
-                { success: false, error: 'Ma\'lumotlarni yangilashda xatolik' },
+                { success: false, error: 'Failed to update profile' },
                 { status: 500 }
             );
         }
 
-        console.log('[HEMIS Sync] ✓ Profile updated successfully');
+        console.log('[Background Sync] ✓ Profile updated successfully');
 
         return NextResponse.json({
             success: true,
-            message: 'Ma\'lumotlar muvaffaqiyatli yangilandi',
+            message: 'Background sync completed',
+            lastSynced: new Date().toISOString(),
         });
 
     } catch (error) {
-        console.error('[HEMIS Sync] Error:', error);
+        console.error('[Background Sync] Error:', error);
         return NextResponse.json(
-            { success: false, error: 'Server xatosi' },
+            { success: false, error: 'Server error' },
             { status: 500 }
         );
     }
