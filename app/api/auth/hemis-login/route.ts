@@ -138,6 +138,19 @@ export async function POST(request: NextRequest) {
         });
 
         if (signUpError) {
+            // If user already exists in auth, just return login credentials
+            if (signUpError.message?.includes('already registered') || signUpError.status === 422) {
+                console.log('[HEMIS Login API] User exists in auth, returning login credentials');
+                return NextResponse.json({
+                    success: true,
+                    data: {
+                        email: finalEmail,
+                        password: userPassword,
+                        existing: true,
+                    },
+                });
+            }
+
             console.error('[HEMIS Login API] Failed to create user:', signUpError);
             return NextResponse.json(
                 { success: false, error: 'Foydalanuvchi yaratishda xatolik' },

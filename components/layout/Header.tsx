@@ -173,14 +173,14 @@ export function Header() {
                                         alt={user.name}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                            e.currentTarget.src = '';
                                         }}
                                     />
-                                ) : null}
-                                <span className={user.avatar_url ? 'hidden' : ''}>
-                                    {user.name.charAt(0).toUpperCase()}
-                                </span>
+                                ) : (
+                                    <span>
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                             </button>
                             {menuState.user && (
                                 <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-card shadow-lg z-[70] p-2 animate-in fade-in slide-in-from-top-2 duration-200">

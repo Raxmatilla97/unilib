@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { RefreshCw, CheckCircle, AlertCircle, Trash2, AlertTriangle } from 'lucide-react';
@@ -13,6 +13,11 @@ export default function SettingsPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleHemisSync = async () => {
         if (!user?.id) return;
@@ -92,6 +97,21 @@ export default function SettingsPage() {
             setIsDeleting(false);
         }
     };
+
+    if (!mounted) {
+        return (
+            <ProtectedRoute>
+                <div className="min-h-screen bg-background py-8 px-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="animate-pulse space-y-6">
+                            <div className="h-8 bg-muted rounded w-1/3" />
+                            <div className="h-64 bg-muted rounded" />
+                        </div>
+                    </div>
+                </div>
+            </ProtectedRoute>
+        );
+    }
 
     return (
         <ProtectedRoute>
