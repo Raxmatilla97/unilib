@@ -16,8 +16,8 @@ export default function NotFound() {
                 <div className="absolute w-[2px] h-[2px] bg-white rounded-full animate-twinkle top-[15%] left-[90%] delay-500"></div>
                 <div className="absolute w-[3px] h-[3px] bg-cyan-300 rounded-full animate-twinkle top-[80%] left-[10%] delay-200"></div>
                 {/* Nebulas */}
-                <div className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
-                <div className="absolute bottom-[0%] right-[0%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px] mix-blend-screen animate-pulse-slow delay-1000"></div>
+                <div className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-3xl mix-blend-screen"></div>
+                <div className="absolute bottom-[0%] right-[0%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-3xl mix-blend-screen"></div>
             </div>
 
             {/* Main Content */}

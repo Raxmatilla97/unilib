@@ -132,7 +132,7 @@ export default function ProfilePage() {
             {/* Premium Background */}
             <div className="min-h-screen bg-background relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[800px] h-[400px] bg-primary/5 blur-[100px] rounded-full opacity-60 pointer-events-none" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[800px] h-[400px] bg-primary/5 blur-3xl rounded-full opacity-60 pointer-events-none" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-soft-light pointer-events-none"></div>
 
                 <div className="container relative z-10 py-8 md:py-12 px-4 md:px-6 max-w-6xl mx-auto">

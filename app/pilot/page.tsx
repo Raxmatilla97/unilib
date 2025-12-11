@@ -118,7 +118,7 @@ export default async function PilotPage() {
               </div>
             </div>
             <div className="relative group">
-              <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/30 transition-colors" />
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full group-hover:bg-primary/30 transition-colors" />
               <div className="relative aspect-square rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center border border-primary/20 backdrop-blur-sm">
                 <BookOpen className="w-48 h-48 text-primary drop-shadow-2xl" />
               </div>
