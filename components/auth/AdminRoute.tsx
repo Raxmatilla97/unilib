@@ -10,7 +10,7 @@ interface AdminRouteProps {
     requiredRole?: string; // 'admin' | 'super_admin' | 'librarian'
 }
 
-export function AdminRoute({ children, requiredRole = ROLES.ADMIN }: AdminRouteProps) {
+export function AdminRoute({ children, requiredRole }: AdminRouteProps) {
     const { user, isLoading } = useAuth();
     const router = useRouter();
 
@@ -26,7 +26,7 @@ export function AdminRoute({ children, requiredRole = ROLES.ADMIN }: AdminRouteP
             const userRole = user.role?.toLowerCase();
             const allowedRoles = [
                 ROLES.SUPER_ADMIN.toLowerCase(),
-                ROLES.ADMIN.toLowerCase(),
+                ROLES.ORG_ADMIN.toLowerCase(),
                 ROLES.LIBRARIAN.toLowerCase()
             ];
 
@@ -75,7 +75,7 @@ export function AdminRoute({ children, requiredRole = ROLES.ADMIN }: AdminRouteP
     const userRole = user.role?.toLowerCase();
     const allowedRoles = [
         ROLES.SUPER_ADMIN.toLowerCase(),
-        ROLES.ADMIN.toLowerCase(),
+        ROLES.ORG_ADMIN.toLowerCase(),
         ROLES.LIBRARIAN.toLowerCase()
     ];
 
