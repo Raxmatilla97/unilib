@@ -63,23 +63,47 @@ export default function CheckerPage() {
         setError('');
 
         try {
-            const isBookBarcode = scanInput.startsWith('BOOK-') || scanInput.startsWith('978-');
+            const isBookBarcode = scanInput.startsWith('BOOK-') || scanInput.startsWith('978-') || /^\d{13}$/.test(scanInput);
 
             if (!isBookBarcode) {
-                const studentId = scanInput.replace('STUDENT-UNI-', '').trim();
-                const { data: profile, error: profileError } = await supabase
+                const studentNumber = scanInput.replace('STUDENT-UNI-', '').trim();
+                console.log('🔍 Searching for student:', studentNumber);
+
+                // Try student_number first (no organization filter - allow all students)
+                let { data: profiles, error: profileError } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('student_id', studentId)
-                    .single();
+                    .eq('student_number', studentNumber);
 
-                if (profileError || !profile) {
-                    setError('Talaba topilmadi');
+                console.log('📊 student_number search:', { profiles, profileError, count: profiles?.length });
+
+                // If not found, try student_id
+                if (!profiles || profiles.length === 0) {
+                    console.log('🔄 Trying student_id...');
+
+                    const result = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('student_id', studentNumber);
+
+                    profiles = result.data;
+                    profileError = result.error;
+                    console.log('📊 student_id search:', { profiles, profileError, count: profiles?.length });
+                }
+
+                if (profileError) {
+                    console.error('❌ Search error:', profileError);
+                }
+
+                if (profileError || !profiles || profiles.length === 0) {
+                    setError(`Talaba topilmadi: ${studentNumber}`);
                     setLoading(false);
                     setScanInput('');
                     return;
                 }
 
+                const profile = profiles[0];
+                console.log('✅ Student found:', profile.name, profile.student_number);
                 setStudent(profile);
 
                 const { data: loans } = await supabase
@@ -325,92 +349,124 @@ export default function CheckerPage() {
                 {/* LEFT COLUMN - Student Check & Book Operations */}
                 <div className="lg:col-span-2 space-y-4">
                     {/* Student Scanner */}
-                    <div className="bg-card border-2 border-border rounded-xl p-6">
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <User className="w-5 h-5 text-primary" />
-                            Talaba Aniqlash
-                        </h3>
-                        <div className="flex gap-3">
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={scanInput}
-                                onChange={(e) => setScanInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleScan()}
-                                placeholder="Student QR skanerlang..."
-                                className="flex-1 px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none font-mono"
-                                disabled={!!student}
-                            />
-                            {student ? (
-                                <button
-                                    onClick={resetAll}
-                                    className="px-6 py-3 bg-muted hover:bg-muted/80 rounded-lg flex items-center gap-2"
-                                >
-                                    <RotateCcw className="w-5 h-5" />
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={handleScan}
-                                    disabled={loading || !scanInput.trim()}
-                                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
-                                >
-                                    <Scan className="w-5 h-5" />
-                                </button>
+                    <div className="relative bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border rounded-xl p-6 overflow-hidden">
+                        {/* Animated background */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 animate-pulse opacity-50" />
+
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <User className="w-5 h-5 text-primary" />
+                                </div>
+                                Talaba Aniqlash
+                            </h3>
+                            <div className="flex gap-3">
+                                <div className="flex-1 relative group">
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={scanInput}
+                                        onChange={(e) => setScanInput(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleScan()}
+                                        placeholder="Student QR skanerlang..."
+                                        className="w-full px-4 py-3 bg-background/50 backdrop-blur-sm border-2 border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none font-mono transition-all group-hover:border-primary/30"
+                                        disabled={!!student}
+                                    />
+                                    {/* Scan line animation */}
+                                    {loading && (
+                                        <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                                            <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-primary to-transparent animate-scan" />
+                                        </div>
+                                    )}
+                                </div>
+                                {student ? (
+                                    <button
+                                        onClick={resetAll}
+                                        className="px-6 py-3 bg-gradient-to-br from-muted to-muted/80 hover:from-muted/90 hover:to-muted/70 rounded-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+                                    >
+                                        <RotateCcw className="w-5 h-5" />
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleScan}
+                                        disabled={loading || !scanInput.trim()}
+                                        className="px-6 py-3 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-lg hover:from-primary/90 hover:to-primary/70 disabled:opacity-50 transition-all hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-primary/20"
+                                    >
+                                        <Scan className="w-5 h-5" />
+                                    </button>
+                                )}
+                            </div>
+                            {error && (
+                                <div className="mt-3 p-3 bg-red-500/10 backdrop-blur-sm border-2 border-red-500/20 rounded-lg flex items-center gap-2 text-red-600 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <AlertCircle className="w-5 h-5 animate-pulse" />
+                                    {error}
+                                </div>
                             )}
                         </div>
-                        {error && (
-                            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-600">
-                                <AlertCircle className="w-5 h-5" />
-                                {error}
-                            </div>
-                        )}
                     </div>
 
                     {/* Book Operations */}
                     {student && (
-                        <div className="bg-card border-2 border-border rounded-xl p-6">
-                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                <BookOpen className="w-5 h-5 text-primary" />
-                                Kitob Berish / Qaytarish
-                            </h3>
+                        <div className="relative bg-gradient-to-br from-card via-card to-accent/5 border-2 border-border rounded-xl p-6 overflow-hidden">
+                            {/* Animated background */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-primary/5 animate-pulse opacity-30" />
 
-                            {/* Book Scanner */}
-                            <div className="flex gap-3 mb-4">
-                                <input
-                                    type="text"
-                                    value={scanInput}
-                                    onChange={(e) => setScanInput(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleScan()}
-                                    placeholder="Kitob barcode skanerlang..."
-                                    className="flex-1 px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none font-mono"
-                                />
-                                <button
-                                    onClick={handleScan}
-                                    disabled={loading || !scanInput.trim()}
-                                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
-                                >
-                                    <Scan className="w-5 h-5" />
-                                </button>
-                            </div>
+                            <div className="relative z-10">
+                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <div className="p-2 bg-accent/10 rounded-lg">
+                                        <BookOpen className="w-5 h-5 text-accent" />
+                                    </div>
+                                    Kitob Berish / Qaytarish
+                                </h3>
 
-                            {/* Scanned Book - Checkout */}
-                            {scannedBook && (
-                                <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-2 border-green-500/20 rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div>
-                                            <h4 className="font-bold text-lg">{scannedBook.books.title}</h4>
-                                            <p className="text-sm text-muted-foreground">{scannedBook.books.author} • Nusxa #{scannedBook.copy_number}</p>
-                                        </div>
+                                {/* Book Scanner */}
+                                <div className="flex gap-3 mb-4">
+                                    <div className="flex-1 relative group">
+                                        <input
+                                            type="text"
+                                            value={scanInput}
+                                            onChange={(e) => setScanInput(e.target.value)}
+                                            onKeyPress={(e) => e.key === 'Enter' && handleScan()}
+                                            placeholder="Kitob barcode skanerlang..."
+                                            className="w-full px-4 py-3 bg-background/50 backdrop-blur-sm border-2 border-border rounded-lg focus:ring-2 focus:ring-accent/50 focus:border-accent outline-none font-mono transition-all group-hover:border-accent/30"
+                                        />
+                                        {loading && (
+                                            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                                                <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-accent to-transparent animate-scan" />
+                                            </div>
+                                        )}
                                     </div>
                                     <button
-                                        onClick={handleCheckout}
-                                        disabled={loading}
-                                        className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-bold"
+                                        onClick={handleScan}
+                                        disabled={loading || !scanInput.trim()}
+                                        className="px-6 py-3 bg-gradient-to-br from-accent to-accent/80 text-accent-foreground rounded-lg hover:from-accent/90 hover:to-accent/70 disabled:opacity-50 transition-all hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-accent/20"
                                     >
-                                        BERISH
+                                        <Scan className="w-5 h-5" />
                                     </button>
                                 </div>
-                            )}
+
+                                {/* Scanned Book - Checkout */}
+                                {scannedBook && (
+                                    <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-sm border-2 border-green-500/30 rounded-xl p-5 animate-in slide-in-from-bottom-4 duration-500">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-xl mb-1">{scannedBook.books.title}</h4>
+                                                <p className="text-sm text-muted-foreground">{scannedBook.books.author} • Nusxa #{scannedBook.copy_number}</p>
+                                            </div>
+                                            <div className="w-12 h-16 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                                                <BookOpen className="w-6 h-6 text-white" />
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={handleCheckout}
+                                            disabled={loading}
+                                            className="w-full py-3.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 disabled:opacity-50 font-bold text-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40"
+                                        >
+                                            ✓ BERISH
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -418,61 +474,114 @@ export default function CheckerPage() {
                 {/* RIGHT COLUMN - Student Info */}
                 {student && (
                     <div className="space-y-4">
-                        {/* Student Card */}
-                        <div className="bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary/20 rounded-xl p-6">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <User className="w-8 h-8 text-primary" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold">{student.name}</h3>
-                                    <p className="text-sm text-muted-foreground font-mono">{student.student_id}</p>
-                                </div>
-                            </div>
+                        {/* Student Card - Glassmorphism */}
+                        <div className="relative bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 backdrop-blur-xl border-2 border-primary/30 rounded-2xl p-6 overflow-hidden shadow-2xl shadow-primary/10">
+                            {/* Animated background orbs */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
-                            {/* Stats */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-card rounded-lg p-3">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Award className="w-4 h-4 text-orange-600" />
-                                        <p className="text-xs text-muted-foreground">XP</p>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="relative">
+                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                                            <User className="w-10 h-10 text-white" />
+                                        </div>
+                                        {/* Glow effect */}
+                                        <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl animate-pulse" />
                                     </div>
-                                    <p className="text-2xl font-bold text-orange-600">{student.xp || 0}</p>
+                                    <div className="flex-1">
+                                        <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{student.name}</h3>
+                                        <p className="text-sm text-muted-foreground font-mono mt-1">{student.student_id}</p>
+                                    </div>
                                 </div>
-                                <div className="bg-card rounded-lg p-3">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Flame className="w-4 h-4 text-red-600" />
-                                        <p className="text-xs text-muted-foreground">Streak</p>
+
+                                {/* XP Progress Bar */}
+                                <div className="mb-6">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-medium text-muted-foreground">Experience</span>
+                                        <span className="text-xs font-bold text-orange-600">{student.xp || 0} XP</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-red-600">{student.streak || 0}</p>
+                                    <div className="h-3 bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-1000 ease-out shadow-lg shadow-orange-500/50"
+                                            style={{ width: `${Math.min(((student.xp || 0) % 1000) / 10, 100)}%` }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">Level {Math.floor((student.xp || 0) / 1000) + 1}</p>
+                                </div>
+
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="p-1.5 bg-orange-500/10 rounded-lg">
+                                                <Award className="w-4 h-4 text-orange-600" />
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">Total XP</p>
+                                        </div>
+                                        <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">{student.xp || 0}</p>
+                                    </div>
+                                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="p-1.5 bg-red-500/10 rounded-lg">
+                                                <Flame className={`w-4 h-4 text-red-600 ${(student.streak || 0) > 0 ? 'animate-pulse' : ''}`} />
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">Streak</p>
+                                        </div>
+                                        <p className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">{student.streak || 0}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Active Loans */}
-                        <div className="bg-card border-2 border-border rounded-xl p-6">
-                            <h3 className="text-lg font-bold mb-4">Qarzda ({activeLoans.length})</h3>
+                        <div className="bg-card/50 backdrop-blur-sm border-2 border-border rounded-xl p-6">
+                            <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
+                                <span>Qarzda Kitoblar</span>
+                                <span className="text-sm font-normal px-3 py-1 bg-primary/10 text-primary rounded-full">{activeLoans.length}</span>
+                            </h3>
                             {activeLoans.length === 0 ? (
-                                <p className="text-center text-muted-foreground py-4">Qarzda kitob yo'q</p>
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-muted/30 flex items-center justify-center">
+                                        <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                                    </div>
+                                    <p className="text-muted-foreground">Qarzda kitob yo'q</p>
+                                </div>
                             ) : (
                                 <div className="space-y-3">
                                     {activeLoans.map((loan) => {
                                         const isOverdue = new Date(loan.due_date) < new Date();
                                         const daysLeft = Math.ceil((new Date(loan.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
+                                        const urgencyColor = isOverdue
+                                            ? 'from-red-500/20 to-red-600/10 border-red-500/30'
+                                            : daysLeft <= 3
+                                                ? 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30'
+                                                : 'from-blue-500/20 to-blue-600/10 border-blue-500/30';
+
                                         return (
-                                            <div key={loan.id} className={`p-3 rounded-lg border ${isOverdue ? 'bg-red-500/10 border-red-500/20' : 'bg-muted/30 border-border'}`}>
-                                                <h4 className="font-bold text-sm mb-1">{loan.physical_book_copies.books.title}</h4>
-                                                <p className="text-xs text-muted-foreground mb-2">
-                                                    {isOverdue ? '⚠️ Muddati o\'tgan!' : `${daysLeft} kun qoldi`}
-                                                </p>
-                                                <button
-                                                    onClick={() => handleReturn(loan.physical_copy_id)}
-                                                    disabled={loading}
-                                                    className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium"
-                                                >
-                                                    Qaytarish
-                                                </button>
+                                            <div key={loan.id} className={`relative bg-gradient-to-br ${urgencyColor} backdrop-blur-sm border-2 rounded-xl p-4 overflow-hidden transition-all hover:scale-[1.02]`}>
+                                                {/* Progress indicator */}
+                                                <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-50" style={{ width: `${Math.max(0, Math.min(100, (daysLeft / 14) * 100))}%` }} />
+
+                                                <div className="relative">
+                                                    <h4 className="font-bold text-sm mb-1 pr-12">{loan.physical_book_copies.books.title}</h4>
+                                                    <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {isOverdue ? (
+                                                            <span className="text-red-600 font-medium">⚠️ {Math.abs(daysLeft)} kun kechikkan!</span>
+                                                        ) : (
+                                                            <span className={daysLeft <= 3 ? 'text-yellow-600 font-medium' : ''}>{daysLeft} kun qoldi</span>
+                                                        )}
+                                                    </p>
+                                                    <button
+                                                        onClick={() => handleReturn(loan.physical_copy_id)}
+                                                        disabled={loading}
+                                                        className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
+                                                    >
+                                                        ✓ Qaytarish
+                                                    </button>
+                                                </div>
                                             </div>
                                         );
                                     })}

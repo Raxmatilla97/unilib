@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     BookOpen,
-    Search,
     Edit,
     Trash2
 } from 'lucide-react';
@@ -31,7 +30,6 @@ interface BooksTableProps {
 
 export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }: BooksTableProps) {
     const [books, setBooks] = useState(initialBooks);
-    const [search, setSearch] = useState('');
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const router = useRouter();
 
@@ -39,12 +37,7 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
         setBooks(initialBooks);
     }, [initialBooks]);
 
-    const filteredBooks = books.filter(book =>
-        book.title.toLowerCase().includes(search.toLowerCase()) ||
-        book.author.toLowerCase().includes(search.toLowerCase())
-    );
-
-    const handleDelete = async (id: string) => {
+    const handleDelete = useCallback(async (id: string) => {
         if (!confirm('Bu kitobni o\'chirishga ishonchingiz komilmi?')) return;
 
         setIsLoading(id);
@@ -55,34 +48,27 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
                 .eq('id', id);
 
             if (error) throw error;
+
+            // Optimistic update
             setBooks(books.filter(book => book.id !== id));
+
+            // Refresh to get updated data
+            router.refresh();
         } catch (error) {
             console.error('Error deleting book:', error);
             alert('Kitobni o\'chirishda xatolik yuz berdi');
         } finally {
             setIsLoading(null);
         }
-    };
+    }, [books, router]);
 
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = useCallback((newPage: number) => {
         if (newPage < 1 || newPage > totalPages) return;
         router.push(`/admin/books?page=${newPage}`);
-    };
+    }, [totalPages, router]);
 
     return (
         <div className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    placeholder="Qidirish..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-card border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm"
-                />
-            </div>
-
             {/* Desktop Table View */}
             <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden">
                 <table className="w-full">
@@ -96,14 +82,14 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredBooks.length === 0 ? (
+                        {books.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="text-center py-12 text-muted-foreground">
                                     Kitoblar topilmadi
                                 </td>
                             </tr>
                         ) : (
-                            filteredBooks.map((book) => (
+                            books.map((book) => (
                                 <tr key={book.id} className="border-t border-border hover:bg-muted/30 transition-colors">
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
@@ -154,12 +140,12 @@ export function BooksTable({ books: initialBooks, page, totalPages, totalBooks }
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
-                {filteredBooks.length === 0 ? (
+                {books.length === 0 ? (
                     <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground">
                         Kitoblar topilmadi
                     </div>
                 ) : (
-                    filteredBooks.map((book) => (
+                    books.map((book) => (
                         <div key={book.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
                             {/* Book Info */}
                             <div className="flex items-start gap-3">

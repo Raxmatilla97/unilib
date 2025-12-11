@@ -1,17 +1,44 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { Save, ArrowLeft, Loader2, Check } from 'lucide-react';
+import { Save, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { BarcodePrintModal } from '@/components/admin/BarcodePrintModal';
 
 export default function CreateOfflineBookPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
+    const [barcodeMode, setBarcodeMode] = useState<'auto' | 'existing'>('auto');
+    const [generatedBarcodes, setGeneratedBarcodes] = useState<string[]>([]);
+    const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+    const [copyCount, setCopyCount] = useState(1);
+    const [existingBarcodes, setExistingBarcodes] = useState<string[]>(['']);
+    const [barcodeExistsInDB, setBarcodeExistsInDB] = useState<boolean[]>([]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Check if barcode exists in database
+    const checkBarcodeInDB = useCallback(async (barcode: string, index: number) => {
+        if (!barcode || !barcode.trim()) {
+            const newExists = [...barcodeExistsInDB];
+            newExists[index] = false;
+            setBarcodeExistsInDB(newExists);
+            return;
+        }
+
+        const { data } = await supabase
+            .from('physical_book_copies')
+            .select('barcode')
+            .eq('barcode', barcode.trim())
+            .limit(1);
+
+        const newExists = [...barcodeExistsInDB];
+        newExists[index] = (data && data.length > 0) || false;
+        setBarcodeExistsInDB(newExists);
+    }, [barcodeExistsInDB]);
+
+
+    const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         const formData = new FormData(e.currentTarget);
@@ -54,12 +81,28 @@ export default function CreateOfflineBookPage() {
             if (bookError) throw bookError;
 
             // Create physical copies
-            const numberOfCopies = parseInt(formData.get('copies') as string) || 1;
+            const numberOfCopies = copyCount;
             const location = formData.get('location') as string;
-            const barcodeMode = formData.get('barcode_mode') as string;
-            const existingBarcode = formData.get('existing_barcode') as string;
 
-            // Get organization info for auto-generated barcodes (reuse user from above)
+            // Validate existing barcodes for duplicates
+            if (barcodeMode === 'existing') {
+                const filledBarcodes = existingBarcodes.filter(b => b && b.trim());
+                const uniqueBarcodes = new Set(filledBarcodes);
+
+                if (filledBarcodes.length !== uniqueBarcodes.size) {
+                    alert('Xatolik: Bir xil barcode kiritilgan! Har bir nusxa uchun alohida barcode kiriting.');
+                    setLoading(false);
+                    return;
+                }
+
+                if (filledBarcodes.length !== numberOfCopies) {
+                    alert(`Xatolik: ${numberOfCopies} ta barcode kiritish kerak!`);
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Get organization info for auto-generated barcodes
             const { data: profileData } = await supabase
                 .from('profiles')
                 .select('organizations(slug)')
@@ -73,16 +116,27 @@ export default function CreateOfflineBookPage() {
             for (let i = 1; i <= numberOfCopies; i++) {
                 let barcode;
 
-                if (barcodeMode === 'existing' && existingBarcode) {
-                    // Use existing barcode with copy number suffix
-                    barcode = numberOfCopies > 1
-                        ? `${existingBarcode}-${String(i).padStart(3, '0')}`
-                        : existingBarcode;
+                if (barcodeMode === 'existing') {
+                    // Use existing barcode from array
+                    barcode = existingBarcodes[i - 1] || `NO-BARCODE-${i}`;
                 } else {
-                    // Generate barcode client-side
-                    const shortId = book.id.substring(0, 8).toUpperCase();
-                    const paddedCopy = String(i).padStart(3, '0');
-                    barcode = `BOOK-${orgSlug}-${shortId}-${paddedCopy}`;
+                    // Generate 13-digit numeric barcode (EAN-13 format)
+                    // Format: XXYYYYYYYYYZZZ = 13 digits total
+                    // XX = organization code (2 digits)
+                    // YYYYYYYYY = book ID hash (8 digits) 
+                    // ZZZ = copy number (3 digits)
+
+                    const orgCode = orgSlug.charCodeAt(0).toString().slice(-2).padStart(2, '0');
+
+                    let hash = 0;
+                    for (let j = 0; j < book.id.length; j++) {
+                        hash = ((hash << 5) - hash) + book.id.charCodeAt(j);
+                        hash = hash & hash;
+                    }
+                    const bookHash = Math.abs(hash).toString().slice(0, 8).padStart(8, '0');
+
+                    const copyNum = String(i).padStart(3, '0');
+                    barcode = `${orgCode}${bookHash}${copyNum}`;
                 }
 
                 copies.push({
@@ -99,31 +153,44 @@ export default function CreateOfflineBookPage() {
                 .from('physical_book_copies')
                 .insert(copies);
 
-            if (copiesError) throw copiesError;
+            if (copiesError) {
+                console.error('Copies insert error:', copiesError);
 
-            setSuccess(true);
-            setTimeout(() => {
-                router.push('/admin/books/offline');
-                router.refresh();
-            }, 2000);
-        } catch (error) {
+                // Check for duplicate barcode
+                if (copiesError.code === '23505') {
+                    alert('Xatolik: Barcode allaqachon mavjud! Boshqa barcode kiriting yoki avtomatik generatsiya tanlang.');
+                } else {
+                    alert(`Nusxalarni yaratishda xatolik: ${copiesError.message}`);
+                }
+
+                setLoading(false);
+                return;
+            }
+
+            // Store generated barcodes and show modal
+            setGeneratedBarcodes(copies.map(c => c.barcode));
+            setShowBarcodeModal(true);
+        } catch (error: any) {
             console.error('Error creating offline book:', error);
-            alert('Xatolik yuz berdi!');
+
+            // Better error messages
+            if (error.code === '23505') {
+                alert('Xatolik: Barcode allaqachon mavjud sistemada!');
+            } else if (error.code === '23503') {
+                alert('Xatolik: Tashkilot ma\'lumotlari topilmadi!');
+            } else {
+                alert('Xatolik yuz berdi! Iltimos, qaytadan urinib ko\'ring.');
+            }
+
             setLoading(false);
         }
-    };
+    }, [barcodeMode, router, copyCount, existingBarcodes]);
 
-    if (success) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in zoom-in duration-300">
-                <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-green-500/30">
-                    <Check className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Muvaffaqiyatli Saqlandi!</h2>
-                <p className="text-muted-foreground">Sizni offline kitoblar ro'yxatiga yo'naltirmoqdamiz...</p>
-            </div>
-        );
-    }
+    const handleCloseModal = () => {
+        setShowBarcodeModal(false);
+        router.push('/admin/books/offline');
+        router.refresh();
+    };
 
     return (
         <div className="max-w-3xl mx-auto space-y-6">
@@ -222,12 +289,9 @@ export default function CreateOfflineBookPage() {
                                         type="radio"
                                         name="barcode_mode"
                                         value="auto"
-                                        defaultChecked
+                                        checked={barcodeMode === 'auto'}
+                                        onChange={() => setBarcodeMode('auto')}
                                         className="w-4 h-4"
-                                        onChange={(e) => {
-                                            const existingInput = document.getElementById('existing_barcode_section') as HTMLElement;
-                                            if (existingInput) existingInput.style.display = 'none';
-                                        }}
                                     />
                                     <span className="text-sm">Avtomatik generatsiya</span>
                                 </label>
@@ -236,11 +300,9 @@ export default function CreateOfflineBookPage() {
                                         type="radio"
                                         name="barcode_mode"
                                         value="existing"
+                                        checked={barcodeMode === 'existing'}
+                                        onChange={() => setBarcodeMode('existing')}
                                         className="w-4 h-4"
-                                        onChange={(e) => {
-                                            const existingInput = document.getElementById('existing_barcode_section') as HTMLElement;
-                                            if (existingInput) existingInput.style.display = 'block';
-                                        }}
                                     />
                                     <span className="text-sm">Kitobda mavjud barcode</span>
                                 </label>
@@ -250,20 +312,61 @@ export default function CreateOfflineBookPage() {
                             </p>
                         </div>
 
-                        {/* Existing Barcode Input (Hidden by default) */}
-                        <div id="existing_barcode_section" style={{ display: 'none' }} className="space-y-2">
-                            <label className="text-sm font-medium">
-                                Kitobdagi Barcode/ISBN
-                            </label>
-                            <input
-                                name="existing_barcode"
-                                className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono"
-                                placeholder="Masalan: 978-0-13-468599-1 yoki 1234567890123"
-                            />
-                            <p className="text-xs text-muted-foreground">
-                                Scanner bilan skanerlang yoki qo'lda kiriting
-                            </p>
-                        </div>
+                        {/* Existing Barcode Input (Conditional) */}
+                        {barcodeMode === 'existing' && (
+                            <div className="space-y-4">
+                                <label className="text-sm font-medium">
+                                    Kitobdagi Barcode/ISBN (Har bir nusxa uchun)
+                                </label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {Array.from({ length: copyCount }, (_, i) => {
+                                        const currentBarcode = existingBarcodes[i] || '';
+                                        const isDuplicate = currentBarcode && existingBarcodes.filter(b => b === currentBarcode).length > 1;
+                                        const existsInDB = barcodeExistsInDB[i] || false;
+                                        const hasError = isDuplicate || existsInDB;
+
+                                        return (
+                                            <div key={i} className="space-y-1">
+                                                <label className="text-xs text-muted-foreground">
+                                                    Nusxa #{i + 1}
+                                                </label>
+                                                <input
+                                                    value={currentBarcode}
+                                                    onChange={(e) => {
+                                                        const newBarcodes = [...existingBarcodes];
+                                                        newBarcodes[i] = e.target.value;
+                                                        setExistingBarcodes(newBarcodes);
+
+                                                        // Debounced DB check
+                                                        setTimeout(() => {
+                                                            checkBarcodeInDB(e.target.value, i);
+                                                        }, 500);
+                                                    }}
+                                                    className={`w-full px-3 py-2 bg-background border rounded-lg focus:ring-2 outline-none transition-all font-mono text-sm ${hasError
+                                                            ? 'border-red-500 focus:ring-red-500/50'
+                                                            : 'border-border focus:ring-primary/50'
+                                                        }`}
+                                                    placeholder={`Barcode ${i + 1}`}
+                                                />
+                                                {isDuplicate && (
+                                                    <p className="text-xs text-red-500">
+                                                        ⚠️ Bir xil barcode!
+                                                    </p>
+                                                )}
+                                                {!isDuplicate && existsInDB && (
+                                                    <p className="text-xs text-red-500">
+                                                        ⚠️ Bu barcode allaqachon mavjud!
+                                                    </p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Scanner bilan skanerlang yoki qo'lda kiriting. Har bir nusxa uchun alohida barcode.
+                                </p>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -274,7 +377,13 @@ export default function CreateOfflineBookPage() {
                                     name="copies"
                                     type="number"
                                     min="1"
-                                    defaultValue="1"
+                                    value={copyCount}
+                                    onChange={(e) => {
+                                        const count = parseInt(e.target.value) || 1;
+                                        setCopyCount(count);
+                                        // Resize barcode array
+                                        setExistingBarcodes(Array.from({ length: count }, (_, i) => existingBarcodes[i] || ''));
+                                    }}
                                     required
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 />
@@ -321,6 +430,14 @@ export default function CreateOfflineBookPage() {
                     </div>
                 </form>
             </div>
+
+            {/* Barcode Print Modal */}
+            {showBarcodeModal && (
+                <BarcodePrintModal
+                    barcodes={generatedBarcodes}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 }

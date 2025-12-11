@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import {
@@ -29,6 +29,7 @@ interface Book {
     pages?: number;
     year?: number;
     language?: string;
+    book_type?: string;
     created_at: string;
 }
 
@@ -50,11 +51,17 @@ export function BookForm({ initialData }: BookFormProps) {
     const [coverUrl, setCoverUrl] = useState(initialData?.cover_url || '');
     const [fileUrl, setFileUrl] = useState(initialData?.file_url || '');
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
+    // Memoize default categories
+    const defaultCategories = useMemo(() => [
+        'Badiiy',
+        'Ilmiy',
+        'Darslik',
+        'Biznes',
+        'Psixologiya',
+        'Tarix'
+    ], []);
 
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             const { data } = await supabase
                 .from('books')
@@ -67,18 +74,77 @@ export function BookForm({ initialData }: BookFormProps) {
         } catch (error) {
             console.error('Error fetching categories:', error);
         }
-    };
+    }, []);
 
-    const handleFileUpload = async (file: File, bucket: 'covers' | 'books', setStatus: (s: UploadStatus) => void, setUrl: (u: string) => void) => {
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
+
+    const handleFileUpload = useCallback(async (
+        file: File,
+        bucket: 'covers' | 'books',
+        setStatus: (s: UploadStatus) => void,
+        setUrl: (u: string) => void
+    ) => {
         setStatus('uploading');
         try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            let fileToUpload = file;
+
+            // Compress image if it's a cover (image file)
+            if (bucket === 'covers' && file.type.startsWith('image/')) {
+                // Create canvas for compression
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(file);
+                });
+
+                // Max dimensions for cover
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 1200;
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate new dimensions
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = (height * MAX_WIDTH) / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = (width * MAX_HEIGHT) / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx?.drawImage(img, 0, 0, width, height);
+
+                // Convert to blob with compression
+                const blob = await new Promise<Blob>((resolve) => {
+                    canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.85);
+                });
+
+                fileToUpload = new File([blob], file.name, { type: 'image/jpeg' });
+                URL.revokeObjectURL(img.src);
+            }
+
+            const fileExt = fileToUpload.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from(bucket)
-                .upload(filePath, file);
+                .upload(filePath, fileToUpload, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
 
             if (uploadError) throw uploadError;
 
@@ -93,9 +159,9 @@ export function BookForm({ initialData }: BookFormProps) {
             setStatus('error');
             alert('Fayl yuklashda xatolik yuz berdi');
         }
-    };
+    }, []);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         const formData = new FormData(e.currentTarget);
@@ -114,12 +180,13 @@ export function BookForm({ initialData }: BookFormProps) {
                 category: formData.get('category') as string,
                 description: formData.get('description') as string,
                 cover_color: formData.get('cover_color') as string,
-                cover_url: coverUrl || (formData.get('cover_url_text') as string),
-                file_url: fileUrl || (formData.get('file_url_text') as string),
+                cover_url: coverUrl || (formData.get('cover_url_text') as string) || null,
+                file_url: fileUrl || (formData.get('file_url_text') as string) || null,
                 rating: parseFloat(formData.get('rating') as string) || 5.0,
                 pages: parseInt(formData.get('pages') as string) || 0,
-                language: formData.get('language') as string,
+                language: formData.get('language') as string || 'O\'zbek',
                 year: parseInt(formData.get('year') as string) || new Date().getFullYear(),
+                book_type: initialData?.book_type || 'both',
             };
 
             if (initialData) {
@@ -145,7 +212,7 @@ export function BookForm({ initialData }: BookFormProps) {
             alert('Xatolik yuz berdi!');
             setLoading(false);
         }
-    };
+    }, [coverStatus, bookFileStatus, coverUrl, fileUrl, initialData, router]);
 
     if (success) {
         return (
@@ -219,12 +286,9 @@ export function BookForm({ initialData }: BookFormProps) {
                                         {categories.map((cat) => (
                                             <option key={cat} value={cat} />
                                         ))}
-                                        <option value="Badiiy" />
-                                        <option value="Ilmiy" />
-                                        <option value="Darslik" />
-                                        <option value="Biznes" />
-                                        <option value="Psixologiya" />
-                                        <option value="Tarix" />
+                                        {defaultCategories.map((cat) => (
+                                            <option key={`default-${cat}`} value={cat} />
+                                        ))}
                                     </datalist>
                                 </div>
                                 <p className="text-xs text-muted-foreground">

@@ -1,59 +1,36 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
-import { AdminRoute } from '@/components/admin/AdminRoute';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { BookForm } from '@/components/admin/BookForm';
-import { Loader2 } from 'lucide-react';
+import { notFound } from 'next/navigation';
 
-export default function EditBookPage() {
-    const params = useParams();
-    const [book, setBook] = useState(null);
-    const [loading, setLoading] = useState(true);
+export const dynamic = 'force-dynamic';
 
-    useEffect(() => {
-        const fetchBook = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('books')
-                    .select('*')
-                    .eq('id', params.id)
-                    .single();
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
 
-                if (error) throw error;
-                setBook(data);
-            } catch (error) {
-                console.error('Error fetching book:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+async function getBook(id: string) {
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('books')
+            .select('*')
+            .eq('id', id)
+            .single();
 
-        if (params.id) {
-            fetchBook();
-        }
-    }, [params.id]);
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        );
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error fetching book:', error);
+        return null;
     }
+}
+
+export default async function EditBookPage({ params }: PageProps) {
+    const { id } = await params;
+    const book = await getBook(id);
 
     if (!book) {
-        return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <p className="text-muted-foreground">Kitob topilmadi</p>
-            </div>
-        );
+        notFound();
     }
 
-    return (
-        <AdminRoute>
-            <BookForm initialData={book} />
-        </AdminRoute>
-    );
+    return <BookForm initialData={book} />;
 }

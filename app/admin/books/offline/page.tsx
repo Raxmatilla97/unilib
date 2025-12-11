@@ -1,12 +1,55 @@
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { Package, Plus, Search } from 'lucide-react';
+import { Package, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { BooksSearch } from '@/components/admin/BooksSearch';
 
 export const dynamic = 'force-dynamic';
 
-async function getOfflineBooks() {
-    // Get offline books with copy counts
-    const { data: books, error } = await supabaseAdmin
+interface GetBooksParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    status?: string;
+    sort?: string;
+}
+
+async function getOfflineBooks({
+    page = 1,
+    limit = 10,
+    search,
+    category,
+    status,
+    sort = 'created_at'
+}: GetBooksParams = {}) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    // Build count query
+    let countQuery = supabaseAdmin
+        .from('books')
+        .select('*', { count: 'exact', head: true })
+        .in('book_type', ['offline', 'both']);
+
+    // Apply search filter to count
+    if (search) {
+        countQuery = countQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+    }
+
+    // Apply category filter to count
+    if (category) {
+        countQuery = countQuery.eq('category', category);
+    }
+
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+        console.error('Error fetching books count:', countError);
+        return { books: [], totalBooks: 0, totalPages: 0, categories: [] };
+    }
+
+    // Build main query with JOIN
+    let booksQuery = supabaseAdmin
         .from('books')
         .select(`
             id,
@@ -15,43 +58,107 @@ async function getOfflineBooks() {
             category,
             cover_url,
             cover_color,
-            created_at
+            created_at,
+            physical_book_copies(id, status, barcode, location)
         `)
-        .in('book_type', ['offline', 'both'])
-        .order('created_at', { ascending: false });
+        .in('book_type', ['offline', 'both']);
+
+    // Apply search filter
+    if (search) {
+        booksQuery = booksQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+    }
+
+    // Apply category filter
+    if (category) {
+        booksQuery = booksQuery.eq('category', category);
+    }
+
+    // Apply sorting
+    switch (sort) {
+        case 'title':
+            booksQuery = booksQuery.order('title', { ascending: true });
+            break;
+        case 'author':
+            booksQuery = booksQuery.order('author', { ascending: true });
+            break;
+        default:
+            booksQuery = booksQuery.order('created_at', { ascending: false });
+    }
+
+    // Apply pagination
+    booksQuery = booksQuery.range(from, to);
+
+    const { data: books, error } = await booksQuery;
 
     if (error) {
         console.error('Error fetching offline books:', error);
-        return [];
+        return { books: [], totalBooks: 0, totalPages: 0, categories: [] };
     }
 
-    // Get copy counts for each book
-    const booksWithCopies = await Promise.all(
-        (books || []).map(async (book) => {
-            const { data: copies } = await supabaseAdmin
-                .from('physical_book_copies')
-                .select('id, status, barcode, location')
-                .eq('book_id', book.id);
+    // Calculate copy counts and apply status filter
+    let booksWithCopies = (books || []).map((book: any) => {
+        const copies = book.physical_book_copies || [];
+        const totalCopies = copies.length;
+        const availableCopies = copies.filter((c: any) => c.status === 'available').length;
+        const borrowedCopies = copies.filter((c: any) => c.status === 'borrowed').length;
 
-            const totalCopies = copies?.length || 0;
-            const availableCopies = copies?.filter(c => c.status === 'available').length || 0;
-            const borrowedCopies = copies?.filter(c => c.status === 'borrowed').length || 0;
+        return {
+            ...book,
+            totalCopies,
+            availableCopies,
+            borrowedCopies,
+            copies
+        };
+    });
 
-            return {
-                ...book,
-                totalCopies,
-                availableCopies,
-                borrowedCopies,
-                copies: copies || []
-            };
-        })
-    );
+    // Apply status filter (client-side since it's based on copies)
+    if (status === 'available') {
+        booksWithCopies = booksWithCopies.filter(book => book.availableCopies > 0);
+    } else if (status === 'borrowed') {
+        booksWithCopies = booksWithCopies.filter(book => book.borrowedCopies > 0);
+    }
 
-    return booksWithCopies;
+    // Sort by copies if needed (client-side)
+    if (sort === 'copies') {
+        booksWithCopies.sort((a, b) => b.totalCopies - a.totalCopies);
+    }
+
+    // Get unique categories for filter
+    const { data: allBooks } = await supabaseAdmin
+        .from('books')
+        .select('category')
+        .in('book_type', ['offline', 'both']);
+
+    const categories = [...new Set((allBooks || []).map((b: any) => b.category))].filter(Boolean) as string[];
+
+    return {
+        books: booksWithCopies,
+        totalBooks: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        categories
+    };
 }
 
-export default async function OfflineBooksPage() {
-    const books = await getOfflineBooks();
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function OfflineBooksPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+    const page = Number(params?.page) || 1;
+    const search = params?.search as string | undefined;
+    const category = params?.category as string | undefined;
+    const status = params?.status as string | undefined;
+    const sort = params?.sort as string | undefined;
+
+    const { books, totalBooks, totalPages, categories } = await getOfflineBooks({
+        page,
+        limit: 10,
+        search,
+        category,
+        status,
+        sort
+    });
 
     return (
         <div className="space-y-6">
@@ -75,11 +182,17 @@ export default async function OfflineBooksPage() {
                 </Link>
             </div>
 
+            {/* Search & Filters */}
+            <BooksSearch
+                categories={categories}
+                showStatusFilter={true}
+            />
+
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-card border border-border rounded-xl p-4">
                     <p className="text-sm text-muted-foreground">Jami Kitoblar</p>
-                    <p className="text-3xl font-bold mt-1">{books.length}</p>
+                    <p className="text-3xl font-bold mt-1">{totalBooks}</p>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-4">
                     <p className="text-sm text-muted-foreground">Jami Nusxalar</p>
@@ -113,62 +226,91 @@ export default async function OfflineBooksPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-muted/50 border-b border-border">
-                                <tr>
-                                    <th className="text-left p-4 font-semibold">Kitob</th>
-                                    <th className="text-left p-4 font-semibold">Muallif</th>
-                                    <th className="text-left p-4 font-semibold">Kategoriya</th>
-                                    <th className="text-center p-4 font-semibold">Jami Nusxalar</th>
-                                    <th className="text-center p-4 font-semibold">Mavjud</th>
-                                    <th className="text-center p-4 font-semibold">Qarzda</th>
-                                    <th className="text-right p-4 font-semibold">Amallar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {books.map((book) => (
-                                    <tr key={book.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-12 h-16 rounded ${book.cover_color || 'bg-blue-500'} flex items-center justify-center overflow-hidden`}>
-                                                    {book.cover_url ? (
-                                                        <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <Package className="w-6 h-6 text-white" />
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold">{book.title}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">{book.author}</td>
-                                        <td className="p-4">
-                                            <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                                                {book.category}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-center font-semibold">{book.totalCopies}</td>
-                                        <td className="p-4 text-center">
-                                            <span className="text-green-600 font-semibold">{book.availableCopies}</span>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span className="text-orange-600 font-semibold">{book.borrowedCopies}</span>
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <Link
-                                                href={`/admin/books/offline/${book.id}`}
-                                                className="text-primary hover:underline text-sm font-medium"
-                                            >
-                                                Batafsil →
-                                            </Link>
-                                        </td>
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-muted/50 border-b border-border">
+                                    <tr>
+                                        <th className="text-left p-4 font-semibold">Kitob</th>
+                                        <th className="text-left p-4 font-semibold">Muallif</th>
+                                        <th className="text-left p-4 font-semibold">Kategoriya</th>
+                                        <th className="text-center p-4 font-semibold">Jami Nusxalar</th>
+                                        <th className="text-center p-4 font-semibold">Mavjud</th>
+                                        <th className="text-center p-4 font-semibold">Qarzda</th>
+                                        <th className="text-right p-4 font-semibold">Amallar</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {books.map((book) => (
+                                        <tr key={book.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-12 h-16 rounded ${book.cover_color || 'bg-blue-500'} flex items-center justify-center overflow-hidden`}>
+                                                        {book.cover_url ? (
+                                                            <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Package className="w-6 h-6 text-white" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold">{book.title}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-muted-foreground">{book.author}</td>
+                                            <td className="p-4">
+                                                <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                                                    {book.category}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-center font-semibold">{book.totalCopies}</td>
+                                            <td className="p-4 text-center">
+                                                <span className="text-green-600 font-semibold">{book.availableCopies}</span>
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                <span className="text-orange-600 font-semibold">{book.borrowedCopies}</span>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <Link
+                                                    href={`/admin/books/offline/${book.id}`}
+                                                    className="text-primary hover:underline text-sm font-medium"
+                                                >
+                                                    Batafsil →
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between p-4 border-t border-border">
+                                <p className="text-sm text-muted-foreground">
+                                    Jami {totalBooks} kitob, {page}-sahifa / {totalPages}
+                                </p>
+                                <div className="flex gap-2">
+                                    {page > 1 && (
+                                        <Link
+                                            href={`/admin/books/offline?page=${page - 1}`}
+                                            className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
+                                        >
+                                            ← Oldingi
+                                        </Link>
+                                    )}
+                                    {page < totalPages && (
+                                        <Link
+                                            href={`/admin/books/offline?page=${page + 1}`}
+                                            className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
+                                        >
+                                            Keyingi →
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

@@ -27,12 +27,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const { hasPermission, isSuperAdmin } = useAuth();
 
     const navItems = [
-        // {
-        //     href: '/super-admin',
-        //     label: 'Super Admin',
-        //     icon: Building2,
-        //     show: isSuperAdmin()
-        // },
         {
             href: '/admin',
             label: 'Dashboard',
@@ -68,24 +62,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             label: 'Foydalanuvchilar',
             icon: Users,
             show: hasPermission(ROLES.HEAD_LIBRARIAN)
-        },
-        {
-            href: '/admin/groups',
-            label: 'Guruhlar',
-            icon: MessageSquare,
-            show: hasPermission(ROLES.TEACHER)
-        },
-        {
-            href: '/admin/statistika',
-            label: 'Statistika',
-            icon: BarChart3,
-            show: hasPermission(ROLES.LIBRARIAN)
-        },
-        {
-            href: '/admin/settings',
-            label: 'Sozlamalar',
-            icon: Settings,
-            show: hasPermission(ROLES.ORG_ADMIN)
         },
     ].filter(item => item.show);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { ArrowLeft, Package, Plus, Edit, Trash2, MapPin, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -19,14 +19,7 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
     const [book, setBook] = useState<any>(null);
     const [copies, setCopies] = useState<any[]>([]);
 
-    useEffect(() => {
-        params.then(p => {
-            setBookId(p.id);
-            loadBookDetails(p.id);
-        });
-    }, []);
-
-    const loadBookDetails = async (id: string) => {
+    const loadBookDetails = useCallback(async (id: string) => {
         // Get book info
         const { data: bookData } = await supabase
             .from('books')
@@ -70,9 +63,16 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
 
         setCopies(copiesWithHistory);
         setLoading(false);
-    };
+    }, [router]);
 
-    const handleDeleteBook = async () => {
+    useEffect(() => {
+        params.then(p => {
+            setBookId(p.id);
+            loadBookDetails(p.id);
+        });
+    }, [params, loadBookDetails]);
+
+    const handleDeleteBook = useCallback(async () => {
         if (!confirm('Kitobni o\'chirmoqchimisiz? Bu barcha nusxalarni ham o\'chiradi!')) {
             return;
         }
@@ -91,9 +91,9 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
             console.error('Error deleting book:', error);
             alert('Xatolik yuz berdi!');
         }
-    };
+    }, [bookId, router]);
 
-    const handleDeleteCopy = async (copyId: string) => {
+    const handleDeleteCopy = useCallback(async (copyId: string) => {
         if (!confirm('Nusxani o\'chirmoqchimisiz?')) {
             return;
         }
@@ -112,7 +112,12 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
             console.error('Error deleting copy:', error);
             alert('Xatolik yuz berdi!');
         }
-    };
+    }, [bookId, loadBookDetails]);
+
+    const { availableCopies, borrowedCopies } = useMemo(() => ({
+        availableCopies: copies.filter(c => c.status === 'available').length,
+        borrowedCopies: copies.filter(c => c.status === 'borrowed').length
+    }), [copies]);
 
     if (loading) {
         return (
@@ -125,9 +130,6 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
     if (!book) {
         return <div>Kitob topilmadi</div>;
     }
-
-    const availableCopies = copies.filter(c => c.status === 'available').length;
-    const borrowedCopies = copies.filter(c => c.status === 'borrowed').length;
 
     return (
         <div className="space-y-6">

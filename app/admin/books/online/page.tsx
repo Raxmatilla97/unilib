@@ -2,41 +2,100 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { BooksTable } from '@/components/admin/BooksTable';
 import { BookOpen, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { BooksSearch } from '@/components/admin/BooksSearch';
 
 export const dynamic = 'force-dynamic';
 
-async function getBooks(page: number = 1, limit: number = 10) {
+interface GetBooksParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    sort?: string;
+}
+
+async function getBooks({
+    page = 1,
+    limit = 10,
+    search,
+    category,
+    sort = 'created_at'
+}: GetBooksParams = {}) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    // Get total count - filter for online and both types
-    const { count, error: countError } = await supabaseAdmin
+    // Build count query
+    let countQuery = supabaseAdmin
         .from('books')
         .select('*', { count: 'exact', head: true })
         .in('book_type', ['online', 'both']);
 
-    if (countError) {
-        console.error('Error fetching books count:', countError);
-        return { books: [], totalBooks: 0, totalPages: 0 };
+    // Apply filters to count
+    if (search) {
+        countQuery = countQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+    }
+    if (category) {
+        countQuery = countQuery.eq('category', category);
     }
 
-    // Get paginated data - filter for online and both types
-    const { data: books, error } = await supabaseAdmin
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+        console.error('Error fetching books count:', countError);
+        return { books: [], totalBooks: 0, totalPages: 0, categories: [] };
+    }
+
+    // Build main query
+    let booksQuery = supabaseAdmin
         .from('books')
-        .select('id, title, author, category, rating, cover_color, cover_url, created_at, book_type')
-        .in('book_type', ['online', 'both'])
-        .order('created_at', { ascending: false })
-        .range(from, to);
+        .select('id, title, author, category, rating, cover_color, cover_url, created_at')
+        .in('book_type', ['online', 'both']);
+
+    // Apply filters
+    if (search) {
+        booksQuery = booksQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+    }
+    if (category) {
+        booksQuery = booksQuery.eq('category', category);
+    }
+
+    // Apply sorting
+    switch (sort) {
+        case 'title':
+            booksQuery = booksQuery.order('title', { ascending: true });
+            break;
+        case 'author':
+            booksQuery = booksQuery.order('author', { ascending: true });
+            break;
+        case 'rating':
+            booksQuery = booksQuery.order('rating', { ascending: false });
+            break;
+        default:
+            booksQuery = booksQuery.order('created_at', { ascending: false });
+    }
+
+    booksQuery = booksQuery.range(from, to);
+
+    const { data: books, error } = await booksQuery;
 
     if (error) {
         console.error('Error fetching books:', error);
-        return { books: [], totalBooks: 0, totalPages: 0 };
+        return { books: [], totalBooks: 0, totalPages: 0, categories: [] };
     }
+
+    // Get unique categories
+    const { data: allBooks } = await supabaseAdmin
+        .from('books')
+        .select('category')
+        .in('book_type', ['online', 'both']);
+
+    const categories = [...new Set((allBooks || []).map((b: any) => b.category))].filter(Boolean) as string[];
 
     return {
         books: books || [],
         totalBooks: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
+        totalPages: Math.ceil((count || 0) / limit),
+        categories
     };
 }
 
@@ -47,8 +106,17 @@ interface PageProps {
 export default async function OnlineBooksPage({ searchParams }: PageProps) {
     const params = await searchParams;
     const page = Number(params?.page) || 1;
-    const limit = 10;
-    const { books, totalBooks, totalPages } = await getBooks(page, limit);
+    const search = params?.search as string | undefined;
+    const category = params?.category as string | undefined;
+    const sort = params?.sort as string | undefined;
+
+    const { books, totalBooks, totalPages, categories } = await getBooks({
+        page,
+        limit: 10,
+        search,
+        category,
+        sort
+    });
 
     return (
         <div className="space-y-6">
@@ -71,6 +139,12 @@ export default async function OnlineBooksPage({ searchParams }: PageProps) {
                     Yangi Online Kitob
                 </Link>
             </div>
+
+            {/* Search & Filters */}
+            <BooksSearch
+                categories={categories}
+                showStatusFilter={false}
+            />
 
             <BooksTable
                 books={books}

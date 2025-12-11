@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { Save, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { BarcodePrintModal } from '@/components/admin/BarcodePrintModal';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -17,15 +18,35 @@ export default function AddCopyPage({ params }: PageProps) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [nextCopyNumber, setNextCopyNumber] = useState(1);
+    const [barcodeMode, setBarcodeMode] = useState<'auto' | 'existing'>('auto');
+    const [generatedBarcodes, setGeneratedBarcodes] = useState<string[]>([]);
+    const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+    const [copyCount, setCopyCount] = useState(1);
+    const [existingBarcodes, setExistingBarcodes] = useState<string[]>(['']);
+    const [barcodeExistsInDB, setBarcodeExistsInDB] = useState<boolean[]>([]);
 
-    useEffect(() => {
-        params.then(p => {
-            setBookId(p.id);
-            loadBookData(p.id);
-        });
-    }, []);
+    // Check if barcode exists in database
+    const checkBarcodeInDB = useCallback(async (barcode: string, index: number) => {
+        if (!barcode || !barcode.trim()) {
+            const newExists = [...barcodeExistsInDB];
+            newExists[index] = false;
+            setBarcodeExistsInDB(newExists);
+            return;
+        }
 
-    const loadBookData = async (id: string) => {
+        const { data } = await supabase
+            .from('physical_book_copies')
+            .select('barcode')
+            .eq('barcode', barcode.trim())
+            .limit(1);
+
+        const newExists = [...barcodeExistsInDB];
+        newExists[index] = (data && data.length > 0) || false;
+        setBarcodeExistsInDB(newExists);
+    }, [barcodeExistsInDB]);
+
+
+    const loadBookData = useCallback(async (id: string) => {
         // Get book info
         const { data: bookData } = await supabase
             .from('books')
@@ -48,18 +69,41 @@ export default function AddCopyPage({ params }: PageProps) {
         }
 
         setLoading(false);
-    };
+    }, []);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    useEffect(() => {
+        params.then(p => {
+            setBookId(p.id);
+            loadBookData(p.id);
+        });
+    }, [params, loadBookData]);
+
+    const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSaving(true);
         const formData = new FormData(e.currentTarget);
 
         try {
-            const numberOfCopies = parseInt(formData.get('copies') as string) || 1;
+            const numberOfCopies = copyCount;
             const location = formData.get('location') as string;
-            const barcodeMode = formData.get('barcode_mode') as string;
-            const existingBarcode = formData.get('existing_barcode') as string;
+
+            // Validate existing barcodes for duplicates
+            if (barcodeMode === 'existing') {
+                const filledBarcodes = existingBarcodes.filter(b => b && b.trim());
+                const uniqueBarcodes = new Set(filledBarcodes);
+
+                if (filledBarcodes.length !== uniqueBarcodes.size) {
+                    alert('Xatolik: Bir xil barcode kiritilgan! Har bir nusxa uchun alohida barcode kiriting.');
+                    setSaving(false);
+                    return;
+                }
+
+                if (filledBarcodes.length !== numberOfCopies) {
+                    alert(`Xatolik: ${numberOfCopies} ta barcode kiritish kerak!`);
+                    setSaving(false);
+                    return;
+                }
+            }
 
             // Get organization info
             const { data: { user } } = await supabase.auth.getUser();
@@ -77,14 +121,22 @@ export default function AddCopyPage({ params }: PageProps) {
                 const copyNumber = nextCopyNumber + i;
                 let barcode;
 
-                if (barcodeMode === 'existing' && existingBarcode) {
-                    barcode = numberOfCopies > 1
-                        ? `${existingBarcode}-${String(copyNumber).padStart(3, '0')}`
-                        : existingBarcode;
+                if (barcodeMode === 'existing') {
+                    // Use existing barcode from array
+                    barcode = existingBarcodes[i] || `NO-BARCODE-${copyNumber}`;
                 } else {
-                    const shortId = bookId.substring(0, 8).toUpperCase();
-                    const paddedCopy = String(copyNumber).padStart(3, '0');
-                    barcode = `BOOK-${orgSlug}-${shortId}-${paddedCopy}`;
+                    // Generate 13-digit numeric barcode (CODE128 format)
+                    const orgCode = orgSlug.charCodeAt(0).toString().slice(-2).padStart(2, '0');
+
+                    let hash = 0;
+                    for (let j = 0; j < bookId.length; j++) {
+                        hash = ((hash << 5) - hash) + bookId.charCodeAt(j);
+                        hash = hash & hash;
+                    }
+                    const bookHash = Math.abs(hash).toString().slice(0, 8).padStart(8, '0');
+
+                    const copyNum = String(copyNumber).padStart(3, '0');
+                    barcode = `${orgCode}${bookHash}${copyNum}`;
                 }
 
                 copies.push({
@@ -101,16 +153,43 @@ export default function AddCopyPage({ params }: PageProps) {
                 .from('physical_book_copies')
                 .insert(copies);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Insert error:', error);
 
-            router.push(`/admin/books/offline/${bookId}`);
-            router.refresh();
-        } catch (error) {
+                // Check for duplicate barcode
+                if (error.code === '23505') {
+                    alert('Xatolik: Barcode allaqachon mavjud! Boshqa barcode kiriting.');
+                } else {
+                    alert(`Nusxalarni qo'shishda xatolik: ${error.message}`);
+                }
+
+                setSaving(false);
+                return;
+            }
+
+            // Show barcode modal
+            setGeneratedBarcodes(copies.map(c => c.barcode));
+            setShowBarcodeModal(true);
+        } catch (error: any) {
             console.error('Error adding copies:', error);
-            alert('Xatolik yuz berdi!');
+
+            if (error.code === '23505') {
+                alert('Xatolik: Barcode allaqachon mavjud sistemada!');
+            } else if (error.code === '23503') {
+                alert('Xatolik: Tashkilot ma\'lumotlari topilmadi!');
+            } else {
+                alert('Xatolik yuz berdi! Iltimos, qaytadan urinib ko\'ring.');
+            }
+
             setSaving(false);
         }
-    };
+    }, [barcodeMode, bookId, nextCopyNumber, copyCount, existingBarcodes]);
+
+    const handleCloseModal = useCallback(() => {
+        setShowBarcodeModal(false);
+        router.push(`/admin/books/offline/${bookId}`);
+        router.refresh();
+    }, [bookId, router]);
 
     if (loading) {
         return (
@@ -152,12 +231,9 @@ export default function AddCopyPage({ params }: PageProps) {
                                         type="radio"
                                         name="barcode_mode"
                                         value="auto"
-                                        defaultChecked
+                                        checked={barcodeMode === 'auto'}
+                                        onChange={() => setBarcodeMode('auto')}
                                         className="w-4 h-4"
-                                        onChange={() => {
-                                            const existingInput = document.getElementById('existing_barcode_section') as HTMLElement;
-                                            if (existingInput) existingInput.style.display = 'none';
-                                        }}
                                     />
                                     <span className="text-sm">Avtomatik generatsiya</span>
                                 </label>
@@ -166,25 +242,69 @@ export default function AddCopyPage({ params }: PageProps) {
                                         type="radio"
                                         name="barcode_mode"
                                         value="existing"
+                                        checked={barcodeMode === 'existing'}
+                                        onChange={() => setBarcodeMode('existing')}
                                         className="w-4 h-4"
-                                        onChange={() => {
-                                            const existingInput = document.getElementById('existing_barcode_section') as HTMLElement;
-                                            if (existingInput) existingInput.style.display = 'block';
-                                        }}
                                     />
                                     <span className="text-sm">Kitobda mavjud barcode</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div id="existing_barcode_section" style={{ display: 'none' }} className="space-y-2">
-                            <label className="text-sm font-medium">Kitobdagi Barcode/ISBN</label>
-                            <input
-                                name="existing_barcode"
-                                className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono"
-                                placeholder="Masalan: 978-0-13-468599-1"
-                            />
-                        </div>
+                        {barcodeMode === 'existing' && (
+                            <div className="space-y-4">
+                                <label className="text-sm font-medium">
+                                    Kitobdagi Barcode/ISBN (Har bir nusxa uchun)
+                                </label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {Array.from({ length: copyCount }, (_, i) => {
+                                        const currentBarcode = existingBarcodes[i] || '';
+                                        const isDuplicate = currentBarcode && existingBarcodes.filter(b => b === currentBarcode).length > 1;
+                                        const existsInDB = barcodeExistsInDB[i] || false;
+                                        const hasError = isDuplicate || existsInDB;
+
+                                        return (
+                                            <div key={i} className="space-y-1">
+                                                <label className="text-xs text-muted-foreground">
+                                                    Nusxa #{nextCopyNumber + i}
+                                                </label>
+                                                <input
+                                                    value={currentBarcode}
+                                                    onChange={(e) => {
+                                                        const newBarcodes = [...existingBarcodes];
+                                                        newBarcodes[i] = e.target.value;
+                                                        setExistingBarcodes(newBarcodes);
+
+                                                        // Debounced DB check
+                                                        setTimeout(() => {
+                                                            checkBarcodeInDB(e.target.value, i);
+                                                        }, 500);
+                                                    }}
+                                                    className={`w-full px-3 py-2 bg-background border rounded-lg focus:ring-2 outline-none transition-all font-mono text-sm ${hasError
+                                                            ? 'border-red-500 focus:ring-red-500/50'
+                                                            : 'border-border focus:ring-primary/50'
+                                                        }`}
+                                                    placeholder={`Barcode ${i + 1}`}
+                                                />
+                                                {isDuplicate && (
+                                                    <p className="text-xs text-red-500">
+                                                        ⚠️ Bir xil barcode!
+                                                    </p>
+                                                )}
+                                                {!isDuplicate && existsInDB && (
+                                                    <p className="text-xs text-red-500">
+                                                        ⚠️ Bu barcode allaqachon mavjud!
+                                                    </p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Scanner bilan skanerlang yoki qo'lda kiriting. Har bir nusxa uchun alohida barcode.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Copy Details */}
@@ -199,7 +319,13 @@ export default function AddCopyPage({ params }: PageProps) {
                                     name="copies"
                                     type="number"
                                     min="1"
-                                    defaultValue="1"
+                                    value={copyCount}
+                                    onChange={(e) => {
+                                        const count = parseInt(e.target.value) || 1;
+                                        setCopyCount(count);
+                                        // Resize barcode array
+                                        setExistingBarcodes(Array.from({ length: count }, (_, i) => existingBarcodes[i] || ''));
+                                    }}
                                     required
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 />
@@ -246,6 +372,14 @@ export default function AddCopyPage({ params }: PageProps) {
                     </div>
                 </form>
             </div>
+
+            {/* Barcode Print Modal */}
+            {showBarcodeModal && (
+                <BarcodePrintModal
+                    barcodes={generatedBarcodes}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 }

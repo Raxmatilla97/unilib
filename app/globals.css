@@ -1,6 +1,17 @@
 @import "tailwindcss";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/700.css";
 
 @theme {
+  /* Neo-Brutalist Color System */
+  --color-electric-blue: #0066FF;
+  --color-neon-cyan: #00F5FF;
+  --color-deep-purple: #1a0033;
+  --color-dark-slate: #0f172a;
+  --color-bright-yellow: #FFD600;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -33,12 +44,26 @@
   --animate-twinkle: twinkle 3s ease-in-out infinite;
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-fast: pulse 0.1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-scan: scan 2s linear infinite;
+
+  @keyframes scan {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(100px);
+    }
+  }
 
   @keyframes twinkle {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.2;
       transform: scale(0.8);
     }
+
     50% {
       opacity: 1;
       transform: scale(1.2);
@@ -46,9 +71,12 @@
   }
 
   @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
     }
+
     50% {
       transform: translateY(-20px) rotate(5deg);
     }
