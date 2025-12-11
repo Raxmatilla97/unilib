@@ -227,9 +227,6 @@ export default function LoginPage() {
                                     />
                                     <span className="text-sm text-muted-foreground">Eslab qolish</span>
                                 </label>
-                                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                                    Parolni unutdingizmi?
-                                </Link>
                             </div>
                         )}
 
