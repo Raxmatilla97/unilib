@@ -66,30 +66,22 @@ export default function CheckerPage() {
             const isBookBarcode = scanInput.startsWith('BOOK-') || scanInput.startsWith('978-') || /^\d{13}$/.test(scanInput);
 
             if (!isBookBarcode) {
+                // Clean input - remove any prefix and trim
                 const studentNumber = scanInput.replace('STUDENT-UNI-', '').trim();
-                console.log('🔍 Searching for student:', studentNumber);
+                console.log('🔍 Searching for student_number:', studentNumber);
 
-                // Try student_number first (no organization filter - allow all students)
-                let { data: profiles, error: profileError } = await supabase
+                // Single optimized query - search both fields at once
+                const startTime = performance.now();
+                const { data: profiles, error: profileError } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('student_number', studentNumber);
+                    .or(`student_number.eq.${studentNumber},student_id.eq.${studentNumber}`)
+                    .limit(1);
 
-                console.log('📊 student_number search:', { profiles, profileError, count: profiles?.length });
+                const profileTime = performance.now() - startTime;
+                console.log(`⏱️ Profile query took: ${profileTime.toFixed(2)}ms`);
 
-                // If not found, try student_id
-                if (!profiles || profiles.length === 0) {
-                    console.log('🔄 Trying student_id...');
-
-                    const result = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('student_id', studentNumber);
-
-                    profiles = result.data;
-                    profileError = result.error;
-                    console.log('📊 student_id search:', { profiles, profileError, count: profiles?.length });
-                }
+                console.log('📊 Search result:', { profiles, profileError, count: profiles?.length });
 
                 if (profileError) {
                     console.error('❌ Search error:', profileError);
@@ -106,12 +98,17 @@ export default function CheckerPage() {
                 console.log('✅ Student found:', profile.name, profile.student_number);
                 setStudent(profile);
 
+                // Fetch loans
+                const loansStartTime = performance.now();
                 const { data: loans } = await supabase
                     .from('book_checkouts')
                     .select(`*, physical_book_copies(barcode, copy_number, books(title, author, cover_color))`)
                     .eq('user_id', profile.id)
                     .eq('status', 'active')
                     .order('due_date', { ascending: true });
+
+                const loansTime = performance.now() - loansStartTime;
+                console.log(`⏱️ Loans query took: ${loansTime.toFixed(2)}ms`);
 
                 setActiveLoans(loans || []);
             } else {
@@ -483,17 +480,72 @@ export default function CheckerPage() {
                             <div className="relative z-10">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="relative">
-                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                                            <User className="w-10 h-10 text-white" />
-                                        </div>
+                                        {student.avatar_url ? (
+                                            <img
+                                                src={student.avatar_url}
+                                                alt={student.name}
+                                                className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-primary/20"
+                                            />
+                                        ) : (
+                                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                                                <User className="w-10 h-10 text-white" />
+                                            </div>
+                                        )}
                                         {/* Glow effect */}
                                         <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl animate-pulse" />
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{student.name}</h3>
-                                        <p className="text-sm text-muted-foreground font-mono mt-1">{student.student_id}</p>
+                                        <p className="text-sm text-muted-foreground font-mono mt-1">{student.student_number || student.student_id}</p>
+                                        {student.phone && (
+                                            <p className="text-xs text-muted-foreground mt-1">📱 {student.phone}</p>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Student Info */}
+                                {(student.faculty || student.student_group || student.course) && (
+                                    <div className="mb-6 p-4 bg-card/30 backdrop-blur-sm rounded-xl border border-border/30">
+                                        <div className="space-y-2 text-sm">
+                                            {student.faculty && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">Fakultet:</span>
+                                                    <span className="font-medium">{student.faculty}</span>
+                                                </div>
+                                            )}
+                                            {student.student_group && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">Guruh:</span>
+                                                    <span className="font-medium">{student.student_group}</span>
+                                                </div>
+                                            )}
+                                            {student.course && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">Kurs:</span>
+                                                    <span className="font-medium">{student.course}</span>
+                                                </div>
+                                            )}
+                                            {student.education_form && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">Ta'lim:</span>
+                                                    <span className="font-medium">{student.education_form}</span>
+                                                </div>
+                                            )}
+                                            {student.specialty && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">Mutaxassis:</span>
+                                                    <span className="font-medium">{student.specialty}</span>
+                                                </div>
+                                            )}
+                                            {student.gpa && (
+                                                <div className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground min-w-[80px]">GPA:</span>
+                                                    <span className="font-bold text-primary">{student.gpa}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* XP Progress Bar */}
                                 <div className="mb-6">
