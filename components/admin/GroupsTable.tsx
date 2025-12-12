@@ -7,7 +7,7 @@ import {
     MessageSquare,
     Users
 } from 'lucide-react';
-import { deleteGroup } from '@/app/admin/groups/actions';
+import { supabase } from '@/lib/supabase/client';
 
 interface Group {
     id: string;
@@ -39,14 +39,19 @@ export function GroupsTable({ groups: initialGroups }: GroupsTableProps) {
 
         setIsLoading(groupId);
         try {
-            const result = await deleteGroup(groupId);
-            if (result.success) {
+            const { error } = await supabase
+                .from('study_groups')
+                .delete()
+                .eq('id', groupId);
+
+            if (!error) {
                 setGroups(groups.filter(g => g.id !== groupId));
             } else {
                 alert('Guruhni o\'chirishda xatolik yuz berdi');
             }
         } catch (error) {
             console.error(error);
+            alert('Guruhni o\'chirishda xatolik yuz berdi');
         } finally {
             setIsLoading(null);
         }
