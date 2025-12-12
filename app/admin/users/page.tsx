@@ -8,23 +8,13 @@ async function getUsers(page: number = 1, limit: number = 10) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    // Get total count
-    const { count, error: countError } = await supabaseAdmin
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-    if (countError) {
-        console.error('Error fetching users count:', countError);
-        return { users: [], totalUsers: 0, totalPages: 0 };
-    }
-
-    // Get paginated data with active loans count
-    const { data: users, error } = await supabaseAdmin
+    // Get paginated data with count and active loans in single query
+    const { data: users, error, count } = await supabaseAdmin
         .from('profiles')
         .select(`
             *,
             book_checkouts!book_checkouts_user_id_fkey(id, status)
-        `)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 

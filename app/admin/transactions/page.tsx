@@ -2,18 +2,44 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { History, Search, Filter, Download, User, BookOpen, Calendar, Check, Clock, AlertCircle } from 'lucide-react';
+import { History, Search, Download, User, BookOpen, Calendar, Check, Clock, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+
+interface Transaction {
+    id: string;
+    user_id: string;
+    physical_copy_id: string;
+    checked_out_at: string;
+    due_date: string;
+    returned_at: string | null;
+    status: 'active' | 'returned';
+    profiles: {
+        name: string;
+        student_id: string;
+        student_number: string;
+    };
+    physical_book_copies: {
+        copy_number: number;
+        barcode: string;
+        books: {
+            title: string;
+            author: string;
+        };
+    };
+}
 
 export default function TransactionsPage() {
-    const [transactions, setTransactions] = useState<any[]>([]);
-    const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const itemsPerPage = 50;
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [currentPage]);
 
     useEffect(() => {
         filterTransactions();
@@ -22,22 +48,47 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase
+            const startTime = performance.now();
+
+            // Fetch data with count in single query
+            const { data, error, count } = await supabase
                 .from('book_checkouts')
                 .select(`
-                    *,
-                    profiles!book_checkouts_user_id_fkey(name, student_id),
+                    id,
+                    user_id,
+                    physical_copy_id,
+                    checked_out_at,
+                    due_date,
+                    returned_at,
+                    status,
+                    librarian_id,
+                    profiles!book_checkouts_user_id_fkey(
+                        name,
+                        student_id,
+                        student_number
+                    ),
+                    librarian:profiles!book_checkouts_librarian_id_fkey(
+                        name,
+                        email
+                    ),
                     physical_book_copies(
                         copy_number,
                         barcode,
                         books(title, author)
                     )
-                `)
+                `, { count: 'exact' })
                 .order('checked_out_at', { ascending: false })
-                .limit(100);
+                .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1);
+
+            const queryTime = performance.now() - startTime;
+            console.log(`⏱️ Transactions query took: ${queryTime.toFixed(2)}ms`);
+            console.log('📊 Total count:', count);
+            console.log('� Data length:', data?.length);
 
             if (error) throw error;
-            setTransactions(data || []);
+
+            setTotalCount(count || 0);
+            setTransactions((data as unknown) as Transaction[] || []);
         } catch (error) {
             console.error('Error fetching transactions:', error);
         } finally {
@@ -63,17 +114,21 @@ export default function TransactionsPage() {
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(t => {
-                const studentName = (t.profiles as any)?.name?.toLowerCase() || '';
-                const studentId = (t.profiles as any)?.student_id?.toLowerCase() || '';
-                const bookTitle = ((t.physical_book_copies as any)?.books as any)?.title?.toLowerCase() || '';
-                return studentName.includes(query) || studentId.includes(query) || bookTitle.includes(query);
+                const studentName = t.profiles?.name?.toLowerCase() || '';
+                const studentId = t.profiles?.student_id?.toLowerCase() || '';
+                const studentNumber = t.profiles?.student_number?.toLowerCase() || '';
+                const bookTitle = t.physical_book_copies?.books?.title?.toLowerCase() || '';
+                return studentName.includes(query) ||
+                    studentId.includes(query) ||
+                    studentNumber.includes(query) ||
+                    bookTitle.includes(query);
             });
         }
 
         setFilteredTransactions(filtered);
     };
 
-    const getStatusBadge = (transaction: any) => {
+    const getStatusBadge = (transaction: Transaction) => {
         const dueDate = new Date(transaction.due_date);
         const isOverdue = transaction.status === 'active' && dueDate < new Date();
 
@@ -104,27 +159,63 @@ export default function TransactionsPage() {
     };
 
     const exportToCSV = () => {
-        const csv = [
-            ['Student', 'Student ID', 'Kitob', 'Nusxa', 'Berilgan', 'Muddat', 'Qaytarilgan', 'Holat'],
-            ...filteredTransactions.map(t => [
-                (t.profiles as any)?.name || '',
-                (t.profiles as any)?.student_id || '',
-                ((t.physical_book_copies as any)?.books as any)?.title || '',
-                (t.physical_book_copies as any)?.copy_number || '',
-                new Date(t.checked_out_at).toLocaleDateString(),
-                new Date(t.due_date).toLocaleDateString(),
-                t.returned_at ? new Date(t.returned_at).toLocaleDateString() : '',
-                t.status
-            ])
-        ].map(row => row.join(',')).join('\n');
+        // Add UTF-8 BOM for Excel compatibility
+        const BOM = '\uFEFF';
+        const headers = [
+            'Talaba',
+            'Student ID',
+            'Kitob',
+            'Muallif',
+            'Nusxa',
+            'Kutubxonachi',
+            'Kutubxonachi Email',
+            'Berilgan Sana',
+            'Berilgan Vaqt',
+            'Muddat',
+            'Qaytarilgan Sana',
+            'Qaytarilgan Vaqt',
+            'Holat'
+        ];
 
-        const blob = new Blob([csv], { type: 'text/csv' });
+        const rows = filteredTransactions.map(t => {
+            const checkedOutDate = new Date(t.checked_out_at);
+            const returnedDate = t.returned_at ? new Date(t.returned_at) : null;
+
+            return [
+                t.profiles?.name || '',
+                // Add tab character to force text format in Excel
+                '\t' + (t.profiles?.student_number || t.profiles?.student_id || ''),
+                t.physical_book_copies?.books?.title || '',
+                t.physical_book_copies?.books?.author || '',
+                t.physical_book_copies?.copy_number || '',
+                (t as any).librarian?.name || 'N/A',
+                (t as any).librarian?.email || '',
+                checkedOutDate.toLocaleDateString('uz-UZ'),
+                checkedOutDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
+                new Date(t.due_date).toLocaleDateString('uz-UZ'),
+                returnedDate ? returnedDate.toLocaleDateString('uz-UZ') : '',
+                returnedDate ? returnedDate.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }) : '',
+                t.status === 'active' ? 'Aktiv' : 'Qaytarilgan'
+            ];
+        });
+
+        // Use semicolon delimiter for better Excel compatibility
+        const csv = [headers, ...rows]
+            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+            .join('\r\n');
+
+        const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `qarzlar_tarixi_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
 
     return (
         <div className="space-y-6">
@@ -135,15 +226,16 @@ export default function TransactionsPage() {
                         Qarzlar Tarixi
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Barcha kitob qarzlari va qaytarishlar
+                        Barcha kitob qarzlari va qaytarishlar ({totalCount} ta)
                     </p>
                 </div>
                 <button
                     onClick={exportToCSV}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 flex items-center gap-2"
+                    disabled={filteredTransactions.length === 0}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
                 >
                     <Download className="w-4 h-4" />
-                    Export
+                    Export CSV
                 </button>
             </div>
 
@@ -181,23 +273,23 @@ export default function TransactionsPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-card border border-border rounded-xl p-4">
+                <div className="bg-gradient-to-br from-card to-card/50 border border-border rounded-xl p-4 backdrop-blur-sm">
                     <p className="text-sm text-muted-foreground">Jami</p>
-                    <p className="text-2xl font-bold">{transactions.length}</p>
+                    <p className="text-2xl font-bold">{totalCount}</p>
                 </div>
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-xl p-4 backdrop-blur-sm">
                     <p className="text-sm text-blue-600">Aktiv</p>
                     <p className="text-2xl font-bold text-blue-600">
                         {transactions.filter(t => t.status === 'active').length}
                     </p>
                 </div>
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 rounded-xl p-4 backdrop-blur-sm">
                     <p className="text-sm text-green-600">Qaytarilgan</p>
                     <p className="text-2xl font-bold text-green-600">
                         {transactions.filter(t => t.status === 'returned').length}
                     </p>
                 </div>
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                <div className="bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
                     <p className="text-sm text-red-600">Muddati o'tgan</p>
                     <p className="text-2xl font-bold text-red-600">
                         {transactions.filter(t => t.status === 'active' && new Date(t.due_date) < new Date()).length}
@@ -212,31 +304,30 @@ export default function TransactionsPage() {
                 ) : filteredTransactions.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground">Hech narsa topilmadi</div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-muted/50 border-b border-border">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-medium">Talaba</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium">Kitob</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium">Berilgan</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium">Muddat</th>
-                                    <th className="px-4 py-3 text-left text-sm font-medium">Holat</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {filteredTransactions.map((transaction) => {
-                                    const student = transaction.profiles as any;
-                                    const copy = transaction.physical_book_copies as any;
-                                    const book = copy?.books as any;
-
-                                    return (
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-muted/50 border-b border-border">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Talaba</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Kitob</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Kutubxonachi</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Berilgan</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Muddat / Qaytarilgan</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">Holat</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {filteredTransactions.map((transaction) => (
                                         <tr key={transaction.id} className="hover:bg-muted/30 transition-colors">
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
                                                     <User className="w-4 h-4 text-muted-foreground" />
                                                     <div>
-                                                        <p className="font-medium">{student?.name}</p>
-                                                        <p className="text-xs text-muted-foreground font-mono">{student?.student_id}</p>
+                                                        <p className="font-medium">{transaction.profiles?.name}</p>
+                                                        <p className="text-xs text-muted-foreground font-mono">
+                                                            {transaction.profiles?.student_number || transaction.profiles?.student_id}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -244,23 +335,38 @@ export default function TransactionsPage() {
                                                 <div className="flex items-center gap-2">
                                                     <BookOpen className="w-4 h-4 text-muted-foreground" />
                                                     <div>
-                                                        <p className="font-medium">{book?.title}</p>
-                                                        <p className="text-xs text-muted-foreground">Nusxa #{copy?.copy_number}</p>
+                                                        <p className="font-medium">{transaction.physical_book_copies?.books?.title}</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Nusxa #{transaction.physical_book_copies?.copy_number}
+                                                        </p>
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="text-sm">
+                                                    <p className="font-medium">{(transaction as any).librarian?.name || 'N/A'}</p>
+                                                    <p className="text-xs text-muted-foreground">{(transaction as any).librarian?.email}</p>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-1 text-sm">
                                                     <Calendar className="w-3 h-3 text-muted-foreground" />
-                                                    {new Date(transaction.checked_out_at).toLocaleDateString()}
+                                                    <div>
+                                                        <p>{new Date(transaction.checked_out_at).toLocaleDateString('uz-UZ')}</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {new Date(transaction.checked_out_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="text-sm">
-                                                    {new Date(transaction.due_date).toLocaleDateString()}
+                                                    <p className="font-medium">
+                                                        Muddat: {new Date(transaction.due_date).toLocaleDateString('uz-UZ')}
+                                                    </p>
                                                     {transaction.returned_at && (
-                                                        <p className="text-xs text-muted-foreground">
-                                                            Qaytarilgan: {new Date(transaction.returned_at).toLocaleDateString()}
+                                                        <p className="text-xs text-green-600 mt-1">
+                                                            ✓ Qaytarilgan: {new Date(transaction.returned_at).toLocaleDateString('uz-UZ')} {new Date(transaction.returned_at).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
                                                         </p>
                                                     )}
                                                 </div>
@@ -269,11 +375,38 @@ export default function TransactionsPage() {
                                                 {getStatusBadge(transaction)}
                                             </td>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/30">
+                                <p className="text-sm text-muted-foreground">
+                                    Sahifa {currentPage} / {totalPages}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1.5 bg-background border border-border rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                        Oldingi
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1.5 bg-background border border-border rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                                    >
+                                        Keyingi
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

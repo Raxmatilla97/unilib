@@ -70,11 +70,11 @@ export default function CheckerPage() {
                 const studentNumber = scanInput.replace('STUDENT-UNI-', '').trim();
                 console.log('🔍 Searching for student_number:', studentNumber);
 
-                // Single optimized query - search both fields at once
+                // Optimized query - select only needed fields
                 const startTime = performance.now();
                 const { data: profiles, error: profileError } = await supabase
                     .from('profiles')
-                    .select('*')
+                    .select('id, name, email, student_id, student_number, avatar_url, xp, phone, faculty, student_group, course, education_form, specialty, gpa, organization_id')
                     .or(`student_number.eq.${studentNumber},student_id.eq.${studentNumber}`)
                     .limit(1);
 
@@ -98,11 +98,20 @@ export default function CheckerPage() {
                 console.log('✅ Student found:', profile.name, profile.student_number);
                 setStudent(profile);
 
-                // Fetch loans
+                // Fetch loans - only active ones
                 const loansStartTime = performance.now();
                 const { data: loans } = await supabase
                     .from('book_checkouts')
-                    .select(`*, physical_book_copies(barcode, copy_number, books(title, author, cover_color))`)
+                    .select(`
+                        id,
+                        due_date,
+                        checked_out_at,
+                        physical_book_copies!inner(
+                            barcode,
+                            copy_number,
+                            books!inner(title, author, cover_color)
+                        )
+                    `)
                     .eq('user_id', profile.id)
                     .eq('status', 'active')
                     .order('due_date', { ascending: true });

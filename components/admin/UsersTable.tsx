@@ -16,8 +16,8 @@ interface User {
     email: string;
     role: Role;
     student_id?: string;
+    student_number?: string;
     xp?: number;
-    streak?: number;
     university?: string;
     created_at: string;
     activeLoansCount?: number;
@@ -131,9 +131,9 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
-                                        {user.student_id ? (
+                                        {user.student_number || user.student_id ? (
                                             <span className="font-mono text-xs bg-blue-500/10 text-blue-600 px-2 py-1 rounded">
-                                                {user.student_id}
+                                                {user.student_number || user.student_id}
                                             </span>
                                         ) : (
                                             <span className="text-muted-foreground text-xs">-</span>
@@ -141,14 +141,7 @@ export function UsersTable({ users: initialUsers, page, totalPages, totalUsers }
                                     </td>
                                     <td className="px-4 py-3 text-muted-foreground text-sm">{user.email}</td>
                                     <td className="px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-orange-600">{user.xp || 0}</span>
-                                            {user.streak && user.streak > 0 && (
-                                                <span className="text-xs bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded-full">
-                                                    🔥 {user.streak}
-                                                </span>
-                                            )}
-                                        </div>
+                                        <span className="font-bold text-orange-600">{user.xp || 0}</span>
                                     </td>
                                     <td className="px-4 py-3">
                                         {user.activeLoansCount && user.activeLoansCount > 0 ? (
