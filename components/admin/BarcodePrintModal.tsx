@@ -56,7 +56,7 @@ export function BarcodePrintModal({ barcodes, onClose }: BarcodePrintModalProps)
                     {barcodes.map((barcode, index) => (
                         <div key={index} className="flex flex-col items-center justify-center p-6 border border-border rounded-lg bg-white barcode-label">
                             <canvas
-                                ref={(el) => (canvasRefs.current[index] = el)}
+                                ref={(el) => { canvasRefs.current[index] = el; }}
                                 className="mb-2"
                             />
                             <p className="text-lg font-mono font-bold text-black mt-2">
