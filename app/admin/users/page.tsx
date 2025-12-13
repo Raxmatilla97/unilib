@@ -17,6 +17,8 @@ async function getUsers(page: number = 1, limit: number = 10) {
             name,
             role,
             university,
+            student_id,
+            student_number,
             is_active,
             created_at,
             book_checkouts!book_checkouts_user_id_fkey(id, status)
