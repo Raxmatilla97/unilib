@@ -83,6 +83,7 @@ export default function CheckerPage() {
             .from('book_checkouts')
             .select(`
                 id,
+                physical_copy_id,
                 due_date,
                 checked_out_at,
                 physical_book_copies!inner(
