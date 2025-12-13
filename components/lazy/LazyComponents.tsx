@@ -15,15 +15,6 @@ function LoadingFallback({ message = 'Loading...' }: { message?: string }) {
     )
 }
 
-// Lazy load PDF viewer
-export const LazyPDFViewer = dynamic(
-    () => import('@/components/books/PDFViewer').then(mod => ({ default: mod.PDFViewer })),
-    {
-        loading: () => <LoadingFallback message="Loading PDF viewer..." />,
-        ssr: false,
-    }
-)
-
 // Lazy load Chart components
 export const LazyLineChart = dynamic(
     () => import('recharts').then(mod => ({ default: mod.LineChart })),
@@ -55,15 +46,6 @@ export const LazyBarcode = dynamic(
     () => import('react-barcode').then(mod => mod),
     {
         loading: () => <LoadingFallback message="Generating barcode..." />,
-        ssr: false,
-    }
-)
-
-// Lazy load Modal components
-export const LazyModal = dynamic(
-    () => import('@/components/ui/Modal').then(mod => ({ default: mod.Modal })),
-    {
-        loading: () => <LoadingFallback message="Loading..." />,
         ssr: false,
     }
 )
