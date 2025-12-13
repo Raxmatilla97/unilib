@@ -382,7 +382,7 @@ export default function CheckerPage() {
             }
 
             // Award XP for on-time return
-            if (isOnTime && student) {
+            if (isOnTime && student && student.id) {
                 console.log('Awarding XP to student:', student.id);
 
                 const result = await awardXP(student.id, 50);
