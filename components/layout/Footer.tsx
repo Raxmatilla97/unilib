@@ -1,23 +1,12 @@
-"use client";
-
 import Link from 'next/link';
-import { useState } from 'react';
 import { BookOpen, Facebook, Instagram, Mail, Phone, MapPin, Send, Youtube } from 'lucide-react';
 
 export function Footer() {
-    const [email, setEmail] = useState('');
-
-    const handleNewsletterSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // TODO: Implement newsletter subscription
-        console.log('Newsletter subscription:', email);
-        setEmail('');
-    };
 
     return (
         <footer className="border-t border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 pt-20 pb-10">
             <div className="container px-4 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="space-y-6">
                         <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight group">
@@ -79,36 +68,6 @@ export function Footer() {
                         </ul>
                     </div>
 
-                    {/* Resources Links */}
-                    <div>
-                        <h3 className="font-bold mb-6 text-lg">Yordam</h3>
-                        <ul className="space-y-4 text-sm text-muted-foreground">
-                            <li>
-                                <Link href="#" className="hover:text-primary transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
-                                    Qo'llanma
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="#" className="hover:text-primary transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
-                                    FAQ
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="#" className="hover:text-primary transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
-                                    Texnik Yordam
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="#" className="hover:text-primary transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
-                                    API Hujjatlari
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
 
                     {/* Contact Info + Newsletter */}
                     <div>
@@ -133,38 +92,15 @@ export function Footer() {
                                 <span>info@umft-official.uz</span>
                             </li>
                         </ul>
-
-                        {/* Newsletter */}
-                        <div className="mt-6">
-                            <h4 className="font-semibold mb-3 text-sm">Yangiliklar</h4>
-                            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Email"
-                                    required
-                                    className="flex-1 px-3 py-2 rounded-lg bg-muted/50 border border-transparent focus:border-primary/20 outline-none text-sm transition-colors"
-                                />
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
-                                >
-                                    <Send className="w-4 h-4" />
-                                </button>
-                            </form>
-                        </div>
                     </div>
+
                 </div>
 
                 <div className="border-t border-border/40 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-center text-sm text-muted-foreground md:text-left">
                         &copy; 2025 Library ID. Barcha huquqlar himoyalangan.
                     </p>
-                    <div className="flex gap-6 text-sm text-muted-foreground">
-                        <Link href="#" className="hover:text-primary transition-colors">Maxfiylik Siyosati</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Foydalanish Shartlari</Link>
-                    </div>
+
                 </div>
             </div>
         </footer>

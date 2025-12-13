@@ -1,11 +1,11 @@
 "use client";
 
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ReadOnlyRoute } from '@/components/auth/ReadOnlyRoute';
 import { Quote, Sparkles, BookOpen, Copy, FileText } from 'lucide-react';
 
 export default function CitationsPage() {
     return (
-        <ProtectedRoute>
+        <ReadOnlyRoute>
             <div className="container py-8 md:py-16 px-4 md:px-6 max-w-4xl mx-auto">
                 <div className="text-center">
                     {/* Icon */}
@@ -99,6 +99,6 @@ export default function CitationsPage() {
                     </div>
                 </div>
             </div>
-        </ProtectedRoute>
+        </ReadOnlyRoute>
     );
 }

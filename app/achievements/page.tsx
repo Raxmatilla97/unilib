@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useCallback } from 'react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ReadOnlyRoute } from '@/components/auth/ReadOnlyRoute';
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { XPProgressBar } from '@/components/gamification/XPProgressBar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,26 +70,31 @@ export default function AchievementsPage() {
 
     if (isLoading) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <AchievementsSkeleton />
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
-    if (error || !data) {
+    // Show error only if user is authenticated and there's an actual error
+    if (error && user) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
                         Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
+    // For unauthenticated users, use empty data
+    const achievements = data?.achievements || [];
+    const userAchievementsData = data?.userAchievements || [];
+
     return (
-        <ProtectedRoute>
+        <ReadOnlyRoute>
             <div className="container py-6 md:py-10 px-4 md:px-6 max-w-6xl mx-auto">
                 {/* XP Progress & Stats - Mobile Optimized */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
@@ -181,11 +186,11 @@ export default function AchievementsPage() {
 
                 {/* Achievements List */}
                 <AchievementsList
-                    achievements={data.achievements}
+                    achievements={achievements}
                     userAchievements={userAchievements}
                     userStats={userStats}
                 />
             </div>
-        </ProtectedRoute>
+        </ReadOnlyRoute>
     );
 }

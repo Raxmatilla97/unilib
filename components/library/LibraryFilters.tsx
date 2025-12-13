@@ -2,9 +2,14 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, X, Globe } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
-export function LibraryFilters() {
+interface LibraryFiltersProps {
+    categories: string[];
+}
+
+export function LibraryFilters({ categories }: LibraryFiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -12,8 +17,8 @@ export function LibraryFilters() {
     const [category, setCategory] = useState(searchParams.get('category') || 'all');
     const [rating, setRating] = useState(searchParams.get('rating') || 'all');
     const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
-    // ✅ Online books filter - default enabled
-    const [onlineOnly, setOnlineOnly] = useState(searchParams.get('online') !== 'false');
+    // ✅ Online books filter - default disabled to show all books
+    const [onlineOnly, setOnlineOnly] = useState(searchParams.get('online') === 'true');
 
     // Debounce search
     useEffect(() => {
@@ -45,8 +50,8 @@ export function LibraryFilters() {
         setCategory('all');
         setRating('all');
         setSort('newest');
-        setOnlineOnly(true); // Keep online filter on
-        router.push('/library?online=true');
+        setOnlineOnly(false); // Reset to show all books
+        router.push('/library');
     }, [router]);
 
     const toggleOnlineOnly = useCallback(() => {
@@ -99,77 +104,53 @@ export function LibraryFilters() {
                 </button>
 
                 {/* Category Filter */}
-                <div className="relative group">
-                    <select
-                        value={category}
-                        onChange={(e) => {
-                            setCategory(e.target.value);
-                            updateFilters({ category: e.target.value });
-                        }}
-                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium min-w-[180px]"
-                    >
-                        <option value="all">Barcha yo'nalishlar</option>
-                        <option value="Kompyuter Ilmlari">Kompyuter Ilmlari</option>
-                        <option value="Matematika">Matematika</option>
-                        <option value="Fizika">Fizika</option>
-                        <option value="Iqtisodiyot">Iqtisodiyot</option>
-                        <option value="Psixologiya">Psixologiya</option>
-                        <option value="Adabiyot">Adabiyot</option>
-                        <option value="Tarix">Tarix</option>
-                        <option value="Biologiya">Biologiya</option>
-                        <option value="Muhandislik">Muhandislik</option>
-                        <option value="Falsafa">Falsafa</option>
-                        <option value="San'at">San'at</option>
-                        <option value="Biznes">Biznes</option>
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </div>
-                </div>
+                <CustomSelect
+                    value={category}
+                    onChange={(value) => {
+                        setCategory(value);
+                        updateFilters({ category: value });
+                    }}
+                    options={[
+                        { value: 'all', label: "Barcha yo'nalishlar" },
+                        ...categories.map(cat => ({ value: cat, label: cat }))
+                    ]}
+                    placeholder="Barcha yo'nalishlar"
+                    className="min-w-[180px]"
+                />
 
                 {/* Rating Filter */}
-                <div className="relative group">
-                    <select
-                        value={rating}
-                        onChange={(e) => {
-                            setRating(e.target.value);
-                            updateFilters({ rating: e.target.value });
-                        }}
-                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium"
-                    >
-                        <option value="all">Reyting</option>
-                        <option value="4">4+ Yulduz</option>
-                        <option value="3">3+ Yulduz</option>
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </div>
-                </div>
+                <CustomSelect
+                    value={rating}
+                    onChange={(value) => {
+                        setRating(value);
+                        updateFilters({ rating: value });
+                    }}
+                    options={[
+                        { value: 'all', label: 'Barcha reytinglar' },
+                        { value: '5', label: '⭐⭐⭐⭐⭐ 5 yulduz' },
+                        { value: '4', label: '⭐⭐⭐⭐ 4+ yulduz' },
+                        { value: '3', label: '⭐⭐⭐ 3+ yulduz' },
+                        { value: '2', label: '⭐⭐ 2+ yulduz' }
+                    ]}
+                    placeholder="Reyting"
+                />
 
                 {/* Sort */}
-                <div className="relative group">
-                    <select
-                        value={sort}
-                        onChange={(e) => {
-                            setSort(e.target.value);
-                            updateFilters({ sort: e.target.value });
-                        }}
-                        className="appearance-none pl-4 pr-10 py-3 rounded-xl bg-background/50 backdrop-blur-md border border-border hover:border-primary/50 focus:border-primary outline-none cursor-pointer transition-all shadow-sm text-sm font-medium"
-                    >
-                        <option value="newest">Eng yangilar</option>
-                        <option value="rating">Yuqori reyting</option>
-                        <option value="title">A-Z</option>
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </div>
-                </div>
+                <CustomSelect
+                    value={sort}
+                    onChange={(value) => {
+                        setSort(value);
+                        updateFilters({ sort: value });
+                    }}
+                    options={[
+                        { value: 'newest', label: 'Eng yangi' },
+                        { value: 'oldest', label: 'Eng eski' },
+                        { value: 'rating', label: 'Yuqori reyting' },
+                        { value: 'title-asc', label: 'A-Z' },
+                        { value: 'title-desc', label: 'Z-A' }
+                    ]}
+                    placeholder="Saralash"
+                />
 
                 {/* Clear Filters */}
                 {hasActiveFilters && (

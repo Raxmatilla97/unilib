@@ -10,6 +10,24 @@ interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+// Get unique categories from database
+async function getCategories() {
+    const { data, error } = await supabaseAdmin
+        .from('books')
+        .select('category')
+        .not('category', 'is', null)
+        .order('category', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+    }
+
+    // Get unique categories
+    const uniqueCategories = [...new Set(data.map(book => book.category))];
+    return uniqueCategories.filter(cat => cat) as string[];
+}
+
 async function getBooks(
     page: number = 1,
     limit: number = 8, // Reduced from 12 to 8 for faster initial load
@@ -17,7 +35,7 @@ async function getBooks(
     category?: string,
     minRating?: number,
     sortBy: string = 'newest',
-    onlineOnly: boolean = true
+    onlineOnly: boolean = false
 ) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
@@ -52,8 +70,14 @@ async function getBooks(
         case 'rating':
             booksQuery = booksQuery.order('rating', { ascending: false });
             break;
-        case 'title':
+        case 'title-asc':
             booksQuery = booksQuery.order('title', { ascending: true });
+            break;
+        case 'title-desc':
+            booksQuery = booksQuery.order('title', { ascending: false });
+            break;
+        case 'oldest':
+            booksQuery = booksQuery.order('created_at', { ascending: true });
             break;
         case 'newest':
         default:
@@ -127,8 +151,8 @@ export default async function LibraryPage({ searchParams }: PageProps) {
     const category = params?.category as string | undefined;
     const minRating = params?.rating ? Number(params.rating) : undefined;
     const sortBy = (params?.sort as string) || 'newest';
-    // ✅ Extract online filter - default true
-    const onlineOnly = params?.online !== 'false';
+    // ✅ Extract online filter - default false (show all books)
+    const onlineOnly = params?.online === 'true';
 
     const { books, totalBooks, totalPages } = await getBooks(
         page,
@@ -139,6 +163,9 @@ export default async function LibraryPage({ searchParams }: PageProps) {
         sortBy,
         onlineOnly // ✅ Pass online filter
     );
+
+    // Get categories for filter
+    const categories = await getCategories();
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden">
@@ -159,7 +186,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
 
                 {/* Filters */}
                 <div className="mb-10">
-                    <LibraryFilters />
+                    <LibraryFilters categories={categories} />
                 </div>
 
                 {books.length === 0 ? (

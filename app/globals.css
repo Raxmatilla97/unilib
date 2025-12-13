@@ -319,3 +319,41 @@
   background-size: 200% 200%;
   animation: gradient-xy 3s ease infinite;
 }
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom select dropdown styling */
+select option {
+  padding: 12px 16px;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+select option:hover {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+select option:checked {
+  background-color: hsl(var(--primary) / 0.15);
+  font-weight: 500;
+}
+
+/* Dark mode select options */
+.dark select option {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.dark select option:hover {
+  background-color: hsl(var(--primary) / 0.2);
+}

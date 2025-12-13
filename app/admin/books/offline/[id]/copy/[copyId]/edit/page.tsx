@@ -61,6 +61,8 @@ export default function EditCopyPage({ params }: PageProps) {
                     location: formData.get('location') as string,
                     status: formData.get('status') as string,
                     notes: formData.get('notes') as string,
+                    inv_number: (formData.get('inv_number') as string) || null,
+                    isbn: (formData.get('isbn') as string) || null,
                 })
                 .eq('id', copyId);
 
@@ -152,6 +154,24 @@ export default function EditCopyPage({ params }: PageProps) {
                                     defaultValue={copy.location || ''}
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                     placeholder="Masalan: A-1, Raqam 5"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">INV Raqami (ixtiyoriy)</label>
+                                <input
+                                    name="inv_number"
+                                    defaultValue={copy.inv_number || ''}
+                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono"
+                                    placeholder="INV-12345"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">ISBN (ixtiyoriy)</label>
+                                <input
+                                    name="isbn"
+                                    defaultValue={copy.isbn || ''}
+                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono"
+                                    placeholder="978-0-123456-78-9"
                                 />
                             </div>
                         </div>

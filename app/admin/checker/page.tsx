@@ -17,10 +17,90 @@ export default function CheckerPage() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [todayStats, setTodayStats] = useState({ checkouts: 0, returns: 0 });
+    const [loanDuration, setLoanDuration] = useState(14); // Default 14 days
+
+    // Autocomplete state
+    const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     useEffect(() => {
         fetchTodayStats();
     }, []);
+
+    // Debounced search for autocomplete
+    useEffect(() => {
+        if (student) {
+            setSearchSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        if (scanInput.length < 2) {
+            setSearchSuggestions([]);
+            setShowSuggestions(false);
+            setSelectedIndex(-1);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            await searchStudents(scanInput);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [scanInput, student]);
+
+    const searchStudents = async (query: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, name, student_number, student_id, avatar_url, faculty, student_group')
+                .or(`name.ilike.%${query}%,student_number.ilike.%${query}%,student_id.ilike.%${query}%`)
+                .limit(5);
+
+            if (!error && data && data.length > 0) {
+                setSearchSuggestions(data);
+                setShowSuggestions(true);
+                setSelectedIndex(-1);
+            } else {
+                setSearchSuggestions([]);
+                setShowSuggestions(false);
+            }
+        } catch (err) {
+            console.error('Search error:', err);
+        }
+    };
+
+    const selectStudent = async (selectedStudent: any) => {
+        setStudent(selectedStudent);
+        setScanInput('');
+        setShowSuggestions(false);
+        setSearchSuggestions([]);
+        setSelectedIndex(-1);
+
+        // Fetch loans
+        const { data: loans, error: loansError } = await supabase
+            .from('book_checkouts')
+            .select(`
+                id,
+                due_date,
+                checked_out_at,
+                physical_book_copies!inner(
+                    barcode,
+                    copy_number,
+                    books!inner(title, author, cover_color)
+                )
+            `)
+            .eq('user_id', selectedStudent.id)
+            .eq('status', 'active')
+            .order('due_date', { ascending: true });
+
+        if (loansError) {
+            console.error('Loans fetch error:', loansError);
+        }
+
+        setActiveLoans(loans || []);
+    };
 
     const fetchTodayStats = async () => {
         const today = new Date();
@@ -83,48 +163,33 @@ export default function CheckerPage() {
             if (!isBookBarcode) {
                 // Clean input - remove any prefix and trim
                 const studentNumber = input.replace('STUDENT-UNI-', '').trim();
-                console.log('🔍 Searching for student_number:', studentNumber);
-                console.log('🔍 Query will be: student_number.eq.' + studentNumber + ' OR student_id.eq.' + studentNumber);
 
                 // Optimized query - select only needed fields
-                const startTime = performance.now();
                 const { data: profiles, error: profileError } = await supabase
                     .from('profiles')
                     .select('id, name, email, student_id, student_number, avatar_url, xp, phone, faculty, student_group, course, education_form, specialty, gpa')
                     .or(`student_number.eq.${studentNumber},student_id.eq.${studentNumber}`)
                     .limit(1);
 
-                const profileTime = performance.now() - startTime;
-                console.log(`⏱️ Profile query took: ${profileTime.toFixed(2)}ms`);
-
-                console.log('📊 Search result:', { profiles, profileError, count: profiles?.length });
-
-                if (profiles && profiles.length > 0) {
-                    console.log('📋 Found profile:', profiles[0]);
-                }
-
                 if (profileError) {
-                    console.error('❌ Search error:', profileError);
-                    setError(`Qidirishda xatolik: ${profileError.message}`);
+                    console.error('Profile search error:', profileError);
+                    setError(`Ma'lumotlar bazasida xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.`);
                     setScanInput('');
                     setLoading(false);
                     return;
                 }
 
                 if (!profiles || profiles.length === 0) {
-                    console.warn('⚠️ No profiles found for:', studentNumber);
-                    setError(`Talaba topilmadi: ${studentNumber}`);
+                    setError(`Talaba topilmadi: ${studentNumber}. Iltimos, Student ID ni tekshiring.`);
                     setScanInput('');
                     setLoading(false);
                     return;
                 }
 
                 const profile = profiles[0];
-                console.log('✅ Student found:', profile.name, profile.student_number);
                 setStudent(profile);
 
                 // Fetch loans - only active ones
-                const loansStartTime = performance.now();
                 const { data: loans, error: loansError } = await supabase
                     .from('book_checkouts')
                     .select(`
@@ -141,11 +206,8 @@ export default function CheckerPage() {
                     .eq('status', 'active')
                     .order('due_date', { ascending: true });
 
-                const loansTime = performance.now() - loansStartTime;
-                console.log(`⏱️ Loans query took: ${loansTime.toFixed(2)}ms`);
-
                 if (loansError) {
-                    console.error('❌ Loans error:', loansError);
+                    console.error('Loans fetch error:', loansError);
                 }
 
                 setActiveLoans(loans || []);
@@ -223,7 +285,7 @@ export default function CheckerPage() {
             }
 
             const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 14);
+            dueDate.setDate(dueDate.getDate() + loanDuration); // Use selected duration
 
             console.log('Creating checkout for:', {
                 user_id: student.id,
@@ -386,7 +448,7 @@ export default function CheckerPage() {
                 {/* LEFT COLUMN - Student Check & Book Operations */}
                 <div className="lg:col-span-2 space-y-4">
                     {/* Student Scanner */}
-                    <div className="relative bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border rounded-xl p-6 overflow-hidden">
+                    <div className="relative bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border rounded-xl p-6">
                         {/* Animated background */}
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 animate-pulse opacity-50" />
 
@@ -404,8 +466,31 @@ export default function CheckerPage() {
                                         type="text"
                                         value={scanInput}
                                         onChange={(e) => setScanInput(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleScan()}
-                                        placeholder="Student QR yoki Student ID (24001)..."
+                                        onKeyDown={(e) => {
+                                            if (showSuggestions && searchSuggestions.length > 0) {
+                                                if (e.key === 'ArrowDown') {
+                                                    e.preventDefault();
+                                                    setSelectedIndex(prev =>
+                                                        prev < searchSuggestions.length - 1 ? prev + 1 : prev
+                                                    );
+                                                } else if (e.key === 'ArrowUp') {
+                                                    e.preventDefault();
+                                                    setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+                                                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                                                    e.preventDefault();
+                                                    selectStudent(searchSuggestions[selectedIndex]);
+                                                    return;
+                                                } else if (e.key === 'Escape') {
+                                                    setShowSuggestions(false);
+                                                    setSelectedIndex(-1);
+                                                    return;
+                                                }
+                                            }
+                                            if (e.key === 'Enter' && !showSuggestions) {
+                                                handleScan();
+                                            }
+                                        }}
+                                        placeholder="Ism-familya yoki Student ID (24001)..."
                                         className="w-full px-4 py-3 bg-background/50 backdrop-blur-sm border-2 border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none font-mono transition-all group-hover:border-primary/30"
                                         disabled={!!student}
                                     />
@@ -413,6 +498,53 @@ export default function CheckerPage() {
                                     {loading && (
                                         <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
                                             <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-primary to-transparent animate-scan" />
+                                        </div>
+                                    )}
+
+                                    {/* Autocomplete Suggestions */}
+                                    {showSuggestions && searchSuggestions.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-xl border-2 border-primary/30 rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                                            {searchSuggestions.map((suggestion, index) => (
+                                                <button
+                                                    key={suggestion.id}
+                                                    onClick={() => selectStudent(suggestion)}
+                                                    className={`w-full p-4 transition-colors flex items-center gap-3 border-b border-border last:border-0 text-left ${index === selectedIndex
+                                                        ? 'bg-primary/20 border-primary/30'
+                                                        : 'hover:bg-primary/10'
+                                                        }`}
+                                                >
+                                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                                                        {suggestion.avatar_url ? (
+                                                            <img
+                                                                src={suggestion.avatar_url}
+                                                                alt={suggestion.name}
+                                                                className="w-full h-full rounded-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <User className="w-6 h-6 text-primary" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-bold text-base mb-0.5">{suggestion.name}</p>
+                                                        <div className="flex gap-2 mb-1 flex-wrap">
+                                                            {suggestion.student_number && (
+                                                                <p className="text-xs font-mono text-primary font-semibold">
+                                                                    HEMIS: {suggestion.student_number}
+                                                                </p>
+                                                            )}
+                                                            {suggestion.student_id && (
+                                                                <p className="text-xs font-mono text-accent font-semibold">
+                                                                    ID: {suggestion.student_id}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {suggestion.faculty}
+                                                            {suggestion.student_group && ` • ${suggestion.student_group}`}
+                                                        </p>
+                                                    </div>
+                                                </button>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -495,12 +627,31 @@ export default function CheckerPage() {
                                                 <BookOpen className="w-6 h-6 text-white" />
                                             </div>
                                         </div>
+
+                                        {/* Loan Duration Selector */}
+                                        <div className="mb-4 space-y-2">
+                                            <label className="text-sm font-medium flex items-center gap-2">
+                                                <Calendar className="w-4 h-4" />
+                                                Qarz muddati
+                                            </label>
+                                            <select
+                                                value={loanDuration}
+                                                onChange={(e) => setLoanDuration(Number(e.target.value))}
+                                                className="w-full px-4 py-2.5 bg-background/80 backdrop-blur-sm border-2 border-border rounded-lg focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none transition-all font-medium"
+                                            >
+                                                <option value={7}>7 kun (1 hafta)</option>
+                                                <option value={14}>14 kun (2 hafta)</option>
+                                                <option value={21}>21 kun (3 hafta)</option>
+                                                <option value={30}>30 kun (1 oy)</option>
+                                            </select>
+                                        </div>
+
                                         <button
                                             onClick={handleCheckout}
                                             disabled={loading}
                                             className="w-full py-3.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 disabled:opacity-50 font-bold text-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40"
                                         >
-                                            ✓ BERISH
+                                            ✓ BERISH ({loanDuration} kun)
                                         </button>
                                     </div>
                                 )}

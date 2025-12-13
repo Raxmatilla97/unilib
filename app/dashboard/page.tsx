@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/lib/react-query/hooks';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ReadOnlyRoute } from '@/components/auth/ReadOnlyRoute';
 import { DashboardClient } from '@/components/dashboard/DashboardClient';
 import { DashboardSkeleton } from '@/components/loading/Skeletons';
 
@@ -101,26 +101,27 @@ export default function DashboardPage() {
 
     if (isLoading) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <DashboardSkeleton />
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
-    if (error) {
+    // Show error only if user is authenticated and there's an actual error
+    if (error && user) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
                         Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
     return (
-        <ProtectedRoute>
+        <ReadOnlyRoute>
             <DashboardClient
                 initialStats={stats}
                 initialProgress={userProgress}
@@ -129,6 +130,6 @@ export default function DashboardPage() {
                 weeklyPages={weeklyPages}
                 todayProgress={todayProgress}
             />
-        </ProtectedRoute>
+        </ReadOnlyRoute>
     );
 }

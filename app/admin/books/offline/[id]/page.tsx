@@ -114,9 +114,11 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
         }
     }, [bookId, loadBookDetails]);
 
-    const { availableCopies, borrowedCopies } = useMemo(() => ({
+    const { availableCopies, borrowedCopies, lostCopies, damagedCopies } = useMemo(() => ({
         availableCopies: copies.filter(c => c.status === 'available').length,
-        borrowedCopies: copies.filter(c => c.status === 'borrowed').length
+        borrowedCopies: copies.filter(c => c.status === 'borrowed').length,
+        lostCopies: copies.filter(c => c.status === 'lost').length,
+        damagedCopies: copies.filter(c => c.status === 'damaged').length
     }), [copies]);
 
     if (loading) {
@@ -168,7 +170,7 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-card border border-border rounded-xl p-4">
                     <p className="text-sm text-muted-foreground">Jami Nusxalar</p>
                     <p className="text-3xl font-bold mt-1">{copies.length}</p>
@@ -180,6 +182,14 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                 <div className="bg-card border border-border rounded-xl p-4">
                     <p className="text-sm text-muted-foreground">Qarzda</p>
                     <p className="text-3xl font-bold mt-1 text-orange-500">{borrowedCopies}</p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-4">
+                    <p className="text-sm text-muted-foreground">Yo'qolgan</p>
+                    <p className="text-3xl font-bold mt-1 text-red-500">{lostCopies}</p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-4">
+                    <p className="text-sm text-muted-foreground">Shikastlangan</p>
+                    <p className="text-3xl font-bold mt-1 text-yellow-500">{damagedCopies}</p>
                 </div>
             </div>
 
@@ -227,6 +237,8 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                             <thead className="bg-muted/50 border-b border-border">
                                 <tr>
                                     <th className="text-left p-4 font-semibold">Nusxa #</th>
+                                    <th className="text-left p-4 font-semibold">INV</th>
+                                    <th className="text-left p-4 font-semibold">ISBN</th>
                                     <th className="text-left p-4 font-semibold">Barcode</th>
                                     <th className="text-left p-4 font-semibold">Holat</th>
                                     <th className="text-left p-4 font-semibold">Joylashuv</th>
@@ -247,6 +259,12 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                                     return (
                                         <tr key={copy.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                                             <td className="p-4 font-semibold">#{copy.copy_number}</td>
+                                            <td className="p-4 font-mono text-sm text-muted-foreground">
+                                                {copy.inv_number || '-'}
+                                            </td>
+                                            <td className="p-4 font-mono text-sm text-muted-foreground">
+                                                {copy.isbn || '-'}
+                                            </td>
                                             <td className="p-4 font-mono text-sm">{copy.barcode}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[copy.status as keyof typeof statusColors]}`}>

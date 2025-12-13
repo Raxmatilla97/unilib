@@ -3,8 +3,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { ReadingCalendar } from '@/components/schedule/ReadingCalendar';
 import { ScheduleBookModal } from '@/components/schedule/ScheduleBookModal';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ReadOnlyRoute } from '@/components/auth/ReadOnlyRoute';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useScheduleData } from '@/lib/react-query/hooks';
 import { deleteSchedule } from './actions';
@@ -14,7 +15,9 @@ import { ScheduleSkeleton } from '@/components/loading/ScheduleSkeleton';
 
 export default function SchedulePage() {
     const { user } = useAuth();
+    const router = useRouter();
     const queryClient = useQueryClient();
+    const isReadOnly = !user;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [editingSchedule, setEditingSchedule] = useState<any>(null);
@@ -43,9 +46,18 @@ export default function SchedulePage() {
     }, []);
 
     const handleAddSchedule = useCallback(() => {
+        if (isReadOnly) {
+            toast.info('Reja qo\'shish uchun tizimga kiring', {
+                action: {
+                    label: 'Kirish',
+                    onClick: () => router.push('/login')
+                }
+            });
+            return;
+        }
         setSelectedDate(undefined);
         setIsModalOpen(true);
-    }, []);
+    }, [isReadOnly, router]);
 
     const handleScheduleCreated = useCallback(() => {
         // Invalidate query to refetch data
@@ -54,11 +66,30 @@ export default function SchedulePage() {
     }, [queryClient, user?.id]);
 
     const handleEdit = useCallback((schedule: any) => {
+        if (isReadOnly) {
+            toast.info('Tahrirlash uchun tizimga kiring', {
+                action: {
+                    label: 'Kirish',
+                    onClick: () => router.push('/login')
+                }
+            });
+            return;
+        }
         setEditingSchedule(schedule);
         setIsModalOpen(true);
-    }, []);
+    }, [isReadOnly, router]);
 
     const handleDelete = useCallback(async (scheduleId: string) => {
+        if (isReadOnly) {
+            toast.info('O\'chirish uchun tizimga kiring', {
+                action: {
+                    label: 'Kirish',
+                    onClick: () => router.push('/login')
+                }
+            });
+            return;
+        }
+
         if (!user) {
             toast.error('Unauthorized');
             return;
@@ -80,7 +111,7 @@ export default function SchedulePage() {
         } else {
             toast.error(result.error || 'Xatolik yuz berdi', { id: toastId });
         }
-    }, [user, queryClient]);
+    }, [isReadOnly, router, user, queryClient]);
 
     const handleModalClose = useCallback(() => {
         setIsModalOpen(false);
@@ -89,29 +120,31 @@ export default function SchedulePage() {
 
     if (isLoading) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <ScheduleSkeleton />
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
-    if (error || !data) {
+    // Show error only if user is authenticated and there's an actual error
+    if (error && user) {
         return (
-            <ProtectedRoute>
+            <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
                         Xatolik yuz berdi. Qaytadan urinib ko'ring.
                     </div>
                 </div>
-            </ProtectedRoute>
+            </ReadOnlyRoute>
         );
     }
 
-    const schedules = data.schedules;
-    const dailyProgress = data.dailyProgress;
+    // For unauthenticated users or when data is not available, show empty state
+    const schedules = data?.schedules || [];
+    const dailyProgress = data?.dailyProgress || [];
 
     return (
-        <ProtectedRoute>
+        <ReadOnlyRoute>
             <div className="container py-6 md:py-10 px-4 md:px-6 max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-6 md:mb-8">
@@ -273,6 +306,6 @@ export default function SchedulePage() {
                 selectedDate={selectedDate}
                 editingSchedule={editingSchedule}
             />
-        </ProtectedRoute>
+        </ReadOnlyRoute>
     );
 }

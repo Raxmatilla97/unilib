@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .eq('id', supabaseUser.id)
                 .maybeSingle();
 
-            if (error) {
+            if (error && error.message) {
                 console.error('Profile fetch error:', error);
             }
 

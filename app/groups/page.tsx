@@ -1,11 +1,11 @@
 "use client";
 
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ReadOnlyRoute } from '@/components/auth/ReadOnlyRoute';
 import { Users, Sparkles, Calendar, MessageCircle } from 'lucide-react';
 
 export default function GroupsPage() {
     return (
-        <ProtectedRoute>
+        <ReadOnlyRoute>
             <div className="container py-8 md:py-16 px-4 md:px-6 max-w-4xl mx-auto">
                 <div className="text-center">
                     {/* Icon */}
@@ -87,6 +87,6 @@ export default function GroupsPage() {
                     </div>
                 </div>
             </div>
-        </ProtectedRoute>
+        </ReadOnlyRoute>
     );
 }

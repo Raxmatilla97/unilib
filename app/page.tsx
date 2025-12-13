@@ -28,8 +28,45 @@ async function getTopBooks() {
     }
 }
 
+// Get real statistics from database
+async function getStatistics() {
+    try {
+        const [booksCount, studentsCount, groupsCount, citationsCount] = await Promise.all([
+            supabaseAdmin.from('books').select('*', { count: 'exact', head: true }),
+            supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+            supabaseAdmin.from('study_groups').select('*', { count: 'exact', head: true }),
+            supabaseAdmin.from('citations').select('*', { count: 'exact', head: true })
+        ]);
+
+        return {
+            books: booksCount.count || 0,
+            students: studentsCount.count || 0,
+            groups: groupsCount.count || 0,
+            citations: citationsCount.count || 0
+        };
+    } catch (err) {
+        console.error('Error fetching statistics:', err);
+        return {
+            books: 0,
+            students: 0,
+            groups: 0,
+            citations: 0
+        };
+    }
+}
+
+// Format count for display (10k+, 5k+, etc.)
+function formatCount(count: number): string {
+    if (count >= 1000000) return `${Math.floor(count / 1000000)}M+`;
+    if (count >= 1000) return `${Math.floor(count / 1000)}k+`;
+    return `${count}+`;
+}
+
 export default async function LandingPage() {
-    const topBooks = await getTopBooks();
+    const [topBooks, stats] = await Promise.all([
+        getTopBooks(),
+        getStatistics()
+    ]);
 
     return (
         <div className="relative flex flex-col min-h-screen text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-primary">
@@ -48,10 +85,10 @@ export default async function LandingPage() {
                 <div className="container px-4 mx-auto max-w-7xl">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                         {[
-                            { label: "Mavjud Kitoblar", value: "10k+", icon: Library },
-                            { label: "Faol Talabalar", value: "5k+", icon: Users },
-                            { label: "o'quv Guruhlari", value: "150+", icon: Users },
-                            { label: "Iqtiboslar", value: "1M+", icon: Quote }
+                            { label: "Mavjud Kitoblar", value: formatCount(stats.books), icon: Library },
+                            { label: "Faol Talabalar", value: formatCount(stats.students), icon: Users },
+                            { label: "O'quv Guruhlari", value: formatCount(stats.groups), icon: Users },
+                            { label: "Iqtiboslar", value: formatCount(stats.citations), icon: Quote }
                         ].map((stat, i) => (
                             <div key={i} className="flex flex-col items-center justify-center text-center group p-6 rounded-3xl bg-background/40 backdrop-blur-sm hover:bg-primary/5 transition-colors border border-border/30 hover:border-primary/50 shadow-lg">
                                 <div className="mb-4 p-4 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors text-primary">
@@ -116,7 +153,7 @@ export default async function LandingPage() {
                             </p>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="p-6 rounded-2xl bg-background border border-border">
-                                    <div className="text-3xl font-bold text-primary mb-2">10k+</div>
+                                    <div className="text-3xl font-bold text-primary mb-2">{formatCount(stats.books)}</div>
                                     <div className="text-base text-muted-foreground">Raqamli Resurslar</div>
                                 </div>
                                 <div className="p-6 rounded-2xl bg-background border border-border">

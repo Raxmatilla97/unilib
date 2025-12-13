@@ -24,6 +24,8 @@ export default function AddCopyPage({ params }: PageProps) {
     const [copyCount, setCopyCount] = useState(1);
     const [existingBarcodes, setExistingBarcodes] = useState<string[]>(['']);
     const [barcodeExistsInDB, setBarcodeExistsInDB] = useState<boolean[]>([]);
+    const [invNumbers, setInvNumbers] = useState<string[]>(['']);
+    const [isbn, setIsbn] = useState('');
 
     // Check if barcode exists in database
     const checkBarcodeInDB = useCallback(async (barcode: string, index: number) => {
@@ -139,7 +141,9 @@ export default function AddCopyPage({ params }: PageProps) {
                     barcode: barcode,
                     copy_number: copyNumber,
                     location: location,
-                    status: 'available'
+                    status: 'available',
+                    inv_number: invNumbers[i] || null,
+                    isbn: isbn || null
                 });
             }
 
@@ -322,8 +326,9 @@ export default function AddCopyPage({ params }: PageProps) {
                                     onChange={(e) => {
                                         const count = parseInt(e.target.value) || 1;
                                         setCopyCount(count);
-                                        // Resize barcode array
+                                        // Resize arrays
                                         setExistingBarcodes(Array.from({ length: count }, (_, i) => existingBarcodes[i] || ''));
+                                        setInvNumbers(Array.from({ length: count }, (_, i) => invNumbers[i] || ''));
                                     }}
                                     required
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
@@ -340,6 +345,51 @@ export default function AddCopyPage({ params }: PageProps) {
                                     placeholder="Masalan: A-1, Raqam 5"
                                 />
                             </div>
+
+                            {/* ISBN - Common for all copies */}
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-sm font-medium">ISBN (ixtiyoriy)</label>
+                                <input
+                                    type="text"
+                                    value={isbn}
+                                    onChange={(e) => setIsbn(e.target.value)}
+                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono"
+                                    placeholder="978-0-123456-78-9"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Xalqaro standart kitob raqami (barcha nusxalar uchun bir xil)
+                                </p>
+                            </div>
+
+                            {/* INV Numbers - One per copy */}
+                            {copyCount > 0 && (
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium">INV Raqamlari (ixtiyoriy)</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Array.from({ length: copyCount }, (_, i) => (
+                                            <div key={i} className="space-y-1">
+                                                <label className="text-xs text-muted-foreground">
+                                                    Nusxa #{nextCopyNumber + i}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={invNumbers[i] || ''}
+                                                    onChange={(e) => {
+                                                        const newInv = [...invNumbers];
+                                                        newInv[i] = e.target.value;
+                                                        setInvNumbers(newInv);
+                                                    }}
+                                                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all font-mono text-sm"
+                                                    placeholder={`INV-${nextCopyNumber + i}`}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Inventar raqamlari - kutubxona katalogi uchun
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 

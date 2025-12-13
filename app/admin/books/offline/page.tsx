@@ -101,12 +101,16 @@ async function getOfflineBooks({
         const totalCopies = copies.length;
         const availableCopies = copies.filter((c: any) => c.status === 'available').length;
         const borrowedCopies = copies.filter((c: any) => c.status === 'borrowed').length;
+        const lostCopies = copies.filter((c: any) => c.status === 'lost').length;
+        const damagedCopies = copies.filter((c: any) => c.status === 'damaged').length;
 
         return {
             ...book,
             totalCopies,
             availableCopies,
             borrowedCopies,
+            lostCopies,
+            damagedCopies,
             copies
         };
     });
@@ -116,6 +120,10 @@ async function getOfflineBooks({
         booksWithCopies = booksWithCopies.filter(book => book.availableCopies > 0);
     } else if (status === 'borrowed') {
         booksWithCopies = booksWithCopies.filter(book => book.borrowedCopies > 0);
+    } else if (status === 'lost') {
+        booksWithCopies = booksWithCopies.filter(book => book.lostCopies > 0);
+    } else if (status === 'damaged') {
+        booksWithCopies = booksWithCopies.filter(book => book.damagedCopies > 0);
     }
 
     // Sort by copies if needed (client-side)
@@ -127,9 +135,13 @@ async function getOfflineBooks({
     const { data: allBooks } = await supabaseAdmin
         .from('books')
         .select('category')
-        .in('book_type', ['offline', 'both']);
+        .in('book_type', ['offline', 'both'])
+        .not('category', 'is', null);
 
-    const categories = [...new Set((allBooks || []).map((b: any) => b.category))].filter(Boolean) as string[];
+    const categories = [...new Set((allBooks || []).map((b: any) => b.category))].filter(Boolean).sort() as string[];
+
+    console.log('📚 Total offline books for categories:', allBooks?.length);
+    console.log('📂 Unique categories:', categories);
 
     return {
         books: booksWithCopies,
@@ -189,7 +201,7 @@ export default async function OfflineBooksPage({ searchParams }: PageProps) {
             />
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-card border border-border rounded-xl p-4">
                     <p className="text-sm text-muted-foreground">Jami Kitoblar</p>
                     <p className="text-3xl font-bold mt-1">{totalBooks}</p>
@@ -204,6 +216,18 @@ export default async function OfflineBooksPage({ searchParams }: PageProps) {
                     <p className="text-sm text-muted-foreground">Qarzda</p>
                     <p className="text-3xl font-bold mt-1 text-orange-500">
                         {books.reduce((sum, book) => sum + book.borrowedCopies, 0)}
+                    </p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-4">
+                    <p className="text-sm text-muted-foreground">Yo'qolgan</p>
+                    <p className="text-3xl font-bold mt-1 text-red-500">
+                        {books.reduce((sum, book) => sum + book.lostCopies, 0)}
+                    </p>
+                </div>
+                <div className="bg-card border border-border rounded-xl p-4">
+                    <p className="text-sm text-muted-foreground">Shikastlangan</p>
+                    <p className="text-3xl font-bold mt-1 text-yellow-500">
+                        {books.reduce((sum, book) => sum + book.damagedCopies, 0)}
                     </p>
                 </div>
             </div>

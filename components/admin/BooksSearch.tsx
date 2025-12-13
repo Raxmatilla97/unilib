@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, X, SlidersHorizontal } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface BooksSearchProps {
     categories?: string[];
@@ -97,18 +98,15 @@ export function BooksSearch({ categories = [], showStatusFilter = false }: Books
                                 <label className="block text-sm font-medium mb-2">
                                     Kategoriya
                                 </label>
-                                <select
+                                <CustomSelect
                                     value={selectedCategory}
-                                    onChange={(e) => setSelectedCategory(e.target.value)}
-                                    className="w-full px-3 py-2 border-2 border-border rounded-lg focus:outline-none focus:border-primary bg-background"
-                                >
-                                    <option value="">Barchasi</option>
-                                    {categories.map((cat) => (
-                                        <option key={cat} value={cat}>
-                                            {cat}
-                                        </option>
-                                    ))}
-                                </select>
+                                    onChange={(value) => setSelectedCategory(value)}
+                                    options={[
+                                        { value: '', label: 'Barchasi' },
+                                        ...categories.map(cat => ({ value: cat, label: cat }))
+                                    ]}
+                                    placeholder="Kategoriya tanlang"
+                                />
                             </div>
                         )}
 
@@ -118,15 +116,18 @@ export function BooksSearch({ categories = [], showStatusFilter = false }: Books
                                 <label className="block text-sm font-medium mb-2">
                                     Holat
                                 </label>
-                                <select
+                                <CustomSelect
                                     value={selectedStatus}
-                                    onChange={(e) => setSelectedStatus(e.target.value)}
-                                    className="w-full px-3 py-2 border-2 border-border rounded-lg focus:outline-none focus:border-primary bg-background"
-                                >
-                                    <option value="">Barchasi</option>
-                                    <option value="available">Mavjud</option>
-                                    <option value="borrowed">Qarzda</option>
-                                </select>
+                                    onChange={(value) => setSelectedStatus(value)}
+                                    options={[
+                                        { value: '', label: 'Barchasi' },
+                                        { value: 'available', label: 'Mavjud' },
+                                        { value: 'borrowed', label: 'Qarzda' },
+                                        { value: 'lost', label: 'Yo\'qolgan' },
+                                        { value: 'damaged', label: 'Shikastlangan' }
+                                    ]}
+                                    placeholder="Holat tanlang"
+                                />
                             </div>
                         )}
 
@@ -135,16 +136,17 @@ export function BooksSearch({ categories = [], showStatusFilter = false }: Books
                             <label className="block text-sm font-medium mb-2">
                                 Saralash
                             </label>
-                            <select
+                            <CustomSelect
                                 value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="w-full px-3 py-2 border-2 border-border rounded-lg focus:outline-none focus:border-primary bg-background"
-                            >
-                                <option value="created_at">Yangi qo'shilganlar</option>
-                                <option value="title">Nomi (A-Z)</option>
-                                <option value="author">Muallif (A-Z)</option>
-                                <option value="copies">Nusxalar soni</option>
-                            </select>
+                                onChange={(value) => setSortBy(value)}
+                                options={[
+                                    { value: 'created_at', label: 'Yangi qo\'shilganlar' },
+                                    { value: 'title', label: 'Nomi (A-Z)' },
+                                    { value: 'author', label: 'Muallif (A-Z)' },
+                                    { value: 'copies', label: 'Nusxalar soni' }
+                                ]}
+                                placeholder="Saralash"
+                            />
                         </div>
                     </div>
 

@@ -49,7 +49,7 @@ export function Sidebar() {
     }, []);
 
     // Don't show sidebar on auth pages, landing page, or admin pages
-    if (!user || pathname === '/' || pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin')) {
+    if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname.startsWith('/admin')) {
         return null;
     }
 
@@ -74,7 +74,7 @@ export function Sidebar() {
                 {/* Logo */}
                 <div className={`h-16 border-b border-border/40 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'}`}>
                     {!isCollapsed && (
-                        <Link href="/" className="flex items-center gap-2 font-bold text-xl group">
+                        <Link href={user ? "/" : "/library"} className="flex items-center gap-2 font-bold text-xl group">
                             <div className="relative">
                                 <div className="absolute inset-0 bg-primary/20 blur-lg group-hover:bg-primary/30 transition-all rounded-lg"></div>
                                 <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -96,15 +96,6 @@ export function Sidebar() {
 
                 {/* Navigation */}
                 <nav className={`flex-1 space-y-1 overflow-y-auto ${isCollapsed ? 'p-2 no-scrollbar' : 'p-4'}`}>
-                    <style jsx global>{`
-                        .no-scrollbar::-webkit-scrollbar {
-                            display: none;
-                        }
-                        .no-scrollbar {
-                            -ms-overflow-style: none;
-                            scrollbar-width: none;
-                        }
-                    `}</style>
                     {navItems.map((item) => {
                         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                         const Icon = item.icon;
@@ -153,6 +144,19 @@ export function Sidebar() {
                         </Link>
                     )}
                 </nav>
+
+                {/* Login Button for Unauthenticated Users */}
+                {!user && !isCollapsed && (
+                    <div className="px-4 pb-2">
+                        <Link
+                            href="/login"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:scale-[1.02]"
+                        >
+                            <User className="w-4 h-4" />
+                            Kirish
+                        </Link>
+                    </div>
+                )}
 
                 {/* Collapse Toggle */}
                 <div className={`border-t border-border/40 ${isCollapsed ? 'p-2' : 'p-4'}`}>
