@@ -30,7 +30,7 @@ export async function updateUserRole(userId: string, newRole: Role) {
 
 export async function deleteUser(userId: string) {
     try {
-        console.log('Attempting to delete user:', userId);
+        console.log('🗑️ Attempting to delete user:', userId);
 
         // First, try to delete from profiles (this might cascade)
         const { error: profileError } = await supabaseAdmin
@@ -39,26 +39,32 @@ export async function deleteUser(userId: string) {
             .eq('id', userId);
 
         if (profileError) {
-            console.error('Profile deletion error:', profileError);
-            // Continue anyway, try auth deletion
+            console.error('❌ Profile deletion error:', profileError);
+            return {
+                success: false,
+                error: `Profile deletion failed: ${profileError.message}`
+            };
         }
 
         // Delete from auth.users using supabaseAdmin
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
         if (authError) {
-            console.error('Auth deletion error:', authError);
-            throw authError;
+            console.error('❌ Auth deletion error:', authError);
+            return {
+                success: false,
+                error: `Auth deletion failed: ${authError.message}`
+            };
         }
 
-        console.log('User deleted successfully');
+        console.log('✅ User deleted successfully');
         revalidatePath('/admin/users');
         return { success: true };
     } catch (error: any) {
-        console.error('Error deleting user:', error);
+        console.error('❌ Unexpected error deleting user:', error);
         return {
             success: false,
-            error: error?.message || 'Failed to delete user'
+            error: error?.message || 'Unexpected error occurred'
         };
     }
 }

@@ -81,7 +81,7 @@ export default function SchedulePage() {
 
     const handleDelete = useCallback(async (scheduleId: string) => {
         if (isReadOnly) {
-            toast.info('O\'chirish uchun tizimga kiring', {
+            toast.info('Oʻchirish uchun tizimga kiring', {
                 action: {
                     label: 'Kirish',
                     onClick: () => router.push('/login')
@@ -96,17 +96,17 @@ export default function SchedulePage() {
         }
 
         // Better confirmation with toast
-        const confirmed = window.confirm('Haqiqatan ham bu rejani o\'chirmoqchimisiz?');
+        const confirmed = window.confirm('Haqiqatan ham bu rejani oʻchirmoqchimisiz?');
         if (!confirmed) return;
 
         setDeletingId(scheduleId);
-        const toastId = toast.loading('O\'chirilmoqda...');
+        const toastId = toast.loading('Oʻchirilmoqda...');
 
         const result = await deleteSchedule(scheduleId, user.id);
         setDeletingId(null);
 
         if (result.success) {
-            toast.success('Reja muvaffaqiyatli o\'chirildi', { id: toastId });
+            toast.success('Reja muvaffaqiyatli oʻchirildi', { id: toastId });
             queryClient.invalidateQueries({ queryKey: ['schedule', user?.id] });
         } else {
             toast.error(result.error || 'Xatolik yuz berdi', { id: toastId });
@@ -132,7 +132,7 @@ export default function SchedulePage() {
             <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
-                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
+                        Xatolik yuz berdi. Qaytadan urinib koʻring.
                     </div>
                 </div>
             </ReadOnlyRoute>
@@ -149,7 +149,7 @@ export default function SchedulePage() {
                 {/* Header */}
                 <div className="mb-6 md:mb-8">
                     <h1 className="text-2xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
-                        📅 o'qish Rejam
+                        📅 Oʻqish Rejam
                     </h1>
                     <p className="text-sm md:text-base text-muted-foreground">
                         Kitoblaringizni rejalashtiring va maqsadlaringizga erishing
@@ -268,7 +268,7 @@ export default function SchedulePage() {
                                                 className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs md:text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
                                             >
                                                 <Trash2 className="w-4 h-4" />
-                                                {deletingId === schedule.id ? 'O\'chirilmoqda...' : 'O\'chirish'}
+                                                {deletingId === schedule.id ? 'Oʻchirilmoqda...' : 'Oʻchirish'}
                                             </button>
                                         </div>
                                     </div>
@@ -283,16 +283,16 @@ export default function SchedulePage() {
                     <div className="mt-8 text-center py-12">
                         <div className="text-6xl mb-4">📚</div>
                         <h3 className="text-xl font-bold mb-2">
-                            Hali rejalaringiz yo'q
+                            Hali rejalaringiz yoʻq
                         </h3>
                         <p className="text-muted-foreground mb-6">
-                            Birinchi kitobingizni rejalashtiring va o'qishni boshlang!
+                            Birinchi kitobingizni rejalashtiring va oʻqishni boshlang!
                         </p>
                         <button
                             onClick={handleAddSchedule}
                             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                         >
-                            Reja qo'shish
+                            Reja qoʻshish
                         </button>
                     </div>
                 )}

@@ -16,7 +16,7 @@ export default function LeaderboardPage() {
     if (error) {
         return (
             <div className="container py-8 px-4 max-w-4xl mx-auto">
-                <div className="text-center text-red-500">Xatolik yuz berdi. Qaytadan urinib ko'ring.</div>
+                <div className="text-center text-red-500">Xatolik yuz berdi. Qaytadan urinib koʻring.</div>
             </div>
         );
     }
@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
                         Reyting Jadvali
                     </h1>
                     <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Eng faol kitobxonlar bilan bellashing va o'z darajangizni oshiring
+                        Eng faol kitobxonlar bilan bellashing va oʻz darajangizni oshiring
                     </p>
                 </div>
 
@@ -115,10 +115,10 @@ export default function LeaderboardPage() {
                         <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl p-5 md:p-6 mb-6 backdrop-blur-sm">
                             <h2 className="text-base md:text-lg font-bold mb-2 flex items-center gap-2">
                                 <Trophy className="w-5 h-5 text-yellow-500" />
-                                Eng ko'p XP to'plaganlar
+                                Eng koʻp XP toʻplaganlar
                             </h2>
                             <p className="text-sm md:text-base text-muted-foreground">
-                                Kitob o'qish va vazifalarni bajarish orqali XP to'plang va reytingda yuqoriga ko'tariling.
+                                Kitob oʻqish va vazifalarni bajarish orqali XP toʻplang va reytingda yuqoriga koʻtariling.
                             </p>
                         </div>
 
@@ -176,7 +176,7 @@ export default function LeaderboardPage() {
                                 Eng uzun Streak
                             </h2>
                             <p className="text-sm md:text-base text-muted-foreground">
-                                Har kuni uzluksiz o'qish orqali streakni saqlab qoling va reytingda birinchi bo'ling.
+                                Har kuni uzluksiz oʻqish orqali streakni saqlab qoling va reytingda birinchi boʻling.
                             </p>
                         </div>
 

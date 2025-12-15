@@ -156,7 +156,7 @@ export default function StudentIDCard({ studentNumber, studentId }: StudentIDCar
 
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                            Kutubxonachiga ko'rsating
+                            Kutubxonachiga koʻrsating
                         </p>
                     </div>
                 </>

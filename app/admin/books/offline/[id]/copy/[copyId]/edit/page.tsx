@@ -143,7 +143,7 @@ export default function EditCopyPage({ params }: PageProps) {
                                 >
                                     <option value="available">Mavjud</option>
                                     <option value="borrowed">Qarzda</option>
-                                    <option value="lost">Yo'qolgan</option>
+                                    <option value="lost">Yoʻqolgan</option>
                                     <option value="damaged">Shikastlangan</option>
                                 </select>
                             </div>
@@ -182,7 +182,7 @@ export default function EditCopyPage({ params }: PageProps) {
                                 defaultValue={copy.notes || ''}
                                 rows={4}
                                 className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none resize-none transition-all"
-                                placeholder="Qo'shimcha ma'lumotlar..."
+                                placeholder="Qoʻshimcha ma'lumotlar..."
                             />
                         </div>
                     </div>

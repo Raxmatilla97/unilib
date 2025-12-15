@@ -106,7 +106,7 @@ export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, on
                         aria-label="Add schedule"
                     >
                         <Plus className="w-4 h-4" />
-                        <span className="hidden sm:inline text-sm">Reja qo'shish</span>
+                        <span className="hidden sm:inline text-sm">Reja qoʻshish</span>
                     </button>
                 </div>
             </div>
@@ -154,7 +154,7 @@ export function ReadingCalendar({ schedules, dailyProgress = [], onDateClick, on
                                 {isCompleted ? (
                                     <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500" title="Kunlik maqsad bajarildi" />
                                 ) : hasProgress ? (
-                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500" title="o'qildi, lekin maqsadga yetilmadi" />
+                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-orange-500" title="Oʻqildi, lekin maqsadga yetilmadi" />
                                 ) : daySchedules.length > 0 ? (
                                     <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary/30" title="Rejalashtirilgan" />
                                 ) : null}

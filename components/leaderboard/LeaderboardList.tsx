@@ -12,7 +12,7 @@ export function LeaderboardList({ users, currentUserId, type }: LeaderboardListP
     if (users.length === 0) {
         return (
             <div className="text-center py-12 text-muted-foreground">
-                Hozircha reyting bo'sh
+                Hozircha reyting boʻsh
             </div>
         );
     }

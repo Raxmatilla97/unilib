@@ -129,7 +129,7 @@ export default function SettingsPage() {
                             <div className="flex-1">
                                 <h3 className="font-bold text-lg mb-2">HEMIS Ma'lumotlarini Yangilash</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    HEMIS tizimidan eng so'nggi ma'lumotlaringizni oling (fakultet, guruh, kurs, GPA va boshqalar)
+                                    HEMIS tizimidan eng soʻnggi ma'lumotlaringizni oling (fakultet, guruh, kurs, GPA va boshqalar)
                                 </p>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                                     <AlertCircle className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                             <div className="flex-1">
                                 <h3 className="font-bold text-lg mb-2 text-red-600 dark:text-red-400">Xavfli Hudud</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Akkauntni o'chirish qaytarib bo'lmaydigan amaldir. Barcha ma'lumotlaringiz o'chiriladi.
+                                    Akkauntni oʻchirish qaytarib boʻlmaydigan amaldir. Barcha ma'lumotlaringiz oʻchiriladi.
                                 </p>
                             </div>
                         </div>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                                 className="flex items-center gap-2 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium rounded-xl transition-all duration-200"
                             >
                                 <Trash2 className="w-5 h-5" />
-                                Akkauntni o'chirish
+                                Akkauntni oʻchirish
                             </button>
                         ) : (
                             <div className="space-y-4">
@@ -177,13 +177,13 @@ export default function SettingsPage() {
                                         <strong>Diqqat!</strong> Bu amalni tasdiqlash uchun quyidagi matnni kiriting:
                                     </p>
                                     <p className="text-sm font-mono font-bold text-red-600 dark:text-red-400 mb-3">
-                                        o'CHIRISH
+                                        OʻCHIRISH
                                     </p>
                                     <input
                                         type="text"
                                         value={deleteConfirmText}
                                         onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                        placeholder="o'CHIRISH deb yozing"
+                                        placeholder="OʻCHIRISH deb yozing"
                                         className="w-full px-4 py-3 bg-background border border-red-500/30 rounded-xl focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all outline-none"
                                     />
                                 </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                     {/* Info */}
                     <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                         <p className="text-sm text-blue-600 dark:text-blue-400">
-                            <strong>Eslatma:</strong> HEMIS ma'lumotlarini yangilash uchun HEMIS tizimida ro'yxatdan o'tgan bo'lishingiz kerak.
+                            <strong>Eslatma:</strong> HEMIS ma'lumotlarini yangilash uchun HEMIS tizimida roʻyxatdan oʻtgan boʻlishingiz kerak.
                         </p>
                     </div>
                 </div>

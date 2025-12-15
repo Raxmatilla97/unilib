@@ -71,13 +71,13 @@ export function Footer() {
 
                     {/* Contact Info + Newsletter */}
                     <div>
-                        <h3 className="font-bold mb-6 text-lg">Bog'lanish</h3>
+                        <h3 className="font-bold mb-6 text-lg">Bogʻlanish</h3>
                         <ul className="space-y-4 text-sm text-muted-foreground mb-6">
                             <li className="flex items-start gap-3 group">
                                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                                     <MapPin className="w-4 h-4" />
                                 </div>
-                                <span className="leading-relaxed">Toshkent, Yakkasaroy tumani, Toʻqimachi MFY, Bog'ibo'ston ko'chasi, 3-a-uy</span>
+                                <span className="leading-relaxed">Toshkent, Yakkasaroy tumani, Toʻqimachi MFY, Bogʻiboʻston koʻchasi, 3-a-uy</span>
                             </li>
                             <li className="flex items-center gap-3 group">
                                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">

@@ -52,7 +52,7 @@ export const BookCard = memo(function BookCard({ id, title, author, rating, cove
                                 <span>Offline</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white bg-green-500/90 px-2.5 py-1 rounded-lg backdrop-blur-md border border-green-400/30 shadow-lg" title="Online kitob - hozir o'qish mumkin">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white bg-green-500/90 px-2.5 py-1 rounded-lg backdrop-blur-md border border-green-400/30 shadow-lg" title="Online kitob - hozir oʻqish mumkin">
                                 <Wifi className="w-3 h-3" />
                                 <span>Online</span>
                             </div>
@@ -62,7 +62,7 @@ export const BookCard = memo(function BookCard({ id, title, author, rating, cove
                     {/* Quick Action Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
                         <div className="px-4 py-2 rounded-full bg-primary text-primary-foreground font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
-                            o'qish
+                            Oʻqish
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ export const BookCard = memo(function BookCard({ id, title, author, rating, cove
                                 <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">{rating}</span>
                             </div>
                             {views_count !== undefined && views_count > 0 && (
-                                <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium" title={`${views_count} marta ko'rilgan`}>
+                                <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium" title={`${views_count} marta koʻrilgan`}>
                                     <Eye className="w-3.5 h-3.5" />
                                     <span>{views_count}</span>
                                 </div>

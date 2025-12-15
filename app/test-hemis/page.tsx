@@ -47,7 +47,7 @@ export default function TestHemisPage() {
             <div className="max-w-2xl mx-auto">
                 <h1 className="text-3xl font-bold mb-2">HEMIS API Test</h1>
                 <p className="text-muted-foreground mb-8">
-                    Student ID kiriting va HEMIS dan ma'lumot olishni sinab ko'ring
+                    Student ID kiriting va HEMIS dan ma'lumot olishni sinab koʻring
                 </p>
 
                 <div className="bg-card border border-border rounded-lg p-6 mb-6">
@@ -113,7 +113,7 @@ export default function TestHemisPage() {
                                     <p className="font-medium">{result.data.studentId}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-muted-foreground">To'liq ism</p>
+                                    <p className="text-sm text-muted-foreground">Toʻliq ism</p>
                                     <p className="font-medium">{result.data.fullName}</p>
                                 </div>
                             </div>
@@ -158,7 +158,7 @@ export default function TestHemisPage() {
 
                             <details className="mt-4">
                                 <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                                    Raw JSON ko'rish
+                                    Raw JSON koʻrish
                                 </summary>
                                 <pre className="mt-2 p-4 bg-muted rounded text-xs overflow-auto">
                                     {JSON.stringify(result, null, 2)}

@@ -244,7 +244,7 @@ export default function OrganizationDetailPage() {
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                         >
                             <UserPlus className="w-4 h-4" />
-                            Admin qo'shish
+                            Admin qoʻshish
                         </button>
                     </div>
 
@@ -264,7 +264,7 @@ export default function OrganizationDetailPage() {
                                 {orgUsers.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="text-center py-12 text-muted-foreground">
-                                            Hali adminlar yo'q
+                                            Hali adminlar yoʻq
                                         </td>
                                     </tr>
                                 ) : (
@@ -520,7 +520,7 @@ function AddAdminModal({ organization, onClose, onSuccess }: {
     return (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full">
-                <h2 className="text-2xl font-bold mb-2">Admin Qo'shish</h2>
+                <h2 className="text-2xl font-bold mb-2">Admin Qoʻshish</h2>
                 <p className="text-muted-foreground mb-6">
                     <span className="font-semibold text-foreground">{organization.name}</span> uchun yangi admin
                 </p>

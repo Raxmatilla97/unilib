@@ -93,7 +93,7 @@ export function NotificationBell() {
                                 className="text-xs flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                             >
                                 <CheckCheck className="w-3 h-3" />
-                                Barchasini o'qish
+                                Barchasini oʻqish
                             </button>
                         )}
                     </div>
@@ -106,7 +106,7 @@ export function NotificationBell() {
                         ) : notifications.length === 0 ? (
                             <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
                                 <Bell className="w-8 h-8 opacity-20" />
-                                <p>Hozircha xabarlar yo'q</p>
+                                <p>Hozircha xabarlar yoʻq</p>
                             </div>
                         ) : (
                             notifications.map(notification => (

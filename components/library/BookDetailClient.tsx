@@ -131,7 +131,7 @@ export function BookDetailClient({ book, similarBooks, initialReviews, userId: i
                                 {book.views_count !== undefined && (
                                     <div className="flex items-center gap-1.5 bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-500/20">
                                         <Eye className="w-4 h-4 text-blue-500" />
-                                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{book.views_count} ko'rilgan</span>
+                                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{book.views_count} koʻrilgan</span>
                                     </div>
                                 )}
                             </div>
@@ -152,7 +152,7 @@ export function BookDetailClient({ book, similarBooks, initialReviews, userId: i
                                         className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-primary text-primary-foreground font-bold text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25 hover:-translate-y-1"
                                     >
                                         <BookOpen className="w-5 h-5" />
-                                        o'qishni Boshlash
+                                        Oʻqishni Boshlash
                                     </button>
                                     <a
                                         href={book.file_url}
@@ -217,9 +217,9 @@ export function BookDetailClient({ book, similarBooks, initialReviews, userId: i
                 {similarBooks.length > 0 && (
                     <div className="border-t border-border/50 pt-16">
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-3xl font-bold">o'xshash Kitoblar</h2>
+                            <h2 className="text-3xl font-bold">Oʻxshash Kitoblar</h2>
                             <Link href={`/library?category=${book.category}`} className="text-primary font-medium hover:underline">
-                                Barchasini ko'rish
+                                Barchasini koʻrish
                             </Link>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -252,7 +252,7 @@ export function ScheduleBookModal({ isOpen, onClose, onScheduleCreated, selected
                                     className="w-4 h-4"
                                 />
                                 <BookOpen className="w-4 h-4" />
-                                <span>Sahifa bo'yicha</span>
+                                <span>Sahifa boʻyicha</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
@@ -263,7 +263,7 @@ export function ScheduleBookModal({ isOpen, onClose, onScheduleCreated, selected
                                     className="w-4 h-4"
                                 />
                                 <Clock className="w-4 h-4" />
-                                <span>Vaqt bo'yicha</span>
+                                <span>Vaqt boʻyicha</span>
                             </label>
                         </div>
                     </div>

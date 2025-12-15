@@ -42,7 +42,7 @@ export default async function PilotPage() {
             {[
               { label: "Mavjud Kitoblar", value: "10k+", icon: Library },
               { label: "Faol Talabalar", value: "5k+", icon: Users },
-              { label: "o'quv Guruhlari", value: "150+", icon: Users },
+              { label: "Oʻquv Guruhlari", value: "150+", icon: Users },
               { label: "Iqtiboslar", value: "1M+", icon: Quote }
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center justify-center text-center group p-6 rounded-3xl bg-muted/20 hover:bg-primary/5 transition-colors border border-transparent hover:border-primary/20">
@@ -64,8 +64,8 @@ export default async function PilotPage() {
       <section className="py-24 md:py-32 bg-background overflow-hidden">
         <div className="container px-4 md:px-6 max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">Ommabop Yo'nalishlar</h2>
-            <p className="text-lg text-muted-foreground">Qiziqishlaringiz bo'yicha adabiyotlarni toping</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">Ommabop Yoʻnalishlar</h2>
+            <p className="text-lg text-muted-foreground">Qiziqishlaringiz boʻyicha adabiyotlarni toping</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -80,7 +80,7 @@ export default async function PilotPage() {
               { name: 'Biologiya', icon: Dna },
               { name: 'Muhandislik', icon: Building },
               { name: 'Falsafa', icon: Globe },
-              { name: 'San\'at', icon: Palette },
+              { name: 'Sanʻat', icon: Palette },
               { name: 'Biznes', icon: Briefcase }
             ].map((cat, i) => (
               <Link key={i} href={`/library?category=${cat.name}`} className="group p-6 rounded-2xl bg-muted/20 border border-transparent hover:border-primary/50 hover:bg-card hover:shadow-lg transition-all text-center flex flex-col items-center gap-4">
@@ -101,7 +101,7 @@ export default async function PilotPage() {
             <div>
               <h2 className="text-3xl md:text-5xl font-bold mb-8 text-foreground">Loyiha Maqsadi</h2>
               <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
-                Ushbu platforma o'zbekiston ta'lim tizimini raqamlashtirish va talabalar uchun yagona, qulay bilim olish muhitini yaratish maqsadida ishlab chiqilgan.
+                Ushbu platforma Oʻzbekiston ta'lim tizimini raqamlashtirish va talabalar uchun yagona, qulay bilim olish muhitini yaratish maqsadida ishlab chiqilgan.
               </p>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
                 Bizning asosiy vazifamiz — har bir talabaga sifatli ta'lim resurslaridan foydalanish imkoniyatini berish va akademik halollikni ta'minlashdir.
@@ -131,7 +131,7 @@ export default async function PilotPage() {
       <section id="contact" className="py-24 md:py-32 bg-background overflow-hidden">
         <div className="container px-4 md:px-6 max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-foreground">Biz Bilan Bog'laning</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-foreground">Biz Bilan Bogʻlaning</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Savollaringiz bormi? Biz sizga yordam berishga tayyormiz!
             </p>
@@ -156,7 +156,7 @@ export default async function PilotPage() {
                 <Globe className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-xl font-bold mb-3">Manzil</h3>
-              <p className="text-muted-foreground">Toshkent, o'zbekiston</p>
+              <p className="text-muted-foreground">Toshkent, Oʻzbekiston</p>
             </div>
           </div>
         </div>
@@ -169,11 +169,11 @@ export default async function PilotPage() {
 
         <div className="container px-4 mx-auto relative z-10 text-center max-w-4xl">
           <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight">
-            o'qish jarayonini <br />
-            <span className="text-primary">o'zgartirishga Tayyormisiz?</span>
+            Oʻqish jarayonini <br />
+            <span className="text-primary">Oʻzgartirishga Tayyormisiz?</span>
           </h2>
           <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Akademik maqsadlariga erishish uchun UniLib dan foydalanayotgan minglab talabalarga qo'shiling.
+            Akademik maqsadlariga erishish uchun UniLib dan foydalanayotgan minglab talabalarga qoʻshiling.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -187,7 +187,7 @@ export default async function PilotPage() {
               href="/register"
               className="px-10 py-5 rounded-2xl bg-card border border-border hover:border-primary/50 text-foreground font-bold text-xl hover:bg-muted/50 transition-all"
             >
-              Ro'yxatdan o'tish
+              Roʻyxatdan oʻtish
             </Link>
           </div>
         </div>

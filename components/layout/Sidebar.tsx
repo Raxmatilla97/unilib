@@ -58,7 +58,7 @@ export function Sidebar() {
         { href: '/dashboard', label: 'Kabinet', icon: LayoutDashboard },
         { href: '/profile', label: 'Profil', icon: User },
         { href: '/library', label: 'Kutubxona', icon: BookOpen },
-        { href: '/schedule', label: 'O\'qish Rejam', icon: Calendar },
+        { href: '/schedule', label: 'Oʻqish Rejam', icon: Calendar },
         { href: '/groups', label: 'Guruhlar', icon: Users },
         { href: '/achievements', label: 'Yutuqlar', icon: Trophy },
         { href: '/leaderboard', label: 'Reyting', icon: Award },

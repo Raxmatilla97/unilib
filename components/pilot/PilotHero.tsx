@@ -34,7 +34,7 @@ export function PilotHero() {
                     <h1 className="text-4xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
                         Cheksiz Bilimlar <br />
                         <span className="text-primary inline-block relative">
-                            Sizning Qo'lingizda
+                            Sizning Qoʻlingizda
                             <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/30" viewBox="0 0 100 10" preserveAspectRatio="none">
                                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
                             </svg>
@@ -43,7 +43,7 @@ export function PilotHero() {
 
                     {/* Subheadline */}
                     <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
-                        O'zbekistonning barcha oliy o'quv yurtlari resurslarini birlashtiruvchi yagona raqamli platforma.
+                        Oʻzbekistonning barcha oliy oʻquv yurtlari resurslarini birlashtiruvchi yagona raqamli platforma.
                         Ilm-fan va ta'lim uchun cheksiz imkoniyatlar.
                     </p>
 
@@ -76,14 +76,14 @@ export function PilotHero() {
                             className="group relative px-8 py-4 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                            Katalogga o'tish
+                            Katalogga oʻtish
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                         <Link
                             href="/groups"
                             className="px-8 py-4 rounded-2xl bg-card border border-border hover:border-primary/50 text-foreground font-bold text-lg hover:bg-muted/50 transition-all flex items-center justify-center gap-3 backdrop-blur-sm"
                         >
-                            Guruhlarga Qo'shilish
+                            Guruhlarga Qoʻshilish
                         </Link>
                     </div>
                 </div>

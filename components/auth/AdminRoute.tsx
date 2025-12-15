@@ -84,7 +84,7 @@ export function AdminRoute({ children, requiredRole }: AdminRouteProps) {
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="text-center max-w-md p-8">
                     <div className="text-6xl mb-4">🚫</div>
-                    <h1 className="text-2xl font-bold mb-2">Ruxsat yo'q</h1>
+                    <h1 className="text-2xl font-bold mb-2">Ruxsat yoʻq</h1>
                     <p className="text-muted-foreground mb-6">
                         Bu sahifaga kirish uchun admin huquqlari kerak.
                     </p>

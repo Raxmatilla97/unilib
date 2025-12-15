@@ -136,7 +136,7 @@ export default function TransactionsPage() {
             return (
                 <span className="px-2 py-1 bg-red-500/10 text-red-600 text-xs rounded-full font-medium flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    Muddati o'tgan
+                    Muddati oʻtgan
                 </span>
             );
         }
@@ -265,7 +265,7 @@ export default function TransactionsPage() {
                             <option value="all">Barchasi</option>
                             <option value="active">Aktiv</option>
                             <option value="returned">Qaytarilgan</option>
-                            <option value="overdue">Muddati o'tgan</option>
+                            <option value="overdue">Muddati oʻtgan</option>
                         </select>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ export default function TransactionsPage() {
                     </p>
                 </div>
                 <div className="bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
-                    <p className="text-sm text-red-600">Muddati o'tgan</p>
+                    <p className="text-sm text-red-600">Muddati oʻtgan</p>
                     <p className="text-2xl font-bold text-red-600">
                         {transactions.filter(t => t.status === 'active' && new Date(t.due_date) < new Date()).length}
                     </p>

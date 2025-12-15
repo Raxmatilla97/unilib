@@ -35,7 +35,7 @@ export default function LoginPage() {
         try {
             const result = await login(email, password);
             if (!result.success) {
-                setError(result.error || 'Email yoki parol noto\'g\'ri');
+                setError(result.error || 'Email yoki parol notoʻgʻri');
                 setIsLoading(false);
             } else {
                 // Immediate redirect - don't wait
@@ -76,7 +76,7 @@ export default function LoginPage() {
                         setError(loginResult.error || 'Tizimga kirishda xatolik');
                     } else {
                         toast.success('Muvaffaqiyatli!', {
-                            description: 'HEMIS orqali kirildi. Dashboard\'ga yo\'naltirilmoqda...',
+                            description: 'HEMIS orqali kirildi. Dashboard\'ga yoʻnaltirilmoqda...',
                             icon: <CheckCircle className="w-5 h-5" />
                         });
 
@@ -91,13 +91,13 @@ export default function LoginPage() {
                     }
                 } else {
                     toast.success('Muvaffaqiyatli!', {
-                        description: 'HEMIS orqali kirildi. Dashboard\'ga yo\'naltirilmoqda...',
+                        description: 'HEMIS orqali kirildi. Dashboard\'ga yoʻnaltirilmoqda...',
                         icon: <CheckCircle className="w-5 h-5" />
                     });
                 }
             }
         } catch (err) {
-            setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            setError('Xatolik yuz berdi. Qaytadan urinib koʻring.');
         } finally {
             setIsLoading(false);
         }
@@ -133,7 +133,7 @@ export default function LoginPage() {
                 }
             }
         } catch (err) {
-            setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            setError('Xatolik yuz berdi. Qaytadan urinib koʻring.');
         } finally {
             setIsLoading(false);
         }
@@ -160,7 +160,7 @@ export default function LoginPage() {
                         </div>
                         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Tizimga kirish</h1>
                         <p className="text-muted-foreground">
-                            {useHemisLogin ? 'HEMIS login va parolingizni kiriting' : 'Hisobingizga kiring va o\'qishni davom ettiring'}
+                            {useHemisLogin ? 'HEMIS login va parolingizni kiriting' : 'Hisobingizga kiring va oʻqishni davom ettiring'}
                         </p>
                     </div>
 
@@ -257,9 +257,9 @@ export default function LoginPage() {
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-muted-foreground">
-                            Hisobingiz yo'qmi?{' '}
+                            Hisobingiz yoʻqmi?{' '}
                             <Link href="/register" className="text-primary font-semibold hover:underline">
-                                Ro'yxatdan o'ting
+                                Roʻyxatdan oʻting
                             </Link>
                         </p>
                     </div>

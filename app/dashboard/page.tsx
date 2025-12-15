@@ -64,7 +64,7 @@ export default function DashboardPage() {
                     type: 'read',
                     title: p.books.title,
                     time: new Date(p.last_read_at),
-                    details: `${p.progress_percentage}% o'qildi`
+                    details: `${p.progress_percentage}% oʻqildi`
                 });
             }
         });
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
-                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
+                        Xatolik yuz berdi. Qaytadan urinib koʻring.
                     </div>
                 </div>
             </ReadOnlyRoute>

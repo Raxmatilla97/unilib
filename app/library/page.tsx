@@ -180,7 +180,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
                         Kutubxona
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        {totalBooks} ta kitob va qo'llanmalar sizni kutmoqda.
+                        {totalBooks} ta kitob va qoʻllanmalar sizni kutmoqda.
                     </p>
                 </div>
 
@@ -195,7 +195,7 @@ export default async function LibraryPage({ searchParams }: PageProps) {
                             <BookOpen className="w-8 h-8 text-muted-foreground" />
                         </div>
                         <h3 className="text-xl font-bold mb-2">Hech qanday kitob topilmadi</h3>
-                        <p className="text-muted-foreground">Qidiruv so'zini o'zgartirib yoki filtrlarni tozalab ko'ring.</p>
+                        <p className="text-muted-foreground">Qidiruv soʻzini oʻzgartirib yoki filtrlarni tozalab koʻring.</p>
                     </div>
                 ) : (
                     <>

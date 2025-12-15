@@ -257,7 +257,7 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                         createNotification(
                             user.id,
                             'Kunlik maqsad bajarildi! 🎉',
-                            `Tabriklaymiz! Siz bugungi o'qish rejasini bajardingiz (${dailyGoal} sahifa).`,
+                            `Tabriklaymiz! Siz bugungi oʻqish rejasini bajardingiz (${dailyGoal} sahifa).`,
                             'achievement'
                         );
                     }
@@ -411,7 +411,7 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                         onClick={(e) => { e.stopPropagation(); setShowTextSettings(!showTextSettings); }}
                         className={`p-3 rounded-full shadow-lg transition-all hover:scale-110 ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
                             } ${showTextSettings ? 'ring-2 ring-primary' : ''}`}
-                        title="Matn o'lchami"
+                        title="Matn oʻlchami"
                     >
                         <Type className="w-6 h-6" />
                     </button>
@@ -422,7 +422,7 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                             }`}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="text-sm font-medium mb-1">Ko'rinish rejimi</div>
+                            <div className="text-sm font-medium mb-1">Koʻrinish rejimi</div>
                             <div className="flex p-1 bg-gray-100 rounded-lg dark:bg-gray-700 mb-2">
                                 <button
                                     onClick={() => setTextMode(false)}
@@ -553,7 +553,7 @@ export function BookReader({ fileUrl, bookTitle, bookId, onClose }: BookReaderPr
                                 <h3 className="text-xl font-semibold mb-2">Matn qatlami topilmadi</h3>
                                 <p className="text-gray-500 mb-6 max-w-md">
                                     Ushbu kitob rasmlardan iborat (skaner qilingan) bo'lishi mumkin.
-                                    Shu sababli matn rejimini qo'llab-quvvatlamaydi.
+                                    Shu sababli matn rejimini qoʻllab-quvvatlamaydi.
                                 </p>
                                 <button
                                     onClick={() => setTextMode(false)}

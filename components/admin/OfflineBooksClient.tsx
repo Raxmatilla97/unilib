@@ -78,16 +78,16 @@ export function OfflineBooksClient({
                 {books.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Package className="w-16 h-16 text-muted-foreground mb-4" />
-                        <h3 className="text-xl font-bold mb-2">Offline kitoblar yo'q</h3>
+                        <h3 className="text-xl font-bold mb-2">Offline kitoblar yoʻq</h3>
                         <p className="text-muted-foreground mb-6">
-                            Birinchi offline kitobni qo'shing
+                            Birinchi offline kitobni qoʻshing
                         </p>
                         <Link
                             href="/admin/books/offline/create"
                             className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all"
                         >
                             <Plus className="w-5 h-5" />
-                            Kitob Qo'shish
+                            Kitob Qoʻshish
                         </Link>
                     </div>
                 ) : (

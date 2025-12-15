@@ -37,7 +37,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                         </div>
                         <h2 className="text-2xl font-bold mb-2">Xatolik yuz berdi</h2>
                         <p className="text-muted-foreground mb-6">
-                            Nimadir noto'g'ri ketdi. Sahifani qayta yuklashga harakat qiling.
+                            Nimadir notoʻg'ri ketdi. Sahifani qayta yuklashga harakat qiling.
                         </p>
                         <button
                             onClick={() => window.location.reload()}

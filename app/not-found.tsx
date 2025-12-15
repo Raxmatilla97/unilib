@@ -47,7 +47,7 @@ export default function NotFound() {
                         Hyuston, bizda muammo bor!
                     </h2>
                     <p className="text-blue-200/60 text-lg md:text-xl leading-relaxed">
-                        Siz qidirayotgan sahifa koinotning qora tuynugiga tushib ketgan ko'rinadi.
+                        Siz qidirayotgan sahifa koinotning qora tuynugiga tushib ketgan koʻrinadi.
                     </p>
                 </div>
 

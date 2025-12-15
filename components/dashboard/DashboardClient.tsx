@@ -80,7 +80,7 @@ export function DashboardClient({
                     Xush kelibsiz, {user?.name}! 👋
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                    Bugun nimani o'rganamiz?
+                    Bugun nimani oʻrganamiz?
                 </p>
             </div>
 
@@ -205,7 +205,7 @@ export function DashboardClient({
                                                         />
                                                     </div>
                                                     <span className="text-xs text-muted-foreground flex justify-between">
-                                                        <span>Bugun: {todayProgress?.pages_read || 0} sahifa o'qildi</span>
+                                                        <span>Bugun: {todayProgress?.pages_read || 0} sahifa oʻqildi</span>
                                                         <span>{Math.round(((todayProgress?.pages_read || 0) / activeSchedule.daily_goal_pages) * 100)}%</span>
                                                     </span>
                                                 </div>
@@ -235,7 +235,7 @@ export function DashboardClient({
                                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
                                     >
                                         <BookOpen className="w-4 h-4" />
-                                        o'qishni boshlash
+                                        Oʻqishni boshlash
                                     </Link>
                                 )}
                             </div>
@@ -247,7 +247,7 @@ export function DashboardClient({
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <BookOpen className="w-5 h-5 text-primary" />
-                                o'qishni davom ettiring
+                                Oʻqishni davom ettiring
                             </h2>
                             <Link href="/library" className="text-sm text-primary hover:underline flex items-center gap-1">
                                 Barchasi
@@ -290,11 +290,11 @@ export function DashboardClient({
                                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                                     <BookOpen className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="font-semibold mb-2">Hali kitob o'qimadingiz</h3>
-                                <p className="text-sm text-muted-foreground mb-4">Kutubxonadan kitob tanlang va o'qishni boshlang</p>
+                                <h3 className="font-semibold mb-2">Hali kitob oʻqimadingiz</h3>
+                                <p className="text-sm text-muted-foreground mb-4">Kutubxonadan kitob tanlang va oʻqishni boshlang</p>
                                 <Link href="/library" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                                     <BookOpen className="w-4 h-4" />
-                                    Kutubxonaga o'tish
+                                    Kutubxonaga oʻtish
                                 </Link>
                             </div>
                         )}
@@ -307,7 +307,7 @@ export function DashboardClient({
                                 <Target className="w-6 h-6 text-primary" />
                             </div>
                             <h3 className="font-bold mb-1">Guruhlar</h3>
-                            <p className="text-sm text-muted-foreground">o'quv guruhlariga qo'shiling</p>
+                            <p className="text-sm text-muted-foreground">Oʻquv guruhlariga qoʻshiling</p>
                         </Link>
 
                         <Link href="/leaderboard" className="bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-2xl p-6 hover:shadow-lg hover:shadow-accent/10 transition-all group">
@@ -315,7 +315,7 @@ export function DashboardClient({
                                 <TrendingUp className="w-6 h-6 text-accent" />
                             </div>
                             <h3 className="font-bold mb-1">Reyting</h3>
-                            <p className="text-sm text-muted-foreground">o'z o'rningizni ko'ring</p>
+                            <p className="text-sm text-muted-foreground">Oʻz oʻrningizni koʻring</p>
                         </Link>
                     </div>
                 </div>
@@ -331,7 +331,7 @@ export function DashboardClient({
                                 <h3 className="font-bold text-primary">Haftalik Natija</h3>
                             </div>
                             <p className="text-sm mb-4">
-                                Bu hafta jami <span className="font-semibold text-primary">{weeklyPages} sahifa</span> o'qidingiz.
+                                Bu hafta jami <span className="font-semibold text-primary">{weeklyPages} sahifa</span> oʻqidingiz.
                             </p>
                             <div className="flex items-center justify-between text-sm font-medium mb-2">
                                 <span>Maqsad (100 sahifa)</span>
@@ -350,7 +350,7 @@ export function DashboardClient({
                     <div className="bg-card border border-border rounded-2xl p-6">
                         <h3 className="font-bold mb-4 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-primary" />
-                            So'nggi Faoliyat
+                            Soʻnggi Faoliyat
                         </h3>
                         <div className="space-y-4">
                             {recentActivities.length > 0 ? (
@@ -368,7 +368,7 @@ export function DashboardClient({
                                 ))
                             ) : (
                                 <div className="text-center py-4 text-muted-foreground text-sm">
-                                    Hali faoliyat yo'q
+                                    Hali faoliyat yoʻq
                                 </div>
                             )}
                         </div>

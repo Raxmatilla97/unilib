@@ -27,7 +27,7 @@ export default function CitationsPage() {
 
                     {/* Description */}
                     <p className="text-sm md:text-lg text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto">
-                        Kitoblar uchun avtomatik iqtibos yarating. APA, MLA, Chicago va Harvard formatlarini qo'llab-quvvatlaydi.
+                        Kitoblar uchun avtomatik iqtibos yarating. APA, MLA, Chicago va Harvard formatlarini qoʻllab-quvvatlaydi.
                     </p>
 
                     {/* Features Preview */}
@@ -36,7 +36,7 @@ export default function CitationsPage() {
                             <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-3 md:mb-4 mx-auto">
                                 <FileText className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                             </div>
-                            <h3 className="font-bold mb-1 md:mb-2 text-sm md:text-base">Ko'p formatlar</h3>
+                            <h3 className="font-bold mb-1 md:mb-2 text-sm md:text-base">Koʻp formatlar</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">
                                 APA, MLA, Chicago, Harvard
                             </p>
@@ -58,7 +58,7 @@ export default function CitationsPage() {
                             </div>
                             <h3 className="font-bold mb-1 md:mb-2 text-sm md:text-base">Kutubxonadan</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">
-                                o'qigan kitoblaringizdan
+                                Oʻqigan kitoblaringizdan
                             </p>
                         </div>
                     </div>
@@ -80,20 +80,20 @@ export default function CitationsPage() {
                     <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-xl md:rounded-2xl p-6 md:p-8">
                         <h3 className="text-lg md:text-xl font-bold mb-2">Hozircha boshqa funksiyalardan foydalaning</h3>
                         <p className="text-sm md:text-base text-muted-foreground mb-4">
-                            Iqtibos generatori ustida ishlanmoqda. Shu vaqtda Reyting va Yutuqlar bilan o'zingizni sinab ko'ring!
+                            Iqtibos generatori ustida ishlanmoqda. Shu vaqtda Reyting va Yutuqlar bilan oʻzingizni sinab koʻring!
                         </p>
                         <div className="flex flex-col sm:flex-row gap-2 md:gap-3 justify-center">
                             <a
                                 href="/library"
                                 className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors text-center min-h-[44px] flex items-center justify-center"
                             >
-                                Kutubxonaga o'tish
+                                Kutubxonaga oʻtish
                             </a>
                             <a
                                 href="/achievements"
                                 className="px-6 py-2.5 bg-card border border-border rounded-lg font-medium hover:bg-accent/5 transition-colors text-center min-h-[44px] flex items-center justify-center"
                             >
-                                Yutuqlarni ko'rish
+                                Yutuqlarni koʻrish
                             </a>
                         </div>
                     </div>

@@ -19,7 +19,7 @@ function calculatePasswordStrength(password: string): { strength: number; text: 
     const levels = [
         { strength: 0, text: 'Juda zaif', color: 'bg-red-500' },
         { strength: 1, text: 'Zaif', color: 'bg-orange-500' },
-        { strength: 2, text: 'O\'rtacha', color: 'bg-yellow-500' },
+        { strength: 2, text: 'Oʻrtacha', color: 'bg-yellow-500' },
         { strength: 3, text: 'Yaxshi', color: 'bg-blue-500' },
         { strength: 4, text: 'Kuchli', color: 'bg-green-500' },
         { strength: 5, text: 'Juda kuchli', color: 'bg-emerald-500' },
@@ -64,12 +64,12 @@ export default function RegisterPage() {
         switch (name) {
             case 'email':
                 if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    errors.email = 'Email formati noto\'g\'ri';
+                    errors.email = 'Email formati notoʻgʻri';
                 }
                 break;
             case 'password':
                 if (value && value.length < 6) {
-                    errors.password = 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak';
+                    errors.password = 'Parol kamida 6 ta belgidan iborat boʻlishi kerak';
                 }
                 break;
             case 'confirmPassword':
@@ -94,7 +94,7 @@ export default function RegisterPage() {
         }
 
         if (formData.password.length < 6) {
-            setError('Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
+            setError('Parol kamida 6 ta belgidan iborat boʻlishi kerak');
             return;
         }
 
@@ -114,21 +114,21 @@ export default function RegisterPage() {
 
             if (!result.success) {
                 if (result.error?.includes('User already registered')) {
-                    setError('Bu email bilan allaqachon ro\'yxatdan o\'tilgan');
+                    setError('Bu email bilan allaqachon roʻyxatdan oʻtilgan');
                 } else {
-                    setError(result.error || 'Ro\'yxatdan o\'tishda xatolik yuz berdi');
+                    setError(result.error || 'Roʻyxatdan oʻtishda xatolik yuz berdi');
                 }
                 setIsLoading(false);
             } else {
                 // ✅ Success feedback
                 toast.success('Muvaffaqiyatli!', {
-                    description: 'Hisobingiz yaratildi. Dashboard\'ga yo\'naltirilmoqda...',
+                    description: 'Hisobingiz yaratildi. Dashboard\'ga yoʻnaltirilmoqda...',
                     icon: <CheckCircle className="w-5 h-5" />
                 });
                 // Don't set isLoading to false - useEffect will redirect
             }
         } catch (err) {
-            setError('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            setError('Xatolik yuz berdi. Qaytadan urinib koʻring.');
             setIsLoading(false);
         }
     }, [formData, agreedToTerms, register]);
@@ -156,8 +156,8 @@ export default function RegisterPage() {
                             <Sparkles className="w-4 h-4" />
                             <span>Yangi hisob yaratish</span>
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Ro'yxatdan o'tish</h1>
-                        <p className="text-muted-foreground">Bilimlar olamiga qo'shiling</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Roʻyxatdan oʻtish</h1>
+                        <p className="text-muted-foreground">Bilimlar olamiga qoʻshiling</p>
                     </div>
 
                     {error && (
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                                To'liq ism
+                                Toʻliq ism
                             </label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -181,7 +181,7 @@ export default function RegisterPage() {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    aria-label="To'liq ism"
+                                    aria-label="Toʻliq ism"
                                     className="w-full pl-11 pr-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-background transition-all outline-none text-foreground placeholder:text-muted-foreground"
                                     placeholder="Ism Familiya"
                                 />
@@ -322,7 +322,7 @@ export default function RegisterPage() {
                                 <Link href="#" className="text-primary hover:underline">
                                     Maxfiylik siyosati
                                 </Link>
-                                ni o'qib chiqdim va roziman
+                                ni oʻqib chiqdim va roziman
                             </label>
                         </div>
 
@@ -338,7 +338,7 @@ export default function RegisterPage() {
                                 </>
                             ) : (
                                 <>
-                                    Ro'yxatdan o'tish
+                                    Roʻyxatdan oʻtish
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}

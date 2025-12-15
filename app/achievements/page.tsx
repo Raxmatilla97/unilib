@@ -82,7 +82,7 @@ export default function AchievementsPage() {
             <ReadOnlyRoute>
                 <div className="container py-10 px-4 md:px-6">
                     <div className="text-center text-red-500">
-                        Xatolik yuz berdi. Qaytadan urinib ko'ring.
+                        Xatolik yuz berdi. Qaytadan urinib koʻring.
                     </div>
                 </div>
             </ReadOnlyRoute>

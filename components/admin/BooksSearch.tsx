@@ -60,7 +60,7 @@ export function BooksSearch({ categories = [], showStatusFilter = false }: Books
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Kitob nomi yoki muallif bo'yicha qidirish..."
+                        placeholder="Kitob nomi yoki muallif boʻyicha qidirish..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
@@ -165,7 +165,7 @@ export function BooksSearch({ categories = [], showStatusFilter = false }: Books
                             onClick={applyFilters}
                             className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                         >
-                            Qo'llash
+                            Qoʻllash
                         </button>
                     </div>
                 </div>

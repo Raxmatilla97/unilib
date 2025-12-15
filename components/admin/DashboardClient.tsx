@@ -204,7 +204,7 @@ export function DashboardClient({ initialStats, totalCheckouts, totalViews }: Da
                                 {stat.value}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                {trend ? '+' : '-'}{Math.floor(Math.random() * 10) + 1} so'nggi haftada
+                                {trend ? '+' : '-'}{Math.floor(Math.random() * 10) + 1} soʻnggi haftada
                             </p>
                         </div>
                     );
@@ -264,7 +264,7 @@ export function DashboardClient({ initialStats, totalCheckouts, totalViews }: Da
                         </h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="text-sm text-muted-foreground mb-1">Jami Ko'rishlar</p>
+                                <p className="text-sm text-muted-foreground mb-1">Jami Koʻrishlar</p>
                                 <p className="text-2xl font-bold text-blue-600">{totalViews.toLocaleString()}</p>
                                 <p className="text-xs text-muted-foreground mt-1">Online kitoblar</p>
                             </div>
@@ -280,7 +280,7 @@ export function DashboardClient({ initialStats, totalCheckouts, totalViews }: Da
                 {/* Right Column - Recent Activity */}
                 <div className="lg:col-span-1">
                     <div className="bg-card border-2 border-border rounded-lg p-6">
-                        <h3 className="text-lg font-bold mb-4">So'nggi Faollik</h3>
+                        <h3 className="text-lg font-bold mb-4">Soʻnggi Faollik</h3>
                         {loading ? (
                             <div className="space-y-4">
                                 {[1, 2, 3].map((i) => (
@@ -292,7 +292,7 @@ export function DashboardClient({ initialStats, totalCheckouts, totalViews }: Da
                             </div>
                         ) : recentActivity.length === 0 ? (
                             <div className="text-center py-8 text-muted-foreground">
-                                <p>Hali faollik yo'q</p>
+                                <p>Hali faollik yoʻq</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -321,7 +321,7 @@ export function DashboardClient({ initialStats, totalCheckouts, totalViews }: Da
                             href="/admin/transactions"
                             className="block mt-4 text-sm text-primary hover:underline text-center"
                         >
-                            Barchasini ko'rish →
+                            Barchasini koʻrish →
                         </Link>
                     </div>
                 </div>

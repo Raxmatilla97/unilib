@@ -19,7 +19,7 @@ export function SimpleSearchBar({ className = '' }: { className?: string }) {
                 <input
                     type="text"
                     name="search"
-                    placeholder="Kitob, muallif yoki mavzu bo'yicha qidiring..."
+                    placeholder="Kitob, muallif yoki mavzu boʻyicha qidiring..."
                     className="w-full px-6 py-4 pr-12 rounded-xl border-2 border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-lg"
                 />
                 <button

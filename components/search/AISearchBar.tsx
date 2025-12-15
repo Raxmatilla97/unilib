@@ -51,10 +51,10 @@ export function AISearchBar({ className }: { className?: string }) {
             )}>
                 <div className="flex flex-wrap justify-center gap-2">
                     {[
-                        "Yangi boshlovchilar uchun mashinali o'qitish",
+                        "Yangi boshlovchilar uchun mashinali oʻqitish",
                         "Iqtisodiyot asoslari",
                         "Kvant fizikasi tarixi",
-                        "o'zbek adabiyoti durdonalari"
+                        "Oʻzbek adabiyoti durdonalari"
                     ].map((suggestion, i) => (
                         <button
                             key={i}

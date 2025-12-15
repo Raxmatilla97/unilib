@@ -163,7 +163,7 @@ export default function AddCopyPage({ params }: PageProps) {
                 if (error.code === '23505') {
                     alert('Xatolik: Barcode allaqachon mavjud! Boshqa barcode kiriting.');
                 } else {
-                    alert(`Nusxalarni qo'shishda xatolik: ${error.message || 'Noma\'lum xatolik'}`);
+                    alert(`Nusxalarni qoʻshishda xatolik: ${error.message || 'Noma\'lum xatolik'}`);
                 }
 
                 setSaving(false);
@@ -216,9 +216,9 @@ export default function AddCopyPage({ params }: PageProps) {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Ortga qaytish
                 </Link>
-                <h1 className="text-3xl font-bold">Nusxa Qo'shish</h1>
+                <h1 className="text-3xl font-bold">Nusxa Qoʻshish</h1>
                 <p className="text-muted-foreground mt-1">
-                    "{book.title}" kitobiga yangi fizik nusxa qo'shish
+                    "{book.title}" kitobiga yangi fizik nusxa qoʻshish
                 </p>
             </div>
 
@@ -304,7 +304,7 @@ export default function AddCopyPage({ params }: PageProps) {
                                     })}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
-                                    Scanner bilan skanerlang yoki qo'lda kiriting. Har bir nusxa uchun alohida barcode.
+                                    Scanner bilan skanerlang yoki qoʻlda kiriting. Har bir nusxa uchun alohida barcode.
                                 </p>
                             </div>
                         )}
@@ -414,7 +414,7 @@ export default function AddCopyPage({ params }: PageProps) {
                             ) : (
                                 <>
                                     <Save className="w-5 h-5" />
-                                    Nusxa Qo'shish
+                                    Nusxa Qoʻshish
                                 </>
                             )}
                         </button>

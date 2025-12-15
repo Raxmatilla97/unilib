@@ -16,7 +16,7 @@ export default function GroupsPage() {
 
                     {/* Title */}
                     <h1 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">
-                        o'quv Guruhlari
+                        Oʻquv Guruhlari
                     </h1>
 
                     {/* Coming Soon Badge */}
@@ -27,8 +27,8 @@ export default function GroupsPage() {
 
                     {/* Description */}
                     <p className="text-sm md:text-lg text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto">
-                        Do'stlaringiz bilan birgalikda o'qing, muhokama qiling va bilimlaringizni oshiring.
-                        o'quv guruhlari funksiyasi ustida ishlanmoqda.
+                        Doʻstlaringiz bilan birgalikda oʻqing, muhokama qiling va bilimlaringizni oshiring.
+                        Oʻquv guruhlari funksiyasi ustida ishlanmoqda.
                     </p>
 
                     {/* Features Preview */}
@@ -49,7 +49,7 @@ export default function GroupsPage() {
                             </div>
                             <h3 className="font-bold mb-1 md:mb-2 text-sm md:text-base">Guruh Maqsadlari</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">
-                                Birgalikda kitob o'qish rejalari
+                                Birgalikda kitob oʻqish rejalari
                             </p>
                         </div>
 
@@ -59,7 +59,7 @@ export default function GroupsPage() {
                             </div>
                             <h3 className="font-bold mb-1 md:mb-2 text-sm md:text-base">Guruh Faoliyati</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">
-                                A'zolarning o'qish statistikasi
+                                A'zolarning oʻqish statistikasi
                             </p>
                         </div>
                     </div>
@@ -68,20 +68,20 @@ export default function GroupsPage() {
                     <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-xl md:rounded-2xl p-6 md:p-8">
                         <h3 className="text-lg md:text-xl font-bold mb-2">Yangiliklar uchun kuzatib boring</h3>
                         <p className="text-sm md:text-base text-muted-foreground mb-4">
-                            Guruhlar funksiyasi yaqin orada ishga tushadi. Hozircha Reyting va Yutuqlar bilan o'zingizni sinab ko'ring!
+                            Guruhlar funksiyasi yaqin orada ishga tushadi. Hozircha Reyting va Yutuqlar bilan oʻzingizni sinab koʻring!
                         </p>
                         <div className="flex flex-col sm:flex-row gap-2 md:gap-3 justify-center">
                             <a
                                 href="/leaderboard"
                                 className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors text-center min-h-[44px] flex items-center justify-center"
                             >
-                                Reytingga o'tish
+                                Reytingga oʻtish
                             </a>
                             <a
                                 href="/achievements"
                                 className="px-6 py-2.5 bg-card border border-border rounded-lg font-medium hover:bg-accent/5 transition-colors text-center min-h-[44px] flex items-center justify-center"
                             >
-                                Yutuqlarni ko'rish
+                                Yutuqlarni koʻrish
                             </a>
                         </div>
                     </div>

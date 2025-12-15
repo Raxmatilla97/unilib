@@ -214,7 +214,7 @@ export function AchievementsList({ achievements, userAchievements, userStats }: 
                             🏆
                         </div>
                         <h3 className="text-xl font-semibold mb-2">Hech narsa topilmadi</h3>
-                        <p className="text-muted-foreground">Bu kategoriyada yutuqlar yo'q</p>
+                        <p className="text-muted-foreground">Bu kategoriyada yutuqlar yoʻq</p>
                     </div>
                 )}
             </div>

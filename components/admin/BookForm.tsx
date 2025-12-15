@@ -221,7 +221,7 @@ export function BookForm({ initialData }: BookFormProps) {
                     <Check className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">Muvaffaqiyatli Saqlandi!</h2>
-                <p className="text-muted-foreground">Sizni kitoblar ro'yxatiga yo'naltirmoqdamiz...</p>
+                <p className="text-muted-foreground">Sizni kitoblar roʻyxatiga yoʻnaltirmoqdamiz...</p>
             </div>
         );
     }
@@ -257,7 +257,7 @@ export function BookForm({ initialData }: BookFormProps) {
                                     defaultValue={initialData?.title}
                                     required
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-                                    placeholder="Masalan: o'tgan kunlar"
+                                    placeholder="Masalan: oʻtgan kunlar"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -302,7 +302,7 @@ export function BookForm({ initialData }: BookFormProps) {
                                     defaultValue={initialData?.language || 'O\'zbek'}
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 >
-                                    <option value="o'zbek">o'zbek</option>
+                                    <option value="oʻzbek">oʻzbek</option>
                                     <option value="Ingliz">Ingliz</option>
                                     <option value="Rus">Rus</option>
                                     <option value="Boshqa">Boshqa</option>
@@ -439,7 +439,7 @@ export function BookForm({ initialData }: BookFormProps) {
 
                     {/* Qo'shimcha Ma'lumotlar */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold border-b border-border pb-2">Qo'shimcha Ma'lumotlar</h3>
+                        <h3 className="text-lg font-semibold border-b border-border pb-2">Qoʻshimcha Ma'lumotlar</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Sahifalar soni</label>
@@ -478,7 +478,7 @@ export function BookForm({ initialData }: BookFormProps) {
                                     defaultValue={initialData?.cover_color || 'bg-blue-500'}
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 >
-                                    <option value="bg-blue-500">Ko'k</option>
+                                    <option value="bg-blue-500">Koʻk</option>
                                     <option value="bg-green-500">Yashil</option>
                                     <option value="bg-red-500">Qizil</option>
                                     <option value="bg-yellow-500">Sariq</option>

@@ -185,7 +185,7 @@ export default function CreateOfflineBookPage() {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Ortga qaytish
                 </Link>
-                <h1 className="text-3xl font-bold">Yangi Offline Kitob Qo'shish</h1>
+                <h1 className="text-3xl font-bold">Yangi Offline Kitob Qoʻshish</h1>
                 <p className="text-muted-foreground mt-1">
                     Fizik kitob va uning nusxalarini yaratish
                 </p>
@@ -205,7 +205,7 @@ export default function CreateOfflineBookPage() {
                                     name="title"
                                     required
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-                                    placeholder="Masalan: o'tgan kunlar"
+                                    placeholder="Masalan: oʻtgan kunlar"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -237,7 +237,7 @@ export default function CreateOfflineBookPage() {
                                     defaultValue="bg-blue-500"
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 >
-                                    <option value="bg-blue-500">Ko'k</option>
+                                    <option value="bg-blue-500">Koʻk</option>
                                     <option value="bg-green-500">Yashil</option>
                                     <option value="bg-red-500">Qizil</option>
                                     <option value="bg-yellow-500">Sariq</option>
@@ -346,7 +346,7 @@ export default function CreateOfflineBookPage() {
                                     })}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
-                                    Scanner bilan skanerlang yoki qo'lda kiriting. Har bir nusxa uchun alohida barcode.
+                                    Scanner bilan skanerlang yoki qoʻlda kiriting. Har bir nusxa uchun alohida barcode.
                                 </p>
                             </div>
                         )}
@@ -406,7 +406,7 @@ export default function CreateOfflineBookPage() {
                             ) : (
                                 <>
                                     <Save className="w-5 h-5" />
-                                    Kitobni Qo'shish
+                                    Kitobni Qoʻshish
                                 </>
                             )}
                         </button>

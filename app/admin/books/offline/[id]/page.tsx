@@ -164,7 +164,7 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                         onClick={handleDeleteBook}
                     >
                         <Trash2 className="w-4 h-4" />
-                        o'chirish
+                        Oʻchirish
                     </button>
                 </div>
             </div>
@@ -184,7 +184,7 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                     <p className="text-3xl font-bold mt-1 text-orange-500">{borrowedCopies}</p>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-4">
-                    <p className="text-sm text-muted-foreground">Yo'qolgan</p>
+                    <p className="text-sm text-muted-foreground">Yoʻqolgan</p>
                     <p className="text-3xl font-bold mt-1 text-red-500">{lostCopies}</p>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-4">
@@ -223,13 +223,13 @@ export default function OfflineBookDetailsPage({ params }: PageProps) {
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all"
                     >
                         <Plus className="w-4 h-4" />
-                        Nusxa Qo'shish
+                        Nusxa Qoʻshish
                     </Link>
                 </div>
 
                 {copies.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground">
-                        Hozircha nusxalar yo'q
+                        Hozircha nusxalar yoʻq
                     </div>
                 ) : (
                     <div className="overflow-x-auto">

@@ -42,7 +42,7 @@ export function BookReviews({ bookId, reviews: initialReviews, isAuthenticated, 
                 </div>
                 <h3 className="text-xl font-bold mb-2">Izoh qoldirish tizimi yangilanmoqda</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                    Ushbu funksiya ayni damda texnik xizmat ko'rsatish jarayonida. Tez orada siz kitoblar haqida o'z fikringizni qoldirishingiz mumkin bo'ladi.
+                    Ushbu funksiya ayni damda texnik xizmat koʻrsatish jarayonida. Tez orada siz kitoblar haqida oʻz fikringizni qoldirishingiz mumkin boʻladi.
                 </p>
             </div>
 
@@ -78,7 +78,7 @@ export function BookReviews({ bookId, reviews: initialReviews, isAuthenticated, 
                 ) : (
                     <div className="text-center py-12 text-muted-foreground">
                         <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>Hali izohlar yo'q.</p>
+                        <p>Hali izohlar yoʻq.</p>
                     </div>
                 )}
             </div>

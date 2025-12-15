@@ -70,7 +70,7 @@ export function LibraryFilters({ categories }: LibraryFiltersProps) {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Kitob nomi, muallif yoki kalit so'z..."
+                        placeholder="Kitob nomi, muallif yoki kalit soʻz..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-12 pr-12 py-4 text-base bg-transparent border-none outline-none placeholder:text-muted-foreground/70"
@@ -111,10 +111,10 @@ export function LibraryFilters({ categories }: LibraryFiltersProps) {
                         updateFilters({ category: value });
                     }}
                     options={[
-                        { value: 'all', label: "Barcha yo'nalishlar" },
+                        { value: 'all', label: "Barcha yoʻnalishlar" },
                         ...categories.map(cat => ({ value: cat, label: cat }))
                     ]}
-                    placeholder="Barcha yo'nalishlar"
+                    placeholder="Barcha yoʻnalishlar"
                     className="min-w-[180px]"
                 />
 

@@ -23,7 +23,7 @@ export function AnalyticsCharts({ userGrowth, contentGrowth }: AnalyticsChartsPr
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* User Growth Chart */}
             <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">Foydalanuvchilar o'sishi</h3>
+                <h3 className="text-lg font-bold mb-6">Foydalanuvchilar oʻsishi</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={userGrowth}>
@@ -59,7 +59,7 @@ export function AnalyticsCharts({ userGrowth, contentGrowth }: AnalyticsChartsPr
 
             {/* Content Growth Chart */}
             <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">Kontent o'sishi</h3>
+                <h3 className="text-lg font-bold mb-6">Kontent oʻsishi</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={contentGrowth}>

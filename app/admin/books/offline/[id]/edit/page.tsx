@@ -138,7 +138,7 @@ export default function EditOfflineBookPage({ params }: PageProps) {
                                     defaultValue={book.cover_color || 'bg-blue-500'}
                                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                 >
-                                    <option value="bg-blue-500">Ko'k</option>
+                                    <option value="bg-blue-500">Koʻk</option>
                                     <option value="bg-green-500">Yashil</option>
                                     <option value="bg-red-500">Qizil</option>
                                     <option value="bg-yellow-500">Sariq</option>

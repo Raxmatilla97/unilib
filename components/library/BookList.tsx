@@ -60,7 +60,7 @@ export function BookList({ initialBooks, categories }: BookListProps) {
                     <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Kitob nomi, muallif yoki ISBN bo'yicha qidiring..."
+                        placeholder="Kitob nomi, muallif yoki ISBN boʻyicha qidiring..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none"
@@ -94,7 +94,7 @@ export function BookList({ initialBooks, categories }: BookListProps) {
                         <Search className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Kitob topilmadi</h3>
-                    <p className="text-muted-foreground">Qidiruv yoki filtr shartlarini o'zgartiring</p>
+                    <p className="text-muted-foreground">Qidiruv yoki filtr shartlarini oʻzgartiring</p>
                 </div>
             )}
         </>

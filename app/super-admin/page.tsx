@@ -200,7 +200,7 @@ export default function SuperAdminPage() {
                                                 <button
                                                     onClick={() => setSelectedOrgForAdmin(org)}
                                                     className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors"
-                                                    title="Admin qo'shish"
+                                                    title="Admin qoʻshish"
                                                 >
                                                     <UserPlus className="w-5 h-5" />
                                                 </button>
@@ -420,7 +420,7 @@ function CreateAdminModal({ organization, onClose, onSuccess }: { organization: 
     return (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full">
-                <h2 className="text-2xl font-bold mb-2">Admin Qo'shish</h2>
+                <h2 className="text-2xl font-bold mb-2">Admin Qoʻshish</h2>
                 <p className="text-muted-foreground mb-6">
                     <span className="font-semibold text-foreground">{organization.name}</span> uchun yangi admin
                 </p>

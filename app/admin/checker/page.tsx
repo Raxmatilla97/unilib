@@ -174,7 +174,7 @@ export default function CheckerPage() {
 
                 if (profileError) {
                     console.error('Profile search error:', profileError);
-                    setError(`Ma'lumotlar bazasida xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.`);
+                    setError(`Ma'lumotlar bazasida xatolik yuz berdi. Iltimos, qaytadan urinib koʻring.`);
                     setScanInput('');
                     setLoading(false);
                     return;
@@ -784,7 +784,7 @@ export default function CheckerPage() {
                                     <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-muted/30 flex items-center justify-center">
                                         <BookOpen className="w-8 h-8 text-muted-foreground/50" />
                                     </div>
-                                    <p className="text-muted-foreground">Qarzda kitob yo'q</p>
+                                    <p className="text-muted-foreground">Qarzda kitob yoʻq</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">

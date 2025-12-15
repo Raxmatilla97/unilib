@@ -2605,10 +2605,10 @@ ADD COLUMN IF NOT EXISTS total_daily_goals_completed INTEGER DEFAULT 0;
 -- Streak Achievements
 INSERT INTO achievements (key, title, description, icon, xp_reward, tier, requirement_type, requirement_value) VALUES
 ('first_day', 'Birinchi Kun', 'Birinchi marta kunlik maqsadni bajardingiz!', 'рџЋЇ', 50, 'bronze', 'daily_goal', 1),
-('streak_3', '3 Kunlik Streak', '3 kun ketma-ket o''qidingiz!', 'рџ”Ґ', 100, 'bronze', 'streak', 3),
-('streak_7', 'Haftalik Warrior', '7 kun ketma-ket o''qidingiz!', 'рџ”Ґ', 250, 'silver', 'streak', 7),
-('streak_30', 'Oylik Master', '30 kun ketma-ket o''qidingiz!', 'рџ”Ґ', 1000, 'gold', 'streak', 30),
-('streak_100', 'Yuz Kunlik Legend', '100 kun ketma-ket o''qidingiz!', 'рџ”Ґ', 5000, 'platinum', 'streak', 100);
+('streak_3', '3 Kunlik Streak', '3 kun ketma-ket oʻqidingiz!', 'рџ”Ґ', 100, 'bronze', 'streak', 3),
+('streak_7', 'Haftalik Warrior', '7 kun ketma-ket oʻqidingiz!', 'рџ”Ґ', 250, 'silver', 'streak', 7),
+('streak_30', 'Oylik Master', '30 kun ketma-ket oʻqidingiz!', 'рџ”Ґ', 1000, 'gold', 'streak', 30),
+('streak_100', 'Yuz Kunlik Legend', '100 kun ketma-ket oʻqidingiz!', 'рџ”Ґ', 5000, 'platinum', 'streak', 100);
 
 -- Book Completion Achievements
 INSERT INTO achievements (key, title, description, icon, xp_reward, tier, requirement_type, requirement_value) VALUES
@@ -2619,16 +2619,16 @@ INSERT INTO achievements (key, title, description, icon, xp_reward, tier, requir
 
 -- Page Reading Achievements
 INSERT INTO achievements (key, title, description, icon, xp_reward, tier, requirement_type, requirement_value) VALUES
-('century_reader', 'Yuz Sahifa', '100 sahifa o''qidingiz!', 'рџ“„', 50, 'bronze', 'pages_read', 100),
-('thousand_pages', 'Ming Sahifa', '1000 sahifa o''qidingiz!', 'рџ“„', 200, 'silver', 'pages_read', 1000),
-('epic_reader', 'Epik o''quvchi', '5000 sahifa o''qidingiz!', 'рџ“„', 500, 'gold', 'pages_read', 5000),
-('mega_reader', 'Mega o''quvchi', '10000 sahifa o''qidingiz!', 'рџ“„', 1000, 'platinum', 'pages_read', 10000);
+('century_reader', 'Yuz Sahifa', '100 sahifa oʻqidingiz!', 'рџ“„', 50, 'bronze', 'pages_read', 100),
+('thousand_pages', 'Ming Sahifa', '1000 sahifa oʻqidingiz!', 'рџ“„', 200, 'silver', 'pages_read', 1000),
+('epic_reader', 'Epik oʻquvchi', '5000 sahifa oʻqidingiz!', 'рџ“„', 500, 'gold', 'pages_read', 5000),
+('mega_reader', 'Mega oʻquvchi', '10000 sahifa oʻqidingiz!', 'рџ“„', 1000, 'platinum', 'pages_read', 10000);
 
 -- Daily Goal Achievements
 INSERT INTO achievements (key, title, description, icon, xp_reward, tier, requirement_type, requirement_value) VALUES
 ('perfectionist', 'Perfeksionist', '10 marta kunlik maqsadni bajardingiz!', 'рџЋЇ', 200, 'silver', 'daily_goal', 10),
 ('dedicated', 'Sadoqatli', '30 marta kunlik maqsadni bajardingiz!', 'рџЋЇ', 500, 'gold', 'daily_goal', 30),
-('unstoppable', 'To''xtovsiz', '100 marta kunlik maqsadni bajardingiz!', 'рџЋЇ', 1500, 'platinum', 'daily_goal', 100);
+('unstoppable', 'Toʻxtovsiz', '100 marta kunlik maqsadni bajardingiz!', 'рџЋЇ', 1500, 'platinum', 'daily_goal', 100);
 
 -- ============================================================================
 -- Function: Check and Award Achievements
