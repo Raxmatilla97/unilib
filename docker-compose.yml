@@ -1,41 +1,67 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: unilib_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-postgres}
+      POSTGRES_DB: ${PGDATABASE:-unilib}
+    ports:
+      - "${PGPORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/ALL_SQL_CONSOLIDATED.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./supabase/STANDALONE_POSTGRESQL.sql:/docker-entrypoint-initdb.d/02_standalone.sql
+    networks:
+      - unilib_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Next.js Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: unilib2-app
-    restart: unless-stopped
+    container_name: unilib_app
+    restart: always
+    environment:
+      NODE_ENV: production
+      # PostgreSQL Connection
+      PGUSER: ${PGUSER:-postgres}
+      PGHOST: postgres
+      PGDATABASE: ${PGDATABASE:-unilib}
+      PGPASSWORD: ${PGPASSWORD:-postgres}
+      PGPORT: 5432
+      DATABASE_URL: postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-unilib}
+      # NextAuth
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      # HEMIS API
+      HEMIS_CLIENT_ID: ${HEMIS_CLIENT_ID}
+      HEMIS_CLIENT_SECRET: ${HEMIS_CLIENT_SECRET}
+      HEMIS_BASE_URL: ${HEMIS_BASE_URL:-https://student.samdu.uz}
     ports:
       - "3000:3000"
-    environment:
-      # Node environment
-      - NODE_ENV=production
-      
-      # Supabase Configuration
-      # Replace these with your actual values or use .env file
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      
-      # Application Configuration
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-    
-    # Use environment file (optional)
-    env_file:
-      - .env.production
-    
-    # Health check
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - unilib_network
+    volumes:
+      - ./uploads:/app/uploads
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    
-    # Resource limits (optional)
     deploy:
       resources:
         limits:
@@ -44,10 +70,11 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-    
-    networks:
-      - unilib-network
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
-  unilib-network:
+  unilib_network:
     driver: bridge
